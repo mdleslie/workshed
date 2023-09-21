@@ -1,5 +1,7 @@
 #!/bin/bash
 
+now=$(date)
+
 echo
 
 echo -e "\e[1;32m Step 1: Updating packages. \e[0m"  
@@ -30,4 +32,7 @@ flatpak uninstall --unused -y
 
 echo -e "\e[1;32m Step 5: Script is finished running. Exiting now. Shop smart, Shop S-Mart! \e[0m"
 neofetch
+
+echo "The system time and date is"
+echo $now
 exit
