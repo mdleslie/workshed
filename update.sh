@@ -2,6 +2,9 @@
 
 now=$(date)
 
+echo -e "\e[1;32m The system time and date is: \e[0m" 
+echo -e "\e[1;32m $now \e[0m"
+
 echo
 
 echo -e "\e[1;32m Step 1: Updating packages. \e[0m"  
@@ -37,3 +40,4 @@ echo -e "\e[1;32m The system time and date is: \e[0m"
 echo -e "\e[1;32m $now \e[0m"
 
 exit
+
