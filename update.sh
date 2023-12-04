@@ -14,7 +14,7 @@ flatpak update -y
 
 echo
 
-echo -e "\e[1;32m Step 2: Repairing Hudsucker Flatpacks. \e[0m"  
+echo -e "\e[1;32m Step 2: Repairing Hudsucker Flatpacks for Framework laptop. \e[0m"  
 sudo flatpak repair
 
 echo
@@ -33,7 +33,7 @@ sudo apt-get autoremove
 
 flatpak uninstall --unused -y
 
-echo -e "\e[1;32m Step 5: Script is finished running. Exiting now. Shop smart, Shop S-Mart! \e[0m"
+echo -e "\e[1;32m Step 5: Script is finished running on Framework. Exiting now. Shop smart, Shop S-Mart! \e[0m"
 neofetch
 
 echo -e "\e[1;32m The system time and date is: \e[0m" 
