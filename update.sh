@@ -2,8 +2,6 @@
 
 now=$(date)
 
-echo -e "\e[1;32m The system time and date is: \e[0m" 
-echo -e "\e[1;32m $now \e[0m"
 
 echo
 
