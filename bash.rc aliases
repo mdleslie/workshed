@@ -1,3 +1,10 @@
+### My nonsense starts here and knows no end ###
+
+# Cowsay #
+fortune | cowsay
+
+# Aliases #
+
 alias df='df -h -x squashfs -x tmpfs -x devtmpfs'
 alias egrep='egrep --color=auto'
 alias extip='curl icanhazip.com'
