@@ -1,3 +1,5 @@
+#I tried this on Ubuntu 23.10 and the folder-color package failed to install. I suppose this is related to the newer version of Gnome from my primary distro (Pop OS). Just remove it from the command and the command runs fine.
+
 sudo apt update
 sudo apt upgrade -y
-sudo apt install gnome-sushi imagemagick nautilus-image-converter folder-color nautilus-admin ubuntu-restricted-extras nfs-common cifs-utils gamemode gnome-tweaks ffmpeg cpu-x vlc digikam neofetch stacer mpv curl mediainfo youtube-dl python3 fortune-mod cowsay -y
+sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ubuntu-restricted-extras nfs-common cifs-utils gamemode gnome-tweaks ffmpeg cpu-x vlc digikam neofetch stacer mpv curl mediainfo youtube-dl python3 fortune-mod cowsay folder-color -y
