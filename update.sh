@@ -32,7 +32,7 @@ sudo apt-get autoremove
 flatpak uninstall --unused -y
 
 echo -e "\e[1;32m Step 5: Workshed upgrade script is finished running. Exiting now. Shop smart, Shop S-Mart! \e[0m"
-neofetch
+#neofetch
 date >> updatelog.txt
 
 echo -e "\e[1;32m The system time and date is: \e[0m" 
