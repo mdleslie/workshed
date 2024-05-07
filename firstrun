@@ -2,4 +2,4 @@
 
 sudo apt update
 sudo apt upgrade -y
-sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ubuntu-restricted-extras nfs-common cifs-utils gamemode gnome-tweaks ffmpeg cpu-x vlc digikam stacer mpv curl mediainfo youtube-dl python3 fortune-mod cowsay folder-color libdvdcss2 -y
+sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ubuntu-restricted-extras nfs-common cifs-utils gamemode gnome-tweaks ffmpeg ffmpegthumbnailer cpu-x vlc digikam stacer mpv curl mediainfo youtube-dl python3 fortune-mod cowsay folder-color libdvdcss2 -y
