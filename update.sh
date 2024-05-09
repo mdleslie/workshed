@@ -1,5 +1,17 @@
 #!/bin/bash
 
+###Setup instructions###
+###Place bash file in /usr/bin with update.sh name
+
+###Run commands:
+
+###sudo chmod +x update.sh                     to make executable
+
+###alias update="update.sh"                       to create alias
+
+#################################################################
+
+
 now=$(date)
 
 
