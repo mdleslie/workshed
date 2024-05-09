@@ -1,5 +1,3 @@
-#I tried this on Ubuntu 23.10 and the folder-color package failed to install. I suppose this is related to the newer version of Gnome from my primary distro (Pop OS). Just remove it from the command and the command runs fine.
-
 sudo apt update
 sudo apt upgrade -y
 sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ubuntu-restricted-extras folder-color-common nfs-common cifs-utils gamemode gnome-tweaks ffmpeg ffmpegthumbnailer cpu-x vlc digikam stacer mpv curl mediainfo python3 fortune-mod cowsay libdvdcss2 gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-plugins-good libavcodec-extra gstreamer1.0-libav chromium-codecs-ffmpeg-extra libdvd-pkg -y
