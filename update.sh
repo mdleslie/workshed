@@ -48,8 +48,9 @@ echo -e "\e[1;32m Step 5: Workshed upgrade script is finished running. Exiting n
 sudo date >> "/home/$USER/updatelog.txt"
 
 echo -e "\e[1;32m The system time and date is: \e[0m"
-sudo cat "/home/$USER/update.txt"
 echo -e "\e[1;32m $now \e[0m"
+
+sudo cat "/home/$USER/update.txt"
 
 exit
 
