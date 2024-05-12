@@ -50,7 +50,7 @@ sudo date >> "/home/$USER/updatelog.txt"
 echo -e "\e[1;32m The system time and date is: \e[0m"
 echo -e "\e[1;32m $now \e[0m"
 
-sudo cat "/home/$USER/update.txt"
+sudo cat "/home/$USER/updatelog.txt"
 
 exit
 
