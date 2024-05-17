@@ -29,7 +29,7 @@ sudo flatpak repair
 
 echo
 
-echo -e "\e[1;32m Step 3: Upgrading apt packages. And I do not hold to that. So no more runnin'. I aim to misbehave. \e[0m"  
+echo -e "\e[1;32m Step 3: Upgrading apt packages. And I do not hold to that. So no more runnin. I aim to misbehave. \e[0m"  
 sudo apt-get upgrade -y  
 sudo apt-get dist upgrade -y  
 sudo apt-get update
