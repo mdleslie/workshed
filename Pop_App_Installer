@@ -1,0 +1,101 @@
+echo
+
+echo -e "\e[1;32m Made for and on Pop OS. Updated May 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care. \e[0m"
+
+
+
+echo
+
+echo -e "\e[1;32m Updating and upgrading system. \e[0m" 
+
+sudo apt update
+sudo apt upgrade -y
+
+echo
+
+echo -e "\e[1;32m Installing File Manager customizations and teerminal tools \e[0m" 
+
+
+sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer fortune-mod cowsay folder-color -y
+
+
+echo
+
+echo -e "\e[1;32m Installing codecs and media tools. \e[0m" 
+
+
+
+sudo apt install ubuntu-restricted-extras ffmpeg mpv mediainfo vlc youtube-dl libdvdcss2 gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-plugins-good libavcodec-extra gstreamer1.0-libav chromium-codecs-ffmpeg-extra libdvd-pkg -y
+
+sudo dpkg-reconfigure libdvd-pkg
+
+
+echo
+
+echo -e "\e[1;32m Installing network file sharing tools. \e[0m" 
+
+
+sudo apt install nfs-common cifs-utils -y
+
+
+echo
+
+echo -e "\e[1;32m Installing other essential applications for productivety and gaming. \e[0m" 
+
+
+sudo apt install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl python3 -y
+
+
+echo
+
+echo -e "\e[1;32m Flatpak section \e[0m" 
+
+echo
+
+echo -e "\e[1;32m Installing Joplin Flatpak. \e[0m"
+
+flatpak install flathub net.cozic.joplin_desktop
+
+echo
+
+echo -e "\e[1;32m Installing Dropbox Flatpak. \e[0m"
+
+flatpak install flathub com.dropbox.Client
+
+
+echo
+
+echo -e "\e[1;32m Installing Kdenlive Flatpak. \e[0m"
+
+flatpak install flathub org.kde.kdenlive
+
+
+echo
+
+echo -e "\e[1;32m Installing Spotify Flatpak. \e[0m"
+
+flatpak install flathub com.spotify.Client
+
+echo
+
+echo -e "\e[1;32m Installing Handbrake Flatpak. \e[0m"
+
+flatpak install flathub fr.handbrake.ghb
+
+echo
+
+echo -e "\e[1;32m Installing OBS Studio Flatpak. \e[0m"
+
+flatpak install flathub com.obsproject.Studio
+
+echo
+
+echo -e "\e[1;32m Installing Google Chrome Flatpak. \e[0m"
+
+flatpak install flathub com.google.Chrome
+
+
+
+echo
+
+echo -e "\e[1;32m Finished. Shop Smart, shop S-Mart. \e[0m"
