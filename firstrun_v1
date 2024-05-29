@@ -1,6 +1,6 @@
 sudo apt update
 sudo apt upgrade -y
-sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ubuntu-restricted-extras folder-color-common nfs-common cifs-utils gamemode gnome-tweaks ffmpeg ffmpegthumbnailer cpu-x vlc digikam stacer mpv curl mediainfo python3 fortune-mod cowsay exfatprogs exfat-fuse libdvdcss2 gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-plugins-good libavcodec-extra gstreamer1.0-libav chromium-codecs-ffmpeg-extra libdvd-pkg -y
+sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ubuntu-restricted-extras folder-color-common nfs-common cifs-utils gamemode gnome-tweaks ffmpeg ffmpegthumbnailer cpu-x vlc digikam stacer mpv curl mediainfo python3 fortune-mod cowsay exfatprogs exfat-fuse libdvdcss2 gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-plugins-good libavcodec-extra gstreamer1.0-libav chromium-codecs-ffmpeg-extra libdvd-pkg obs-studio -y
 
 
 sudo dpkg-reconfigure libdvd-pkg
