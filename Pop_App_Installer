@@ -54,46 +54,52 @@ echo
 
 echo -e "\e[1;32m Installing Joplin Flatpak. \e[0m"
 
-flatpak install flathub net.cozic.joplin_desktop
+flatpak install flathub net.cozic.joplin_desktop -y
 
 echo
 
 echo -e "\e[1;32m Installing Dropbox Flatpak. \e[0m"
 
-flatpak install flathub com.dropbox.Client
+flatpak install flathub com.dropbox.Client -y
 
 
 echo
 
 echo -e "\e[1;32m Installing Kdenlive Flatpak. \e[0m"
 
-flatpak install flathub org.kde.kdenlive
+flatpak install flathub org.kde.kdenlive -y
 
 
 echo
 
 echo -e "\e[1;32m Installing Spotify Flatpak. \e[0m"
 
-flatpak install flathub com.spotify.Client
+flatpak install flathub com.spotify.Client -y
 
 echo
 
 echo -e "\e[1;32m Installing Handbrake Flatpak. \e[0m"
 
-flatpak install flathub fr.handbrake.ghb
+flatpak install flathub fr.handbrake.ghb -y
 
 echo
 
 echo -e "\e[1;32m Installing OBS Studio Flatpak. \e[0m"
 
-flatpak install flathub com.obsproject.Studio
+flatpak install flathub com.obsproject.Studio -y
 
 echo
 
 echo -e "\e[1;32m Installing Google Chrome Flatpak. \e[0m"
 
-flatpak install flathub com.google.Chrome
+flatpak install flathub com.google.Chrome -y
 
+
+echo
+
+echo -e "\e[1;32m Installing Mission Center Flatpak. \e[0m"
+
+flatpak install flathub io.missioncenter.MissionCenter -y
 
 
 echo
