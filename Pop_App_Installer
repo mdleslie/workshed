@@ -1,6 +1,6 @@
 echo
 
-echo -e "\e[1;32m Made for and on Pop OS. Updated May 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care. \e[0m"
+echo -e "\e[1;32m Made for and on Pop OS. Updated May 29 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care. \e[0m"
 
 
 
@@ -48,7 +48,7 @@ sudo apt install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl py
 
 echo
 
-echo -e "\e[1;32m Flatpak section \e[0m" 
+echo -e "\e[1;32m Now entering the Flatpak zone. \e[0m" 
 
 echo
 
