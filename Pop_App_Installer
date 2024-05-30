@@ -2,11 +2,12 @@ echo
 
 echo -e "\e[1;32m Made for and on Pop OS. Updated May 29 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
 
-sleep 10s
+sleep 5s
 
 echo
 
 echo -e "\e[1;32m Updating and upgrading system before beging installation script. \e[0m" 
+sleep 5s
 
 sudo apt update
 sudo apt upgrade -y
@@ -14,6 +15,7 @@ sudo apt upgrade -y
 echo
 
 echo -e "\e[1;32m Installing File Manager customizations and teerminal tools \e[0m" 
+sleep 5s
 
 
 sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer fortune-mod cowsay folder-color -y
@@ -22,6 +24,7 @@ sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin
 echo
 
 echo -e "\e[1;32m Installing codecs and media tools. \e[0m" 
+sleep 5s
 
 
 
@@ -33,6 +36,7 @@ sudo dpkg-reconfigure libdvd-pkg
 echo
 
 echo -e "\e[1;32m Installing network file sharing tools. \e[0m" 
+sleep 5s
 
 
 sudo apt install nfs-common cifs-utils -y
@@ -41,6 +45,7 @@ sudo apt install nfs-common cifs-utils -y
 echo
 
 echo -e "\e[1;32m Installing other essential applications for productivety and gaming. \e[0m" 
+sleep 5s
 
 
 sudo apt install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl python3 -y
