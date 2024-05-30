@@ -2,7 +2,7 @@ echo
 
 echo -e "\e[1;32m Made for and on Pop OS. Updated May 29 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
 
-
+sleep 10s
 
 echo
 
