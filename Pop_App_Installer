@@ -101,6 +101,32 @@ echo -e "\e[1;32m Installing Mission Center Flatpak. \e[0m"
 
 flatpak install flathub io.missioncenter.MissionCenter -y
 
+echo
+
+echo -e "\e[1;32m Installing Telegram Flatpak. \e[0m"
+
+flatpak install flathub org.telegram.desktop -y
+
+echo
+
+echo -e "\e[1;32m Installing Bitwarden Flatpak. \e[0m"
+
+flatpak install flathub com.bitwarden.desktop -y
+
+echo
+
+echo -e "\e[1;32m Installing Skype Flatpak. \e[0m"
+
+flatpak install flathub com.skype.Client -y
+
+echo
+
+echo -e "\e[1;32m Installing Youtube Downloader Flatpak. \e[0m"
+
+
+flatpak install flathub io.github.aandrew_me.ytdn -y
+
+
 
 echo
 
