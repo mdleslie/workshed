@@ -1,4 +1,4 @@
-### My nonsense starts here and knows no end ###
+### Add to the end of the .bashrc file located user directory. ###
 
 # Cowsay #
 fortune | cowsay
