@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###Setup instructions###
-###Place bash file in /usr/bin with update.sh name
+###Place bash file in /home/$USER/bin with update.sh name. You will need to create the bin subdirectory.
 
 ###Run commands:
 
