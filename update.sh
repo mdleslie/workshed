@@ -7,7 +7,7 @@
 
 ###sudo chmod +x update.sh                     to make executable
 
-###alias update="update.sh"                       to create alias
+###alias update="update.sh"                       to create alias. Add to .bashrc file.
 
 #################################################################
 
