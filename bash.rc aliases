@@ -21,4 +21,4 @@ alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/m
 alias update='update.sh'
 alias yt='youtube-dl --add-metadata -ic'
 alias whodey='/home/$USER/bin/whodey.sh'
-alias maid='/home/$USER/bin/maid.sh
+alias maid='/home/$USER/bin/maid.sh'
