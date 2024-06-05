@@ -101,7 +101,7 @@ fi
 echo -e "\e[1;34m Hello $USER \e[0m"
 sleep 1s
 
-echo -e "\e[1;34m $WHO \e[0m"
+echo -e "\e[1;34m Let's go, it's showtime! \e[0m"
 sleep 1s
 
 echo -e "\e[1;34m $TODAY \e[0m"
