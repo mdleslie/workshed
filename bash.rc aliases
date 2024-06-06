@@ -22,3 +22,5 @@ alias update='update.sh'
 alias yt='youtube-dl --add-metadata -ic'
 alias whodey='/home/$USER/bin/whodey.sh'
 alias maid='/home/$USER/bin/maid.sh'
+##############Place maid logo in ~/.local/share/fastfetch/logos/maid for below to work
+alias fastfetch='fastfetch -l maid'
