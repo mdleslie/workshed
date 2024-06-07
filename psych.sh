@@ -5,14 +5,14 @@ now=$(date)
 USER="David"
 DEVICE="Desktop"
 DISTRO="In between the lines there’s a lot of obscurity."
-MODEL="I’m not inclined to resign to maturity."
-RAM="If it’s alright, then you’re all wrong. But why bounce around to the same damn song?"
+MODEL="If it’s alright, then you’re all wrong. But why bounce around to the same damn song."
+RAM="You’d rather run when you can’t crawl"
 TODAY=$(date +"Today's date is %A, %B %d %Y.")
 TIMENOW=$(date +"The time is %r")
 SLEEP=.2s
 SLEEPL=3s
 ANIMATE=true
-WHO="I know, you know"
+WHO="I’m not inclined to resign to maturity."
 
 #################################################################################################################################################################
 # Array with expressions
@@ -86,6 +86,9 @@ clear
     echo -e "\e[41m                         \e[0m   $MODEL"
     echo -e "\e[44m                         \e[0m   $RAM Ram ok"
     sleep $SLEEP
+
+echo -e "\e[1;34m I know, you know \e[0m"
+sleep $SLEEP
 
 sleep $SLEEPL
 clear
