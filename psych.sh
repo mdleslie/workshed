@@ -84,7 +84,7 @@ clear
     echo -e "\e[104m                         \e[0m   $DISTRO"
     echo -e "\e[101m                         \e[0m   $WHO"
     echo -e "\e[41m                         \e[0m   $MODEL"
-    echo -e "\e[44m                         \e[0m   $RAM Ram ok"
+    echo -e "\e[44m                         \e[0m   $RAM"
     sleep $SLEEP
 
 echo -e "\e[1;34m I know, you know \e[0m"
