@@ -16,7 +16,7 @@ WHO="I’m not inclined to resign to maturity."
 
 #################################################################################################################################################################
 # Array with expressions
-expressions=("IS THAT MAURICIO IN THERE, GUS?! IS THAT MAURICIO IN THERE?!"
+expressions=("IS THAT MAURIZIO IN THERE, GUS?! IS THAT MAURIZIO IN THERE?!"
 "Are you a fan of delicious flavor?"
 "I've heard it both ways."
 "Gus, don't be the only game at Chuck E Cheese that isn't broken."
