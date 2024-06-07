@@ -22,7 +22,7 @@ expressions=("IS THAT MAURIZIO IN THERE, GUS?! IS THAT MAURIZIO IN THERE?!"
 "Gus, don't be the only game at Chuck E Cheese that isn't broken."
 "You must be outa your damn mind!"
 "Embrace the deception, learn how to bend"
-"Your worst inhibitions tend to psych you out in the end.")
+"Your worst inhibitions tend to PSYCH you out in the end.")
 
 #################################################################################################################################################################
 #################################################################################################################################################################
