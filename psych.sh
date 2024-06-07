@@ -4,9 +4,9 @@
 now=$(date)
 USER="David"
 DEVICE="Desktop"
-DISTRO="Pop OS Linux"
-MODEL="Thelio"
-RAM=$(($(getconf _PHYS_PAGES) * $(getconf PAGE_SIZE) / (1024 * 1024)))"M"
+DISTRO="In between the lines there’s a lot of obscurity."
+MODEL="I’m not inclined to resign to maturity."
+RAM="If it’s alright, then you’re all wrong. But why bounce around to the same damn song?"
 TODAY=$(date +"Today's date is %A, %B %d %Y.")
 TIMENOW=$(date +"The time is %r")
 SLEEP=.2s
@@ -100,7 +100,7 @@ sleep $SLEEP
 
 echo -e "\e[1;34m $TIMENOW \e[0m"
 
-sleep $SLEEPL
+sleep $SLEEP
 
 fastfetch
 
@@ -110,6 +110,10 @@ sleep $SLEEPL
 
 clear
 
+echo -e "\e[1;34m ============================================================================ \e[0m"
+sleep $SLEEP
+echo -e "\e[1;34m ============================================================================ \e[0m"
+sleep $SLEEP
 echo -e "\e[1;34m ============================================================================ \e[0m"
 sleep $SLEEP
 echo -e "\e[1;34m ============================================================================ \e[0m"
@@ -127,5 +131,16 @@ selectedexpression=${expressions[ $RANDOM % ${#expressions[@]} ]}
 #Print expression.
 
 echo -e "\e[1;34m $selectedexpression \e[0m"
+
+echo -e "\e[1;34m ============================================================================ \e[0m"
+sleep $SLEEP
+echo -e "\e[1;34m ============================================================================ \e[0m"
+sleep $SLEEP
+echo -e "\e[1;34m ============================================================================ \e[0m"
+sleep $SLEEP
+echo -e "\e[1;34m ============================================================================ \e[0m"
+sleep $SLEEP
+echo -e "\e[1;34m ============================================================================ \e[0m"
+sleep $SLEEP
 
 exit
