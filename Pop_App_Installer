@@ -24,6 +24,12 @@ sleep 2s
 
 sudo apt install cosmic-icons cosmic-store -y
 
+echo -e "\e[1;32m Installing Fastfetch. \e[0m" 
+sleep 2s
+
+sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
+sudo apt update
+sudo apt install fastfetch
 
 echo
 
