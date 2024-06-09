@@ -53,10 +53,6 @@ sleep 2s
 
 sudo apt install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl python3 -y
 
-echo -e "\e[1;32m Installing finance application You are not what you own. \e[0m" 
-sleep 2s
-
-apt-get install homebank -y
 
 echo
 
