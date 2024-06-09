@@ -22,7 +22,7 @@ echo -e "\e[1;32m Installing Cosmic App Store. Unleash your Potential. \e[0m"
 sleep 2s
 
 
-sudo apt cosmic-icons cosmic-store -y
+sudo apt install cosmic-icons cosmic-store -y
 
 
 echo
