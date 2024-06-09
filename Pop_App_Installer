@@ -11,11 +11,18 @@ sudo apt upgrade -y
 
 echo
 
-echo -e "\e[1;32m Installing File Manager customizations and teerminal tools \e[0m" 
+echo -e "\e[1;32m Installing File Manager customizations and terminal tools \e[0m" 
 sleep 2s
 
 
 sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer fortune-mod cowsay folder-color -y
+
+
+echo -e "\e[1;32m Installing Cosmic App Store. Unleash your Potential. \e[0m" 
+sleep 2s
+
+
+sudo apt cosmic-icons cosmic-store -y
 
 
 echo
