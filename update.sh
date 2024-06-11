@@ -53,7 +53,13 @@ sudo apt-get autoremove
 flatpak uninstall --unused -y
 
 echo -e "\e[1;32m Step 5: Workshed upgrade script is finished running. Exiting now. Shop smart, Shop S-Mart! \e[0m"
+echo -e "\e[44m                                                                                                                                              \e[0m"
+echo -e "\e[44m                                                                                                                                              \e[0m"
+
 fastfetch
+
+echo -e "\e[44m                                                                                                                                              \e[0m"
+echo -e "\e[44m                                                                                                                                              \e[0m"
 
 sleep $SLEEP
 
