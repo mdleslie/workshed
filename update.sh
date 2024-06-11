@@ -11,7 +11,7 @@
 
 #################################################################
 
-SLEEP=sleep 2s
+SLEEP=2s
 now=$(date)
 
 echo -e "\e[1;34m Step 1: Updating apt and flatpak packages. Don't Mix Danger, Handle with Care. \e[0m"  
@@ -51,6 +51,9 @@ echo -e "\e[44m                                                                 
 fastfetch
 
 echo -e "\e[44m                                                                                                                                              \e[0m"
+
+sleep .2s
+
 echo -e "\e[44m                                                                                                                                              \e[0m"
 
 sleep $SLEEP
