@@ -56,9 +56,9 @@ echo -e "\e[1;34m Installing Kdenlive Flatpak. \e[0m"
 
 flatpak install flathub org.kde.kdenlive -y
 
-echo -e "\e[1;34m Installing Spotify Flatpak. \e[0m"
+echo -e "\e[1;34m Installing Spotube Spotify client Flatpak. \e[0m"
 
-flatpak install flathub com.spotify.Client -y
+flatpak install flathub com.github.KRTirtho.Spotube -y
 
 echo -e "\e[1;34m Installing Handbrake Flatpak. \e[0m"
 
