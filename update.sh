@@ -47,14 +47,6 @@ echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Exiting n
 echo -e "\e[44m                                                                                                                                              \e[0m"
 echo -e "\e[44m                                                                                                                                              \e[0m"
 
-fastfetch
-
-echo -e "\e[44m                                                                                                                                              \e[0m"
-
-sleep .2s
-
-echo -e "\e[44m                                                                                                                                              \e[0m"
-
 sleep $SLEEP
 
 sudo date >> "/home/$USER/updatelog.txt"
@@ -64,7 +56,17 @@ echo -e "\e[1;34m $now \e[0m"
 
 sudo cat "/home/$USER/updatelog.txt"
 
+echo -e "\e[44m                                                                                                                                              \e[0m"      
+
 echo -e "\e[44m                                                                                                                                              \e[0m"
+
+sleep .2s
+
+echo -e "\e[44m                                                                                                                                              \e[0m"
+
+sleep $SLEEP
+
+fastfetch -l maid                                                                                                                                                           
 
 exit
 
