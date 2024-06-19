@@ -31,7 +31,7 @@ echo -e "\e[1;34m Step 3: Upgrading apt packages. So no more runnin. I aim to mi
 sleep $SLEEP
 
 sudo apt-get upgrade -y  
-sudo apt-get dist upgrade -y  
+sudo apt full-upgrade -y  
 
 echo -e "\e[1;34m Step 4: Cleaning up apt and flatpak. Don't Panic. \e[0m"  
 
