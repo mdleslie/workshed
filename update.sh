@@ -36,9 +36,7 @@ sudo apt full-upgrade -y
 echo -e "\e[1;34m Step 4: Cleaning up apt and flatpak. Don't Panic. \e[0m"  
 
 sleep $SLEEP
-
-sudo apt-get clean  
-sudo apt-get autoclean  
+ 
 sudo apt-get autoremove
 
 flatpak uninstall --unused -y
