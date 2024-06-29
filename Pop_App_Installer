@@ -92,6 +92,10 @@ echo -e "\e[1;34m Installing Youtube Downloader Flatpak. \e[0m"
 
 flatpak install flathub io.github.aandrew_me.ytdn -y
 
+echo -e "\e[1;34m Installing ProtonUp-QT Flatpak. \e[0m"
+
+flatpak run net.davidotek.pupgui2 -y
+
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
 echo -e "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
