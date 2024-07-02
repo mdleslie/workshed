@@ -14,7 +14,7 @@
 SLEEP=2s
 now=$(date)
 
-echo -e "\e[1;34m Step 1: Updating apt and flatpak packages. Don't Mix Danger, Handle with Care. \e[0m"  
+echo -e "\e[1;34m Step 1: Updating apt and flatpak packages. Don't Mix Danger, Handle with Care! \e[0m"  
 
 sudo apt update
 
@@ -41,7 +41,7 @@ sudo apt autoremove -y
 
 flatpak uninstall --unused -y
 
-echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Exiting now. Shop smart, Shop S-Mart! \e[0m"
+echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Updating audit file now. Shop smart, Shop S-Mart! \e[0m"
 echo -e "\e[44m                                                                                                                                              \e[0m"
 echo -e "\e[44m                                                                                                                                              \e[0m"
 
@@ -52,7 +52,7 @@ sudo date >> "/home/$USER/updatelog.txt"
 echo -e "\e[1;34m The system time and date is: \e[0m"
 echo -e "\e[1;34m $now \e[0m"
 
-sudo cat "/home/$USER/updatelog.txt"
+sudo cat "/home/$USER/updatelog.txt" | tail -5
 
 echo -e "\e[44m                                                                                                                                              \e[0m"      
 
@@ -67,4 +67,3 @@ sleep $SLEEP
 fastfetch -l maid                                                                                                                                                           
 
 exit
-
