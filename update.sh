@@ -70,6 +70,7 @@ sleep $SLEEP
 
 echo -e "\e[44m                                                                                                                                              \e[0m"
 
+echo $XDG_SESSION_DESKTOP
 echo $XDG_SESSION_TYPE
 
 echo -e "\e[44m                                                                                                                                              \e[0m"
