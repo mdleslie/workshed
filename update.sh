@@ -64,6 +64,14 @@ echo -e "\e[44m                                                                 
 
 sleep $SLEEP
 
-fastfetch -l maid                                                                                                                                                           
+fastfetch -l maid  
+
+sleep $SLEEP
+
+echo -e "\e[44m                                                                                                                                              \e[0m"
+
+echo $XDG_SESSION_TYPE
+
+echo -e "\e[44m                                                                                                                                              \e[0m"
 
 exit
