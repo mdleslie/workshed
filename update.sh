@@ -73,7 +73,7 @@ echo -e "\e[44m                                                                 
 echo -e "\e[1;34m The system desktop is: \e[0m"
 echo $XDG_SESSION_DESKTOP
 
-echo -e "\e[1;34m The system display server is: \e[0m"
+echo -e "\e[1;34m The windowing system is: \e[0m"
 echo $XDG_SESSION_TYPE
 
 echo -e "\e[44m                                                                                                                                              \e[0m"
