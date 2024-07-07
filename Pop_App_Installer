@@ -56,6 +56,10 @@ echo -e "\e[1;34m Installing Joplin Flatpak. \e[0m"
 
 flatpak install flathub net.cozic.joplin_desktop -y
 
+echo -e "\e[1;34m Installing Synology Drive Station. \e[0m"
+
+flatpak install flathub com.synology.SynologyDrive -y
+
 echo -e "\e[1;34m Installing Kdenlive Flatpak. \e[0m"
 
 flatpak install flathub org.kde.kdenlive -y
