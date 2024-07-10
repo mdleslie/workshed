@@ -1,0 +1,108 @@
+clear
+
+echo -e "\e[1;34m Test for Linux Mint and nala. Updated July 9 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
+sleep 5s
+
+echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
+echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
+echo -e "\e[1;34m Preparing system before beging installation script. \e[0m" 
+
+sudo apt update
+sudo apt upgrade -y
+
+echo -e "\e[1;34m Installing nala. \e[0m" 
+sleep 2s
+
+sudo apt install nala -y 
+
+echo -e "\e[1;34m Installing terminal tools. \e[0m" 
+sleep 2s
+
+sudo nala install ffmpegthumbnailer fortune-mod cowsay -y
+
+echo -e "\e[1;34m Installing Fastfetch. \e[0m" 
+sleep 2s
+
+sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
+sudo apt update
+sudo apt install fastfetch
+
+echo -e "\e[1;34m Installing codecs and media tools. \e[0m" 
+sleep 2s
+
+sudo nala install ffmpeg mpv mediainfo vlc youtube-dl libdvdcss2 chromium-codecs-ffmpeg-extra libdvd-pkg -y
+
+sudo dpkg-reconfigure libdvd-pkg
+
+echo -e "\e[1;34m Installing gstreeamer tools. \e[0m"
+
+sudo nala install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio -y
+
+echo -e "\e[1;34m Installing network file sharing tools. \e[0m" 
+sleep 2s
+
+sudo nala install nfs-common cifs-utils -y
+
+echo -e "\e[1;34m Now entering the Flatpak zone. \e[0m" 
+
+echo -e "\e[1;34m Installing Joplin Flatpak. \e[0m"
+
+flatpak install flathub net.cozic.joplin_desktop -y
+
+echo -e "\e[1;34m Installing Synology Drive Station. \e[0m"
+
+flatpak install flathub com.synology.SynologyDrive -y
+
+echo -e "\e[1;34m Installing Kdenlive Flatpak. \e[0m"
+
+flatpak install flathub org.kde.kdenlive -y
+
+echo -e "\e[1;34m Installing Spotube Spotify client Flatpak. \e[0m"
+
+flatpak install flathub com.github.KRTirtho.Spotube -y
+
+echo -e "\e[1;34m Installing Handbrake Flatpak. \e[0m"
+
+flatpak install flathub fr.handbrake.ghb -y
+
+echo -e "\e[1;34m Installing OBS Studio Flatpak. \e[0m"
+
+flatpak install flathub com.obsproject.Studio -y
+
+echo -e "\e[1;34m Installing Google Chrome Flatpak. \e[0m"
+
+flatpak install flathub com.google.Chrome -y
+
+echo -e "\e[1;34m Installing Mission Center Flatpak. \e[0m"
+
+flatpak install flathub io.missioncenter.MissionCenter -y
+
+echo -e "\e[1;34m Installing Telegram Flatpak. \e[0m"
+
+flatpak install flathub org.telegram.desktop -y
+
+echo -e "\e[1;34m Installing Bitwarden Flatpak. \e[0m"
+
+flatpak install flathub com.bitwarden.desktop -y
+
+echo -e "\e[1;34m Installing Skype Flatpak. \e[0m"
+
+flatpak install flathub com.skype.Client -y
+
+echo -e "\e[1;34m Installing Youtube Downloader Flatpak. \e[0m"
+
+flatpak install flathub io.github.aandrew_me.ytdn -y
+
+echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
+echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
+echo -e "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
+
+echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
+echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
+sleep 7s
