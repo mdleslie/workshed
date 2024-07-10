@@ -27,7 +27,7 @@ ANIMATE=true
 WHO="Who Dey!"
 ###########################################################################################
 
-echo -e "\e[1;37m Breaking new Gate \e[0m"
+echo -e "\e[1;37m Let's go, it showtime! \e[0m"
 sleep $SLEEPL
 
 echo -e "\e[1;37m                   .:+#%@@@@@@@@@@%#+:.                                \e[0m" 
@@ -176,7 +176,7 @@ sleep 1s
 echo -e "\e[1;37m $TIMENOW \e[0m"
 sleep $SLEEPL
 
-echo -e "\e[1;37m Let's go, it's showtime! \e[0m"
+echo -e "\e[1;37m Breaking new Gate! \e[0m"
 sleep $SLEEPL
 
 echo -e "\e[1;37m ============================================================================= \e[0m"
