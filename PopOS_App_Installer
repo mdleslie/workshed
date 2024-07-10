@@ -1,6 +1,6 @@
 clear
 
-echo -e "\e[1;34m Made for and on Pop OS. Updated June 29 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
+echo -e "\e[1;34m Made for and on Pop OS. Updated July 9 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
 sleep 5s
 
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
@@ -12,15 +12,19 @@ echo -e "\e[1;34m Preparing system before beging installation script. \e[0m"
 sudo apt update
 sudo apt upgrade -y
 
+echo -e "\e[1;34m Installing Nala \e[0m"
+
+sudo apt install nala
+
 echo -e "\e[1;34m Installing File Manager customizations and terminal tools \e[0m" 
 sleep 2s
 
-sudo apt install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer fortune-mod cowsay folder-color nautilus-dropbox -y
+sudo nala install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer fortune-mod cowsay folder-color nautilus-dropbox -y
 
 echo -e "\e[1;34m Installing Cosmic App Store. Unleash your Potential. \e[0m" 
 sleep 2s
 
-sudo apt install cosmic-icons cosmic-store -y
+sudo nala install cosmic-icons cosmic-store -y
 
 echo -e "\e[1;34m Installing Fastfetch. \e[0m" 
 sleep 2s
@@ -32,23 +36,23 @@ sudo apt install fastfetch
 echo -e "\e[1;34m Installing codecs and media tools. \e[0m" 
 sleep 2s
 
-sudo apt install ubuntu-restricted-extras ffmpeg mpv mediainfo vlc youtube-dl libdvdcss2 chromium-codecs-ffmpeg-extra libdvd-pkg -y
+sudo nala install ubuntu-restricted-extras ffmpeg mpv mediainfo vlc youtube-dl libdvdcss2 chromium-codecs-ffmpeg-extra libdvd-pkg -y
 
 sudo dpkg-reconfigure libdvd-pkg
 
 echo -e "\e[1;34m Installing gstreeamer tools. \e[0m"
 
-sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio -y
+sudo nala install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio -y
 
 echo -e "\e[1;34m Installing network file sharing tools. \e[0m" 
 sleep 2s
 
-sudo apt install nfs-common cifs-utils -y
+sudo nala install nfs-common cifs-utils -y
 
 echo -e "\e[1;34m Installing other essential applications for productivety and gaming. \e[0m" 
 sleep 2s
 
-sudo apt install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl python3 -y
+sudo nala install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl python3 -y
 
 echo -e "\e[1;34m Now entering the Flatpak zone. \e[0m" 
 
