@@ -33,10 +33,17 @@ sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
 sudo apt update
 sudo apt install fastfetch
 
+echo -e "\e[1;34m Installing MakeMKV. \e[0m" 
+sleep 2s
+
+sudo add-apt-repository ppa:heyarje/makemkv-beta
+sudo apt update
+sudo nala install install makemkv-bin makemkv-oss -y
+
 echo -e "\e[1;34m Installing codecs and media tools. \e[0m" 
 sleep 2s
 
-sudo nala install ubuntu-restricted-extras ffmpeg mpv mediainfo vlc youtube-dl libdvdcss2 chromium-codecs-ffmpeg-extra libdvd-pkg -y
+sudo nala install ubuntu-restricted-extras ffmpeg mpv mediainfo vlc youtube-dl libdvdcss2 chromium-codecs-ffmpeg-extra libdvd-pkg libssl-dev libexpat1-dev libgl1-mesa-dev -y
 
 sudo dpkg-reconfigure libdvd-pkg
 
