@@ -63,6 +63,10 @@ sudo nala install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl p
 
 echo -e "\e[1;34m Now entering the Flatpak zone. \e[0m" 
 
+echo -e "\e[1;34m Installing Libre Office Flatpak. More up to date the install with OS. \e[0m"
+
+flatpak install flathub org.libreoffice.LibreOffice  -y
+
 echo -e "\e[1;34m Installing Joplin Flatpak. \e[0m"
 
 flatpak install flathub net.cozic.joplin_desktop -y
@@ -111,6 +115,10 @@ echo -e "\e[1;34m Installing Youtube Downloader Flatpak. \e[0m"
 
 flatpak install flathub io.github.aandrew_me.ytdn -y
 
+echo -e "\e[1;34m Installing LocalSend Flatpak. \e[0m"
+
+flatpak install flathub org.localsend.localsend_app -y
+
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
@@ -122,3 +130,5 @@ echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
 sleep 7s
+
+exit
