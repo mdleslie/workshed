@@ -75,6 +75,14 @@ echo -e "\e[1;34m Installing Synology Drive Station. \e[0m"
 
 flatpak install flathub com.synology.SynologyDrive -y
 
+echo -e "\e[1;34m Installing Brave. \e[0m"
+
+flatpak install flathub com.brave.Browser -y
+
+echo -e "\e[1;34m Installing Floorp. \e[0m"
+
+flatpak install flathub one.ablaze.floorp -y
+
 echo -e "\e[1;34m Installing Kdenlive Flatpak. \e[0m"
 
 flatpak install flathub org.kde.kdenlive -y
@@ -129,6 +137,8 @@ echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
-sleep 7s
+sleep 10s
+
+clear
 
 exit
