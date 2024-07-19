@@ -99,10 +99,6 @@ echo -e "\e[1;34m Installing OBS Studio Flatpak. \e[0m"
 
 flatpak install flathub com.obsproject.Studio -y
 
-echo -e "\e[1;34m Installing Google Chrome Flatpak. \e[0m"
-
-flatpak install flathub com.google.Chrome -y
-
 echo -e "\e[1;34m Installing Mission Center Flatpak. \e[0m"
 
 flatpak install flathub io.missioncenter.MissionCenter -y
