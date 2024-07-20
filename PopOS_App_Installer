@@ -1,6 +1,6 @@
 clear
 
-echo -e "\e[1;34m Made for and on Pop OS. Updated July 9 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
+echo -e "\e[1;34m Made for and on Pop OS. Updated July 20 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
 sleep 5s
 
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
@@ -11,6 +11,13 @@ echo -e "\e[1;34m Preparing system before beging installation script. \e[0m"
 
 sudo apt update
 sudo apt upgrade -y
+
+echo -e "\e[1;34m Removing the old packaged version of Libre Office. We will install a newer version later in this script. \e[0m"
+sleep 2s
+
+sudo apt-get remove --purge <span style="color: var(--highlight-variable);">"libreoffice*"</span>
+sudo apt-get clean
+sudo apt-get autoremove
 
 echo -e "\e[1;34m Installing Nala \e[0m"
 
