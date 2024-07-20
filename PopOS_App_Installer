@@ -15,7 +15,7 @@ sudo apt upgrade -y
 echo -e "\e[1;34m Removing the old packaged version of Libre Office. We will install a newer version later in this script. \e[0m"
 sleep 2s
 
-sudo apt-get remove --purge libreoffice
+sudo apt-get remove --purge "libreoffice*"
 sudo apt-get clean
 sudo apt-get autoremove
 
