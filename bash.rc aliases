@@ -1,7 +1,7 @@
 ### Add to the end of the .bashrc file located user directory. ###
 
 # Cowsay #
-fortune | cowsay
+#fortune | cowsay
 
 # Aliases #
 
