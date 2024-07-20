@@ -70,6 +70,8 @@ sudo nala install gamemode gnome-tweaks lutris steam cpu-x digikam stacer curl p
 
 echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
+echo -e "\e[1;34m ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
 echo -e "\e[1;34m Now entering the Flatpak zone. \e[0m" 
 
 echo -e "\e[1;34m Installing Libre Office Flatpak. More up to date the install with OS. \e[0m"
