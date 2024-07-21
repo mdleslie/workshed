@@ -1,3 +1,5 @@
+# Need to test removal of Libreoffice, this may need more work. #
+
 clear
 
 echo -e "\e[1;34m Made for and on Pop OS. Updated July 20 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
