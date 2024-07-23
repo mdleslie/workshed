@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ############################################################################################
-#### Thanks to redditer u/mrmrcool185 ######################################################
 ############################################################################################
 ###Setup instructions###
 ###Place bash file in /home/$USER/bin with update.sh name. You will need to create the bin subdirectory.
@@ -24,7 +23,7 @@ TIMENOW=$(date +"The local time is %r")
 SLEEP=.05s
 SLEEPL=3s
 ANIMATE=true
-WHO="Who Dey!"
+WHO="Our rock never dies ever, forever!"
 ###########################################################################################
 
 echo -e "\e[1;37m Let's go, it showtime! \e[0m"
