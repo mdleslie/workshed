@@ -42,8 +42,9 @@ sudo apt autoremove -y
 flatpak uninstall --unused -y
 
 echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Updating audit file now. Shop smart, Shop S-Mart! \e[0m"
-echo -e "\e[44m                                                                                                                                              \e[0m"
-echo -e "\e[44m                                                                                                                                              \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
 
 sleep $SLEEP
 
@@ -54,13 +55,13 @@ echo -e "\e[1;34m $now \e[0m"
 
 sudo cat "/home/$USER/updatelog.txt" | tail -5
 
-echo -e "\e[44m                                                                                                                                              \e[0m"      
-
-echo -e "\e[44m                                                                                                                                              \e[0m"
+echo -e "\e[44m                                                                     \e[0m"      
+echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
 
 sleep .2s
 
-echo -e "\e[44m                                                                                                                                              \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
 
 sleep $SLEEP
 
@@ -68,7 +69,7 @@ fastfetch -l maid
 
 sleep $SLEEP
 
-echo -e "\e[44m                                                                                                                                              \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
 
 echo -e "\e[1;34m The system desktop is: \e[0m"
 echo $XDG_SESSION_DESKTOP
@@ -76,8 +77,11 @@ echo $XDG_SESSION_DESKTOP
 echo -e "\e[1;34m The windowing system is: \e[0m"
 echo $XDG_SESSION_TYPE
 
-echo -e "\e[44m                                                                                                                                              \e[0m"
-echo -e "\e[44m                                                                                                                                              \e[0m"
-echo -e "\e[44m                                                                                                                                              \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                                                     \e[0m"
+
 
 exit
