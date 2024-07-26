@@ -41,7 +41,7 @@ sudo nala autoremove -y
 
 flatpak uninstall --unused -y
 
-echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Updating audit file now. Shop smart, Shop S-Mart! \e[0m"
+echo -e "\e[1;34m Step 5: Updating audit file now. You heard about Pluto? That's messed up, right? \e[0m"
 
 sudo date >> "/home/$USER/updatelog.txt"
 
@@ -67,5 +67,9 @@ echo -e "\e[1;34m The windowing system is: \e[0m"
 echo $XDG_SESSION_TYPE
 
 echo -e "\e[44m                                            \e[0m"
+
+echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Shop smart, Shop S-Mart! \e[0m"
+
+sleep $SLEEP
 
 exit
