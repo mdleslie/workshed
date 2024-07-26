@@ -20,11 +20,15 @@ sudo nala update
 
 flatpak update -y
 
+echo -e "\e[44m                                            \e[0m"
+
 echo -e "\e[1;34m Step 2: Repairing Flatpacks. Groovy. \e[0m"  
 
 sleep $SLEEP
 
 sudo flatpak repair
+
+echo -e "\e[44m                                            \e[0m"
 
 echo -e "\e[1;34m Step 3: Upgrading apt packages. So no more runnin. I aim to misbehave. \e[0m"
 
@@ -33,6 +37,8 @@ sleep $SLEEP
 sudo nala upgrade -y  
 sudo apt full-upgrade -y  
 
+echo -e "\e[44m                                            \e[0m"
+
 echo -e "\e[1;34m Step 4: Cleaning up apt and flatpak. Don't Panic. \e[0m"  
 
 sleep $SLEEP
@@ -40,6 +46,8 @@ sleep $SLEEP
 sudo nala autoremove -y
 
 flatpak uninstall --unused -y
+
+echo -e "\e[44m                                            \e[0m"
 
 echo -e "\e[1;34m Step 5: Updating audit file now. You heard about Pluto? That's messed up, right? \e[0m"
 
