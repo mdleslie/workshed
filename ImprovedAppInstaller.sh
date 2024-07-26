@@ -69,22 +69,23 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 
-echo -e "\e[1;34m Updated July 25 2024. Make sure to click ok or yes at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
-sleep 5s
+echo -e "\e[1;34m Updated July 25 2024. Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
+sleep 2s
 
 echo -e "\e[1;34m Preparing system before installing the apps from the array lists script. \e[0m" 
+sleep 5s
 
 sudo apt update
 sudo apt upgrade -y
 
-echo -e "\e[1;34m Removing the old packaged version of Libre Office. We will install a newer version later in this script. \e[0m"
+echo -e "\e[1;34m Removing the old packaged version of Libre Office. We will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
 sleep 2s
 
 sudo apt-get remove --purge "libreoffice*"
 sudo apt-get clean
 sudo apt-get autoremove
 
-echo -e "\e[1;34m Installing Nala \e[0m"
+echo -e "\e[1;34m Installing Nala. Becuase it is better than apt. \e[0m"
 
 sudo apt install nala
 
@@ -155,7 +156,7 @@ for app in "${flatpak_apps[@]}"; do
 done
 
 
-# May need to remove this. Will test.
+# Configuring libdvd.
 
 echo -e "\e[1;34m Configuring libdvd-pkg. \e[0m" 
 sleep 2s
