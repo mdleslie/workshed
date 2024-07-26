@@ -71,6 +71,10 @@ flatpak_apps=(
   "io.github.aandrew_me.ytdn"
   "org.localsend.localsend_app"
   "io.github.shiftey.Desktop"
+  "com.github.tchx84.Flatseal"
+  "org.gnome.Evolution"
+  "io.github.flattool.Warehouse"
+  "io.github.celluloid_player.Celluloid"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
