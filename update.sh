@@ -16,7 +16,7 @@ now=$(date)
 
 echo -e "\e[1;34m Step 1: Updating apt and flatpak packages. Don't Mix Danger, Handle with Care! \e[0m"  
 
-sudo apt update
+sudo nala update
 
 flatpak update -y
 
@@ -30,23 +30,18 @@ echo -e "\e[1;34m Step 3: Upgrading apt packages. So no more runnin. I aim to mi
 
 sleep $SLEEP
 
-sudo apt upgrade -y  
+sudo nala upgrade -y  
 sudo apt full-upgrade -y  
 
 echo -e "\e[1;34m Step 4: Cleaning up apt and flatpak. Don't Panic. \e[0m"  
 
 sleep $SLEEP
  
-sudo apt autoremove -y
+sudo nala autoremove -y
 
 flatpak uninstall --unused -y
 
 echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Updating audit file now. Shop smart, Shop S-Mart! \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-
-sleep $SLEEP
 
 sudo date >> "/home/$USER/updatelog.txt"
 
@@ -55,13 +50,7 @@ echo -e "\e[1;34m $now \e[0m"
 
 sudo cat "/home/$USER/updatelog.txt" | tail -5
 
-echo -e "\e[44m                                                                     \e[0m"      
-echo -e "\e[44m                                                                     \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-
-sleep .2s
-
-echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                            \e[0m"
 
 sleep $SLEEP
 
@@ -69,7 +58,7 @@ fastfetch -l maid
 
 sleep $SLEEP
 
-echo -e "\e[44m                                                                     \e[0m"
+echo -e "\e[44m                                            \e[0m"
 
 echo -e "\e[1;34m The system desktop is: \e[0m"
 echo $XDG_SESSION_DESKTOP
@@ -77,11 +66,6 @@ echo $XDG_SESSION_DESKTOP
 echo -e "\e[1;34m The windowing system is: \e[0m"
 echo $XDG_SESSION_TYPE
 
-echo -e "\e[44m                                                                     \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-echo -e "\e[44m                                                                     \e[0m"
-
+echo -e "\e[44m                                            \e[0m"
 
 exit
