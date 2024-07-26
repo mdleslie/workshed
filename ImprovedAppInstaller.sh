@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Still needs more testing!
+
 # List of .deb packages to install
 deb_packages=(
   "gnome-sushi"
@@ -65,7 +67,7 @@ flatpak_apps=(
   "fr.handbrake.ghb"
   "com.obsproject.Studio"
   "io.missioncenter.MissionCenter"
-  "flathub org.telegram.desktop"
+  "org.telegram.desktop"
   "com.bitwarden.desktop"
   "com.skype.Client"
   "io.github.aandrew_me.ytdn"
@@ -115,13 +117,6 @@ sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
 sudo apt update
 sudo apt install fastfetch
 
-# May need to move this to end of script. Will test.
-
-echo -e "\e[1;34m Configuring libdvd-pkg. \e[0m" 
-sleep 2s
-
-sudo dpkg-reconfigure libdvd-pkg
-
 # Begin installing from array now.
 
 # Function to check if a .deb package is installed
@@ -135,54 +130,62 @@ is_flatpak_installed() {
 }
 
 # Update package list for .deb packages
-echo-e "\e[1;34m Updating package list...\e[0m"
+echo -e "\e[1;34m Updating package list...\e[0m"
 sudo nala update
 
 # Install each .deb package if not already installed
 for package in "${deb_packages[@]}"; do
   if is_deb_installed "$package"; then
-    echo-e "\e[1;34m $package is already installed, skipping. \e[0m"
+    echo -e "\e[1;34m $package is already installed, skipping. \e[0m"
   else
-    echo-e "\e[1;34m Installing $package...\e[0m"
+    echo -e "\e[1;34m Installing $package...\e[0m"
     sudo nala install -y "$package"
     if [ $? -eq 0 ]; then
       installed_deb_packages+=("$package")
     else
-      echo-e "\e[1;34m Failed to install $package. "
+      echo -e "\e[1;34m Failed to install $package. "
     fi
   fi
 done
 
 # Install Flatpak if not already installed
 if ! command -v flatpak &> /dev/null; then
-  echo-e "\e[1;34m Flatpak is not installed, installing Flatpak... \e[0m"
+  echo -e "\e[1;34m Flatpak is not installed, installing Flatpak... \e[0m"
   sudo nala install -y flatpak
 fi
 
 # Install each Flatpak application if not already installed
 for app in "${flatpak_apps[@]}"; do
   if is_flatpak_installed "$app"; then
-    echo-e "\e[1;34m $app is already installed, skipping. \e[0m"
+    echo -e "\e[1;34m $app is already installed, skipping. \e[0m"
   else
-    echo-e "\e[1;34m Installing $app... \e[0m"
+    echo -e "\e[1;34m Installing $app... \e[0m"
     flatpak install -y flathub "$app"
     if [ $? -eq 0 ]; then
       installed_flatpak_apps+=("$app")
     else
-      echo-e "\e[1;34m Failed to install $app. \e[0m"
+      echo -e "\e[1;34m Failed to install $app. \e[0m"
     fi
   fi
 done
 
+
+# May need to remove this. Will test.
+
+echo -e "\e[1;34m Configuring libdvd-pkg. \e[0m" 
+sleep 2s
+
+sudo dpkg-reconfigure libdvd-pkg
+
 # Generate report
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
-  echo-e "\e[1;34m No new programs were installed. \e[0m"
+  echo -e "\e[1;34m No new programs were installed. \e[0m"
 else
-  echo-e "\e[1;34m The following .deb packages were installed: \e[0m"
+  echo -e "\e[1;34m The following .deb packages were installed: \e[0m"
   for package in "${installed_deb_packages[@]}"; do
     echo "- $package"
   done
-  echo-e "\e[1;34m The following Flatpak applications were installed: \e[0m"
+  echo -e "\e[1;34m The following Flatpak applications were installed: \e[0m"
   for app in "${installed_flatpak_apps[@]}"; do
     echo "- $app"
   done
