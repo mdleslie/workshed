@@ -62,6 +62,7 @@ flatpak_apps=(
   "org.gnome.Evolution"
   "io.github.flattool.Warehouse"
   "io.github.celluloid_player.Celluloid"
+  "net.davidotek.pupgui2"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
@@ -70,38 +71,38 @@ installed_flatpak_apps=()
 
 
 echo -e "\e[1;34m Updated July 25 2024. Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
-sleep 2s
+sleep 5s
 
 echo -e "\e[1;34m Preparing system before installing the apps from the array lists script. \e[0m" 
-sleep 5s
+sleep 2s
 
 sudo apt update
 sudo apt upgrade -y
 
 echo -e "\e[1;34m Removing the old packaged version of Libre Office. We will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
-sleep 2s
+sleep 5s
 
-sudo apt-get remove --purge "libreoffice*"
-sudo apt-get clean
-sudo apt-get autoremove
+sudo apt-get remove --purge -y "libreoffice*"
+sudo apt-get clean -y
+sudo apt-get autoremove -y
 
-echo -e "\e[1;34m Installing Nala. Becuase it is better than apt. \e[0m"
+echo -e "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
 
-sudo apt install nala
+sudo apt install nala -y
 
 echo -e "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
 sleep 2s
 
 sudo add-apt-repository ppa:heyarje/makemkv-beta
-sudo apt update
+sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
 
 echo -e "\e[1;34m Installing Fastfetch from the zhangsongcui repo. Make sure to confirm actions. This step is needed until fastfest is available as a system or flatpak install. \e[0m" 
 sleep 2s
 
 sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
-sudo apt update
-sudo apt install fastfetch
+sudo nala update
+sudo nala install fastfetch -y
 
 # Begin installing from array now.
 
@@ -161,7 +162,17 @@ done
 echo -e "\e[1;34m Configuring libdvd-pkg. \e[0m" 
 sleep 2s
 
-sudo dpkg-reconfigure libdvd-pkg
+# Old entry that works with user intervention.
+#sudo dpkg-reconfigure libdvd-pkg
+
+# New entry that might be improved. Needs to be tested.
+
+echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/first-install seen true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/reconfigure-multi boolean true" | sudo debconf-set-selections
+
+# Reconfigure the package
+sudo dpkg-reconfigure -f noninteractive libdvd-pkg
 
 # Generate report
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
