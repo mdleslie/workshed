@@ -188,6 +188,15 @@ else
   done
 fi
 
+#################################################################################
+# Create text file of installed apps and packages. Needs to be tested.
+
+sudo echo -e >> ${installed_deb_packages[@]} >> "/home/$USER/install_log.txt"
+
+sudo echo -e >> ${installed_flatpak_apps[@]} >> "/home/$USER/install_log.txt"
+
+#################################################################################
+
 echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
 echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
