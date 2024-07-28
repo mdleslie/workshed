@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Define the script content
-SCRIPT_CONTENT='#!/bin/bash
+SCRIPT_CONTENT=$(cat <<'EOF'
+#!/bin/bash
 
 # Array of phrases
 phrases=("IS THAT MAURIZIO IN THERE, GUS?! IS THAT MAURIZIO IN THERE?!"
@@ -26,10 +27,12 @@ zenity --info --text="Press it!" --ok-label="It" --no-wrap
 
 # Show a random phrase when the button is pressed
 show_phrase
-'
+EOF
+)
 
 # Define the desktop entry content
-DESKTOP_ENTRY='[Desktop Entry]
+DESKTOP_ENTRY=$(cat <<'EOF'
+[Desktop Entry]
 Version=1.0
 Name=Psych Quote
 Comment=Show a random inspirational phrase
@@ -38,7 +41,8 @@ Icon=dialog-information
 Terminal=false
 Type=Application
 Categories=Utility;
-'
+EOF
+)
 
 # Cleanup function
 cleanup() {
