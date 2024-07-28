@@ -76,16 +76,18 @@ flatpak_apps=(
 installed_deb_packages=()
 installed_flatpak_apps=()
 
-
+# Introduction
 echo -e "\e[1;34m Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
 sleep 5s
 
+# Update
 echo -e "\e[1;34m Preparing system before installing the apps from the array lists script. \e[0m" 
 sleep 2s
 
 sudo apt update
 sudo apt upgrade -y
 
+# Remove old version of LibeOffice
 echo -e "\e[1;34m Removing the old packaged version of Libre Office. We will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
 sleep 5s
 
@@ -93,21 +95,24 @@ sudo apt-get remove --purge -y "libreoffice*"
 sudo apt-get clean -y
 sudo apt-get autoremove -y
 
+# Install Nala
 echo -e "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
 
 sudo apt install nala -y
 
+# Add repo and install MakeMKV
 echo -e "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
 sleep 2s
 
-sudo add-apt-repository ppa:heyarje/makemkv-beta
+sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
 
+# Add repo and install FastFetch
 echo -e "\e[1;34m Installing Fastfetch from the zhangsongcui repo. Make sure to confirm actions. This step is needed until fastfest is available as a system or flatpak install. \e[0m" 
 sleep 2s
 
-sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
+sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
 
@@ -122,6 +127,9 @@ is_deb_installed() {
 is_flatpak_installed() {
   flatpak list | grep -qw "$1"
 }
+
+echo -e "\e[1;34m Installing deb packages now. \e[0m" 
+sleep 2s
 
 # Update package list for .deb packages
 echo -e "\e[1;34m Updating package list...\e[0m"
@@ -141,6 +149,9 @@ for package in "${deb_packages[@]}"; do
     fi
   fi
 done
+
+echo -e "\e[1;34m Installing flatpak applications now. \e[0m" 
+sleep 2s
 
 # Install Flatpak if not already installed
 if ! command -v flatpak &> /dev/null; then
@@ -163,14 +174,10 @@ for app in "${flatpak_apps[@]}"; do
   fi
 done
 
-
 # Configuring libdvd.
 
 echo -e "\e[1;34m Configuring libdvd-pkg. \e[0m" 
 sleep 2s
-
-# Old entry that works with user intervention.
-#sudo dpkg-reconfigure libdvd-pkg
 
 # New entry that might be improved. Needs to be tested.
 
