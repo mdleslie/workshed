@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # Still needs more testing!
+# Updated July 27 2024. Should create a log file now.
+
+# Define the log file path
+log_file="/home/$USER/install_log.txt"
+
+# Run the entire script within a subshell and pipe the output to `tee`
+(
 
 # List of .deb packages to install
 deb_packages=(
@@ -42,7 +49,6 @@ deb_packages=(
 
 # List of Flatpak applications to install
 flatpak_apps=(
-  "com.spotify.Client"
   "org.libreoffice.LibreOffice"
   "net.cozic.joplin_desktop"
   "com.synology.SynologyDrive"
@@ -63,6 +69,7 @@ flatpak_apps=(
   "io.github.flattool.Warehouse"
   "io.github.celluloid_player.Celluloid"
   "net.davidotek.pupgui2"
+  "com.vscodium.codium"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
@@ -70,7 +77,7 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 
-echo -e "\e[1;34m Updated July 25 2024. Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
+echo -e "\e[1;34m Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
 sleep 5s
 
 echo -e "\e[1;34m Preparing system before installing the apps from the array lists script. \e[0m" 
@@ -188,15 +195,6 @@ else
   done
 fi
 
-#################################################################################
-# Create text file of installed apps and packages. Needs to be tested.
-
-sudo echo -e >> ${installed_deb_packages[@]} >> "/home/$USER/install_log.txt"
-
-sudo echo -e >> ${installed_flatpak_apps[@]} >> "/home/$USER/install_log.txt"
-
-#################################################################################
-
 echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
 echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
@@ -206,3 +204,5 @@ echo -e "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0
 echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
 echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+
+) | tee "log_file"
