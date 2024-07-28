@@ -19,7 +19,7 @@ show_phrase() {
 }
 
 # Main dialog box
-zenity --question --text="Press the button to get a phrase!" --ok-label="Show Phrase" --no-wrap
+zenity --info --text="Press the button to get a phrase!" --ok-label="Show Phrase" --no-wrap
 
 # Check the exit status of the dialog box
 if [ $? -eq 0 ]; then
