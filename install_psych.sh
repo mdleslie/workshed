@@ -51,23 +51,24 @@ cleanup() {
 
 # Main script execution with error checking
 {
-    # Create the application directory
-    sudo mkdir -p /opt/psych
+    # Debug output
+    echo "Creating directory..."
+    sudo mkdir -p /opt/psych || cleanup
 
-    # Create the script file
-    echo "$SCRIPT_CONTENT" | sudo tee /opt/psych/psych.sh > /dev/null
+    echo "Creating script file..."
+    echo "$SCRIPT_CONTENT" | sudo tee /opt/psych/psych.sh > /dev/null || cleanup
 
-    # Make the script executable
-    sudo chmod +x /opt/psych/psych.sh
+    echo "Making script executable..."
+    sudo chmod +x /opt/psych/psych.sh || cleanup
 
-    # Create the desktop entry file
-    echo "$DESKTOP_ENTRY" | sudo tee /usr/share/applications/psych.desktop > /dev/null
+    echo "Creating desktop entry..."
+    echo "$DESKTOP_ENTRY" | sudo tee /usr/share/applications/psych.desktop > /dev/null || cleanup
 
-    # Create a symbolic link for easy access
-    sudo ln -sf /opt/psych/psych.sh /usr/local/bin/psych
+    echo "Creating symbolic link..."
+    sudo ln -sf /opt/psych/psych.sh /usr/local/bin/psych || cleanup
 
-    # Refresh the desktop database
-    sudo update-desktop-database
+    echo "Refreshing desktop database..."
+    sudo update-desktop-database || cleanup
 
     echo "Installation complete. You can find 'Psych Quote' in your application menu or run 'psych' from the terminal."
 } || cleanup
