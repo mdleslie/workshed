@@ -45,6 +45,8 @@ deb_packages=(
   "steam"
   "cpu-x"
   "python3"
+  "pip"
+  "lolcat"
 )
 
 # List of Flatpak applications to install
