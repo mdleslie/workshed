@@ -48,6 +48,7 @@ deb_packages=(
   "pip"
   "lolcat"
   "cmatrix"
+  "figlet"
 )
 
 # List of Flatpak applications to install
