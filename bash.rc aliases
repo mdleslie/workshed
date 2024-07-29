@@ -23,6 +23,7 @@ alias maid='/home/$USER/bin/maid.sh'
 alias psych='/home/$USER/bin/psych.sh'
 
 
+
 ### Fastfetch logo ###
 ##############Place maid logo in ~/.local/share/fastfetch/logos/maid for below to work
 alias fastfetch='fastfetch -l maid'
