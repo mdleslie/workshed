@@ -47,6 +47,7 @@ deb_packages=(
   "python3"
   "pip"
   "lolcat"
+  "cmatrix"
 )
 
 # List of Flatpak applications to install
