@@ -56,7 +56,6 @@ deb_packages=(
   "python3"
   "pip"
   "lolcat"
-  "cmatrix"
   "figlet"
   "fonts-inter"
   "mangohud"
