@@ -59,6 +59,7 @@ deb_packages=(
   "cmatrix"
   "figlet"
   "fonts-inter"
+  "mangohud"
 )
 
 # List of Flatpak applications to install
