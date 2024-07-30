@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# Still needs more testing!
-# Updated July 27 2024. Should create a log file now.
-
 # Define the log file path
 log_file="/home/$USER/install_log.txt"
 
-# Run the entire script within a subshell and pipe the output to `tee`
-(
+# Function to log and display messages
+log_and_display() {
+  echo -e "$1" | tee -a "$log_file"
+}
 
 # List of .deb packages to install
 deb_packages=(
@@ -81,18 +80,18 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 # Introduction
-echo -e "\e[1;34m Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
+log_and_display "\e[1;34m Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
 sleep 5s
 
 # Update
-echo -e "\e[1;34m Preparing system before installing the apps from the array lists script. \e[0m" 
+log_and_display "\e[1;34m Preparing system before installing the apps from the array lists script. \e[0m" 
 sleep 2s
 
 sudo apt update
 sudo apt upgrade -y
 
 # Remove old version of LibeOffice
-echo -e "\e[1;34m Removing the old packaged version of Libre Office. We will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
+log_and_display "\e[1;34m Removing the old packaged version of Libre Office. We will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
 sleep 5s
 
 sudo apt-get remove --purge -y "libreoffice*"
@@ -100,27 +99,22 @@ sudo apt-get clean -y
 sudo apt-get autoremove -y
 
 # Install Nala
-echo -e "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
-
+log_and_display "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
 sudo apt install nala -y
 
 # Add repo and install MakeMKV
-echo -e "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
+log_and_display "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
 sleep 2s
-
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
 
 # Add repo and install FastFetch
-echo -e "\e[1;34m Installing Fastfetch from the zhangsongcui repo. Make sure to confirm actions. This step is needed until fastfest is available as a system or flatpak install. \e[0m" 
+log_and_display "\e[1;34m Installing Fastfetch from the zhangsongcui repo. Make sure to confirm actions. This step is needed until fastfest is available as a system or flatpak install. \e[0m" 
 sleep 2s
-
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
-
-# Begin installing from array now.
 
 # Function to check if a .deb package is installed
 is_deb_installed() {
@@ -132,59 +126,57 @@ is_flatpak_installed() {
   flatpak list | grep -qw "$1"
 }
 
-echo -e "\e[1;34m Installing deb packages now. \e[0m" 
+log_and_display "\e[1;34m Installing deb packages now. \e[0m" 
 sleep 2s
 
 # Update package list for .deb packages
-echo -e "\e[1;34m Updating package list...\e[0m"
+log_and_display "\e[1;34m Updating package list...\e[0m"
 sudo nala update
 
 # Install each .deb package if not already installed
 for package in "${deb_packages[@]}"; do
   if is_deb_installed "$package"; then
-    echo -e "\e[1;34m $package is already installed, skipping. \e[0m"
+    log_and_display "\e[1;34m $package is already installed, skipping. \e[0m"
   else
-    echo -e "\e[1;34m Installing $package...\e[0m"
+    log_and_display "\e[1;34m Installing $package...\e[0m"
     sudo nala install -y "$package"
     if [ $? -eq 0 ]; then
       installed_deb_packages+=("$package")
     else
-      echo -e "\e[1;34m Failed to install $package. "
+      log_and_display "\e[1;34m Failed to install $package. \e[0m"
     fi
   fi
 done
 
-echo -e "\e[1;34m Installing flatpak applications now. \e[0m" 
+log_and_display "\e[1;34m Installing flatpak applications now. \e[0m" 
 sleep 2s
 
 # Install Flatpak if not already installed
 if ! command -v flatpak &> /dev/null; then
-  echo -e "\e[1;34m Flatpak is not installed, installing Flatpak... \e[0m"
+  log_and_display "\e[1;34m Flatpak is not installed, installing Flatpak... \e[0m"
   sudo nala install -y flatpak
 fi
 
 # Install each Flatpak application if not already installed
 for app in "${flatpak_apps[@]}"; do
   if is_flatpak_installed "$app"; then
-    echo -e "\e[1;34m $app is already installed, skipping. \e[0m"
+    log_and_display "\e[1;34m $app is already installed, skipping. \e[0m"
   else
-    echo -e "\e[1;34m Installing $app... \e[0m"
+    log_and_display "\e[1;34m Installing $app... \e[0m"
     flatpak install -y flathub "$app"
     if [ $? -eq 0 ]; then
       installed_flatpak_apps+=("$app")
     else
-      echo -e "\e[1;34m Failed to install $app. \e[0m"
+      log_and_display "\e[1;34m Failed to install $app. \e[0m"
     fi
   fi
 done
 
 # Configuring libdvd.
-
-echo -e "\e[1;34m Configuring libdvd-pkg. \e[0m" 
+log_and_display "\e[1;34m Configuring libdvd-pkg. \e[0m" 
 sleep 2s
 
 # New entry that might be improved. Needs to be tested.
-
 echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
 echo "libdvd-pkg libdvd-pkg/first-install seen true" | sudo debconf-set-selections
 echo "libdvd-pkg libdvd-pkg/reconfigure-multi boolean true" | sudo debconf-set-selections
@@ -194,26 +186,20 @@ sudo dpkg-reconfigure -f noninteractive libdvd-pkg
 
 # Generate report
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
-  echo -e "\e[1;34m No new programs were installed. \e[0m"
+  log_and_display "\e[1;34m No new programs were installed. \e[0m"
 else
-  echo -e "\e[1;34m The following .deb packages were installed: \e[0m"
+  log_and_display "\e[1;34m The following .deb packages were installed: \e[0m"
   for package in "${installed_deb_packages[@]}"; do
-    echo "- $package"
+    echo "- $package" | tee -a "$log_file"
   done
-  echo -e "\e[1;34m The following Flatpak applications were installed: \e[0m"
+  log_and_display "\e[1;34m The following Flatpak applications were installed: \e[0m"
   for app in "${installed_flatpak_apps[@]}"; do
-    echo "- $app"
+    echo "- $app" | tee -a "$log_file"
   done
 fi
 
-echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+log_and_display "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
+log_and_display "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
+log_and_display "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
-echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
-
-echo -e "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
-
-echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
-
-echo -e "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
-
-) | tee "log_file"
+figlet Workshed | lolcat -a -d 3
