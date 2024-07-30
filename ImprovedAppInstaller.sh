@@ -58,6 +58,7 @@ deb_packages=(
   "lolcat"
   "cmatrix"
   "figlet"
+  "fonts-inter"
 )
 
 # List of Flatpak applications to install
