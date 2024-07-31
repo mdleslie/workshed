@@ -160,12 +160,11 @@ sudo nala update
 
 # Install each .deb package if not already installed
 for package in "${deb_packages[@]}"; do
-  if is_deb_installed "$package"; then
+  if dpkg -l | grep -qw "$package"; then
     log_and_display "\e[1;34m $package is already installed, skipping. \e[0m"
   else
     log_and_display "\e[1;34m Installing $package...\e[0m"
-    sudo nala install -y "$package"
-    if [ $? -eq 0 ]; then
+    if sudo nala install -y "$package"; then
       installed_deb_packages+=("$package")
     else
       log_and_display "\e[1;34m Failed to install $package. \e[0m"
@@ -184,12 +183,11 @@ fi
 
 # Install each Flatpak application if not already installed
 for app in "${flatpak_apps[@]}"; do
-  if is_flatpak_installed "$app"; then
+  if flatpak list | grep -qw "$app"; then
     log_and_display "\e[1;34m $app is already installed, skipping. \e[0m"
   else
     log_and_display "\e[1;34m Installing $app... \e[0m"
-    flatpak install -y flathub "$app"
-    if [ $? -eq 0 ]; then
+    if flatpak install -y flathub "$app"; then
       installed_flatpak_apps+=("$app")
     else
       log_and_display "\e[1;34m Failed to install $app. \e[0m"
@@ -201,8 +199,16 @@ done
 log_and_display "\e[1;34m Configuring libdvd-pkg. \e[0m" 
 sleep 2s
 
-# Reconfigure the package
-sudo dpkg-reconfigure -f noninteractive libdvd-pkg
+# Check if libdvd-pkg is already configured
+if ! dpkg-reconfigure -f noninteractive -a libdvd-pkg 2>/dev/null | grep -q "libdvdcss2"; then
+  # If not, configure it
+  log_and_display "\e[1;34m Configuring libdvd-pkg. \e[0m" 
+  sleep 2s
+  sudo dpkg-reconfigure -f noninteractive libdvd-pkg
+else
+  # If it is configured, do nothing
+  log_and_display "\e[1;34m libdvd-pkg is already configured. \e[0m" 
+fi
 
 # Generate report
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
@@ -217,6 +223,12 @@ else
     echo "- $app" | tee -a "$log_file"
   done
 fi
+
+# Create update script
+log_and_display "\e[1;34m Modifying update.sh file... \e[0m"
+sleep 2s
+curl -sL https://github.com/mdleslie/workshed/raw/workshed/update.sh > /usr/bin/update.sh
+chmod +x /usr/bin/update.sh
 
 # Modify .bashrc file
 log_and_display "\e[1;34m Modifying .bashrc file... \e[0m" 
