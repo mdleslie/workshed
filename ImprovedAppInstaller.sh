@@ -131,6 +131,10 @@ sudo nala install fastfetch -y
 # Preconfigure the Microsoft fonts EULA acceptance
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 
+# Preconfigure libdvd-pkg settings
+echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/first-install seen true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/reconfigure-multi boolean true" | sudo debconf-set-selections
 
 # Function to check if a .deb package is installed
 is_deb_installed() {
@@ -191,11 +195,6 @@ done
 # Configuring libdvd.
 log_and_display "\e[1;34m Configuring libdvd-pkg. \e[0m" 
 sleep 2s
-
-# New entry that might be improved. Needs to be tested.
-echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/first-install seen true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/reconfigure-multi boolean true" | sudo debconf-set-selections
 
 # Reconfigure the package
 sudo dpkg-reconfigure -f noninteractive libdvd-pkg
