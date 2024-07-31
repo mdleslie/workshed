@@ -90,7 +90,7 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 # Introduction
-log_and_display "\e[1;34m This is meant to tun unattended, but you may need intervene along the way. \e[0m"
+log_and_display "\e[1;34m This is meant to run unattended, but if I missed somethingyou may need intervene along the way. \e[0m"
 sleep 2s
 
 log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
