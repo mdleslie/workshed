@@ -179,7 +179,7 @@ if ! command -v flatpak &> /dev/null; then
   sudo nala install -y flatpak
 fi
 
-# Install each Flatpak application if not already installed
+# Iterate through the list of Flatpak applications
 for app in "${flatpak_apps[@]}"; do
   if flatpak list | grep -qw "$app"; then
     log_and_display "\e[1;34m $app is already installed, skipping. \e[0m"
