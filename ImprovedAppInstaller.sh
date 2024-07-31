@@ -28,6 +28,7 @@ deb_packages=(
   "vlc"
   "youtube-dl"
   "libdvdcss2"
+  "libavcodec-extra"
   "libssl-dev"
   "libexpat1-dev"
   "libgl1-mesa-dev"
@@ -132,11 +133,9 @@ sudo nala install fastfetch -y
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 
 # Preconfigure libdvd-pkg settings
-echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/first-install seen true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/reconfigure-multi boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/upgrade-auto boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/upgrade-auto seen true" | sudo debconf-set-selections
+export DEBIAN_FRONTEND=noninteractive
+sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
+sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 
 
 # Function to check if a .deb package is installed
