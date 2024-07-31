@@ -70,23 +70,19 @@ flatpak_apps=(
   "net.cozic.joplin_desktop"
   "com.synology.SynologyDrive"
   "com.brave.Browser"
-  "one.ablaze.floorp"
   "org.kde.kdenlive"
   "fr.handbrake.ghb"
   "com.obsproject.Studio"
   "io.missioncenter.MissionCenter"
   "org.telegram.desktop"
   "com.bitwarden.desktop"
-  "com.skype.Client"
   "io.github.aandrew_me.ytdn"
   "org.localsend.localsend_app"
   "io.github.shiftey.Desktop"
   "com.github.tchx84.Flatseal"
   "org.gnome.Evolution"
-  "io.github.flattool.Warehouse"
-  "io.github.celluloid_player.Celluloid"
   "net.davidotek.pupgui2"
-  "com.vscodium.codium"
+  "com.visualstudio.code"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
@@ -191,8 +187,9 @@ for app in "${flatpak_apps[@]}"; do
     log_and_display "\e[1;34m Installing $app... \e[0m"
     if flatpak install -y flathub "$app"; then
       installed_flatpak_apps+=("$app")
+      log_and_display "\e[1;34m $app installed successfully. \e[0m"
     else
-      log_and_display "\e[1;34m Failed to install $app. \e[0m"
+      log_and_display "\e[1;34m Failed to install $app. Check for errors. \e[0m"
     fi
   fi
 done
