@@ -242,4 +242,6 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
+log_and_display "\e[1;34m Finishing up now. Shop smart, shop S-Mart. \e[0m"
+
 figlet Workshed | lolcat -a -d 3
