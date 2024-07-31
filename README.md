@@ -1,7 +1,7 @@
 # workshed
 worksheding projects here.
 
-Wordsheding projects are just files I am writing for my personal use and education purposes.
+Wordsheding projects are just files I am writing for my personal use and self-education purposes.
 
 Cutl command to run App download script:
 
