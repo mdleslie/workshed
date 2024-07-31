@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Define the log file path
 log_file="/home/$USER/install_log.txt"
 
@@ -194,21 +196,6 @@ for app in "${flatpak_apps[@]}"; do
     fi
   fi
 done
-
-# Configuring libdvd.
-log_and_display "\e[1;34m Configuring libdvd-pkg. \e[0m" 
-sleep 2s
-
-# Check if libdvd-pkg is already configured
-if ! dpkg-reconfigure -f noninteractive -a libdvd-pkg 2>/dev/null | grep -q "libdvdcss2"; then
-  # If not, configure it
-  log_and_display "\e[1;34m Configuring libdvd-pkg. \e[0m" 
-  sleep 2s
-  sudo dpkg-reconfigure -f noninteractive libdvd-pkg
-else
-  # If it is configured, do nothing
-  log_and_display "\e[1;34m libdvd-pkg is already configured. \e[0m" 
-fi
 
 # Generate report
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
