@@ -224,7 +224,9 @@ sleep 2s
 sudo cp ~/.bashrc ~/.bashrc.bak
 
 # Download and append the new aliases to the .bashrc file
-curl -sL https://github.com/mdleslie/workshed/raw/workshed/bash.rc\ aliases | tee -a ~/.bashrc
+log_and_display "\e[1;34m Downloading and appending aliases to .bashrc file... \e[0m"
+sleep 2s
+curl -sL "https://github.com/mdleslie/workshed/raw/workshed/bash.rc%20aliases" | tee -a ~/.bashrc
 if [[ $? -ne 0 ]]; then
   log_and_display "\e[1;34m Failed to download bash.rc aliases. \e[0m"
   exit 1
@@ -234,7 +236,7 @@ fi
 log_and_display "\e[1;34m Adding new logo for fastfetch... \e[0m" 
 sleep 2s
 mkdir -p ~/.local/share/fastfetch/logos/maid
-curl -sL https://github.com/mdleslie/workshed/raw/workshed/maid/logo.png -o ~/.local/share/fastfetch/logos/maid/logo.png
+curl -sL "https://github.com/mdleslie/workshed/raw/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 if [[ $? -ne 0 ]]; then
   log_and_display "\e[1;34m Failed to download maid logo. \e[0m"
   exit 1
