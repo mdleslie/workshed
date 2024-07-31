@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # Define the log file path
 log_file="/home/$USER/install_log.txt"
 
@@ -185,7 +183,7 @@ for app in "${flatpak_apps[@]}"; do
     log_and_display "\e[1;34m $app is already installed, skipping. \e[0m"
   else
     log_and_display "\e[1;34m Installing $app... \e[0m"
-    if flatpak install -y flathub "$app"; then
+    if flatpak install -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
       installed_flatpak_apps+=("$app")
       log_and_display "\e[1;34m $app installed successfully. \e[0m"
     else
