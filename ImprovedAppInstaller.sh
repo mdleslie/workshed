@@ -209,21 +209,35 @@ fi
 # Create update script
 log_and_display "\e[1;34m Modifying update.sh file... \e[0m"
 sleep 2s
-curl -sL https://github.com/mdleslie/workshed/raw/workshed/update.sh > /usr/bin/update.sh
-chmod +x /usr/bin/update.sh
+sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o /usr/bin/update.sh
+if [[ $? -ne 0 ]]; then
+  log_and_display "\e[1;34m Failed to download update.sh script. \e[0m"
+  exit 1
+fi
+sudo chmod +x /usr/bin/update.sh
 
 # Modify .bashrc file
 log_and_display "\e[1;34m Modifying .bashrc file... \e[0m" 
 sleep 2s
-sudo cp .bashrc .bashrc.bak
-curl -sL https://github.com/mdleslie/workshed/raw/workshed/bash.rc\ aliases | sudo tee -a ~/.bashrc
+
+# Make a backup of the original .bashrc file
+sudo cp ~/.bashrc ~/.bashrc.bak
+
+# Download and append the new aliases to the .bashrc file
+curl -sL https://github.com/mdleslie/workshed/raw/workshed/bash.rc\ aliases | tee -a ~/.bashrc
+if [[ $? -ne 0 ]]; then
+  log_and_display "\e[1;34m Failed to download bash.rc aliases. \e[0m"
+  exit 1
+fi
 
 # Adding new logo for fastfetch
 log_and_display "\e[1;34m Adding new logo for fastfetch... \e[0m" 
 sleep 2s
-mkdir -p "$(dirname ~/.local/share/fastfetch/logos/maid)"
-curl -sL https://github.com/mdleslie/workshed/raw/workshed/maid > ~/.local/share/fastfetch/logos/maid
-
-log_and_display "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
+mkdir -p ~/.local/share/fastfetch/logos/maid
+curl -sL https://github.com/mdleslie/workshed/raw/workshed/maid/logo.png -o ~/.local/share/fastfetch/logos/maid/logo.png
+if [[ $? -ne 0 ]]; then
+  log_and_display "\e[1;34m Failed to download maid logo. \e[0m"
+  exit 1
+fi
 
 figlet Workshed | lolcat -a -d 3
