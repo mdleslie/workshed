@@ -92,10 +92,10 @@ installed_flatpak_apps=()
 
 # Introduction
 log_and_display "\e[1;34m Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
-sleep 5s
+sleep 2s
 
 # Update
-log_and_display "\e[1;34m Preparing system before installing the apps from the array lists script. \e[0m" 
+log_and_display "\e[1;34m Preparing system before applications. \e[0m" 
 sleep 2s
 
 sudo apt update
@@ -111,11 +111,12 @@ sudo apt-get autoremove -y
 
 # Install Nala
 log_and_display "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
+sleep 2s
 sudo apt install nala -y
 
 # Add repo and install MakeMKV
 log_and_display "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
-sleep 2s
+sleep 5s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
@@ -126,6 +127,10 @@ sleep 2s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
+
+# Preconfigure the Microsoft fonts EULA acceptance
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+
 
 # Function to check if a .deb package is installed
 is_deb_installed() {
@@ -211,6 +216,5 @@ fi
 
 log_and_display "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 log_and_display "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
-log_and_display "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 
 figlet Workshed | lolcat -a -d 3
