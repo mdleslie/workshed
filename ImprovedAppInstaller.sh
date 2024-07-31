@@ -215,7 +215,6 @@ else
   done
 fi
 
-log_and_display "\e[1;34m +++++++++++++++++++++++++++++++++++++++++++++++ \e[0m"
 log_and_display "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
 
 figlet Workshed | lolcat -a -d 3
