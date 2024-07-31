@@ -218,6 +218,18 @@ else
   done
 fi
 
+# Modify .bashrc file
+log_and_display "\e[1;34m Modifying .bashrc file... \e[0m" 
+sleep 2s
+sudo cp .bashrc .bashrc.bak
+curl -sL https://github.com/mdleslie/workshed/raw/workshed/bash.rc\ aliases | sudo tee -a ~/.bashrc
+
+# Adding new logo for fastfetch
+log_and_display "\e[1;34m Adding new logo for fastfetch... \e[0m" 
+sleep 2s
+mkdir -p "$(dirname ~/.local/share/fastfetch/logos/maid)"
+curl -sL https://github.com/mdleslie/workshed/raw/workshed/maid > ~/.local/share/fastfetch/logos/maid
+
 log_and_display "\e[1;34m Finished scripted installations. Shop Smart, shop S-Mart. \e[0m"
 
 figlet Workshed | lolcat -a -d 3
