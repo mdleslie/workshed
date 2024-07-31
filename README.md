@@ -6,7 +6,7 @@ Wordsheding projects are just files I am writing for my personal use and educati
 Cutl command to run App download script:
 
 
-curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/ImprovedAppInstaller.sh | bash
+`curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/ImprovedAppInstaller.sh | bash`
 
 
 ###Groovy.
