@@ -135,6 +135,9 @@ echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select t
 echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
 echo "libdvd-pkg libdvd-pkg/first-install seen true" | sudo debconf-set-selections
 echo "libdvd-pkg libdvd-pkg/reconfigure-multi boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/upgrade-auto boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/upgrade-auto seen true" | sudo debconf-set-selections
+
 
 # Function to check if a .deb package is installed
 is_deb_installed() {
