@@ -92,18 +92,21 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 # Introduction
-log_and_display "\e[1;34m Make sure to click ok or yes or enter at various points in install process. Don't Mix Danger, Handle with Care! \e[0m"
+log_and_display "\e[1;34m This is meant to tun unattended, but you may need intervene along the way. \e[0m"
+sleep 2s
+
+log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
 sleep 2s
 
 # Update
-log_and_display "\e[1;34m Preparing system before applications. \e[0m" 
+log_and_display "\e[1;34m Preparing system before installing applications. \e[0m" 
 sleep 2s
 
 sudo apt update
 sudo apt upgrade -y
 
 # Remove old version of LibeOffice
-log_and_display "\e[1;34m Removing the old packaged version of Libre Office. We will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
+log_and_display "\e[1;34m Removing the old packaged version of Libre Office. The script will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
 sleep 5s
 
 sudo apt-get remove --purge -y "libreoffice*"
@@ -117,7 +120,7 @@ sudo apt install nala -y
 
 # Add repo and install MakeMKV
 log_and_display "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
-sleep 5s
+sleep 2s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
