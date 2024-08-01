@@ -235,8 +235,14 @@ fi
 # Adding new logo for fastfetch
 log_and_display "\e[1;34m Adding new logo for fastfetch... \e[0m"
 sleep 2s
+
+# Create the logos directory if it doesn't already exist
 mkdir -p ~/.local/share/fastfetch/logos
+
+# Download the maid file directly into the logos directory
 curl -sL "https://github.com/mdleslie/workshed/raw/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
+
+# Check if the download was successful
 if [[ $? -ne 0 ]]; then
   log_and_display "\e[1;34m Failed to download maid logo. \e[0m"
   exit 1
