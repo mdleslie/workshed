@@ -62,9 +62,9 @@ echo -e "\e[44m                                            \e[0m"
 
 sleep $SLEEP
 
-fastfetch -l maid  
+#fastfetch -l maid  
 
-sleep $SLEEP
+#sleep $SLEEP
 
 echo -e "\e[44m                                            \e[0m"
 
@@ -77,6 +77,8 @@ echo $XDG_SESSION_TYPE
 echo -e "\e[44m                                            \e[0m"
 
 echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Shop smart, Shop S-Mart! \e[0m"
+
+figlet Workshed | lolcat -a -d 3
 
 sleep $SLEEP
 
