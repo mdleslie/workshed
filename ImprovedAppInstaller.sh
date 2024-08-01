@@ -80,7 +80,7 @@ flatpak_apps=(
   "com.github.tchx84.Flatseal"
   "org.gnome.Evolution"
   "net.davidotek.pupgui2"
-  "com.visualstudio.code"
+  "com.vscodium.codium"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
