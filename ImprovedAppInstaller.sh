@@ -60,6 +60,7 @@ deb_packages=(
   "figlet"
   "fonts-inter"
   "mangohud"
+  "com.jeffser.Alpaca"
 )
 
 # List of Flatpak applications to install
