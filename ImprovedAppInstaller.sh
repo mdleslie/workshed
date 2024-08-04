@@ -60,7 +60,6 @@ deb_packages=(
   "figlet"
   "fonts-inter"
   "mangohud"
-  "com.jeffser.Alpaca"
 )
 
 # List of Flatpak applications to install
@@ -82,6 +81,7 @@ flatpak_apps=(
   "org.gnome.Evolution"
   "net.davidotek.pupgui2"
   "com.vscodium.codium"
+  "com.jeffser.Alpaca"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
