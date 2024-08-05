@@ -8,8 +8,8 @@ figlet Workshed | lolcat -a -d 3
 # Aliases #
 
 alias df='df -h -x squashfs -x tmpfs -x devtmpfs'
-alias egrep='egrep --color=auto'
 alias extip='curl icanhazip.com'
+alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto -i'
 alias i='sudo nala install'
@@ -18,9 +18,12 @@ alias parrot='curl parrot.live'
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
 alias update='update.sh'
 alias yt='youtube-dl --add-metadata -ic'
-#alias whodey='/home/$USER/bin/whodey.sh'
-#alias maid='/home/$USER/bin/maid.sh'
-#alias psych='/home/$USER/bin/psych.sh'
+alias fetch='sudo nala fetch'
+alias fix='sudo apt --fix-broken install'
+alias mkdir='mkdir -pv'
+alias wget='wget -c'
+alias du='ncdu'
+alias df='pydf'
 
 
 

@@ -60,6 +60,8 @@ deb_packages=(
   "figlet"
   "fonts-inter"
   "mangohud"
+  "ncdu"
+  "pydf"
 )
 
 # List of Flatpak applications to install
