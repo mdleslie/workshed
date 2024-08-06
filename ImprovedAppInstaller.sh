@@ -91,15 +91,15 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 # Introduction
-log_and_display "\e[1;34m This is meant to run unattended, but if I missed somethingyou may need intervene along the way. \e[0m"
-sleep 2s
+log_and_display "\e[1;34m This script should run unattended. \e[0m"
+sleep 1s
 
 log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
-sleep 2s
+sleep 1s
 
 # Update
 log_and_display "\e[1;34m Preparing system before installing applications. \e[0m" 
-sleep 2s
+sleep 1s
 
 sudo apt update
 sudo apt upgrade -y
@@ -252,5 +252,6 @@ if [[ $? -ne 0 ]]; then
 fi
 
 log_and_display "\e[1;34m Finishing up now. Shop smart, shop S-Mart. \e[0m"
+sleep 1s
 
 figlet Workshed | lolcat -a -d 3
