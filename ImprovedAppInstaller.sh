@@ -116,7 +116,7 @@ sudo apt install nala -y
 log_and_display "\e[1;34m Installing Gnome utilities, if needed. \e[0m"
 sleep 2s
 if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
-  sudo apt-get install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
+  sudo nala install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
 # Add repo and install MakeMKV
