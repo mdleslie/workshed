@@ -6,7 +6,7 @@ It will install all the deb and flatpak apps I typically use on my computer. I w
 
 The deb and flatpak applications are listed in array at the top of the script. This should make for easy customization of what applications can be installed.
 
-It does included some tweaks for the Gnome files file manager. These should be removed if you are not using Gnome.
+Checks to see if Gnome is the desktop environment, and if so installs some nautilus utilities.
 
 It installs nala and then uses nala to install deb packages.
 
