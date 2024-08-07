@@ -14,8 +14,6 @@ deb_packages=(
   "cowsay"
   "folder-color"
   "nautilus-dropbox"
-  "cosmic-icons"
-  "cosmic-store"
   "ubuntu-restricted-extras"
   "ffmpeg"
   "mpv"
@@ -117,6 +115,21 @@ log_and_display "\e[1;34m Installing Gnome utilities, if needed. \e[0m"
 sleep 2s
 if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
   sudo nala install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
+fi
+
+# Check the OS
+os_name=$(lsb_release -si)
+
+if [ "$os_name" == "Pop" ]; then
+    log_and_display "Running on Pop!_OS. Proceeding with installation and uninstallation."
+
+    # Install cosmic-icons and cosmic-store
+    sudo nala install cosmic-icons cosmic-store -y
+
+    # Uninstall the Pop Shop
+    sudo nala remove pop-shop
+    sudo nala purge pop-shop
+   
 fi
 
 # Add repo and install MakeMKV
