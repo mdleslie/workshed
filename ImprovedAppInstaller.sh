@@ -88,7 +88,7 @@ log_and_display "\e[1;34m This script should run unattended. \e[0m"
 sleep 1s
 
 log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
-sleep 1s
+sleep 3s
 
 # Update
 log_and_display "\e[1;34m Preparing system before installing applications. \e[0m" 
@@ -97,18 +97,18 @@ sleep 1s
 sudo apt update
 sudo apt upgrade -y
 
-# Remove old version of LibeOffice
-log_and_display "\e[1;34m Removing the old packaged version of Libre Office. The script will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
-sleep 5s
-
-sudo apt-get remove --purge -y "libreoffice*"
-sudo apt-get clean -y
-sudo apt-get autoremove -y
-
 # Install Nala
 log_and_display "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
 sleep 2s
 sudo apt install nala -y
+sudo nala update
+
+# Remove old version of LibeOffice
+log_and_display "\e[1;34m Removing the old packaged version of Libre Office. The script will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
+sleep 3s
+sudo nala remove --purge -y "libreoffice*"
+sudo nala clean -y
+sudo nala autoremove -y
 
 # Check if Desktop Environment is Gnome
 log_and_display "\e[1;34m Installing Gnome utilities, if needed. \e[0m"
@@ -120,17 +120,13 @@ fi
 # Check the OS for Pop OS specific steps
 log_and_display "\e[1;34m Checking OS to see if Pop OS specific steps are needed. \e[0m"
 sleep 2s
-
 os_name=$(lsb_release -si)
-
 if [ "$os_name" == "Pop" ]; then
     # Install cosmic-icons and cosmic-store
     sudo nala install cosmic-icons cosmic-store -y
-
     # Uninstall the Pop Shop
     sudo nala remove pop-shop -y
     sudo nala purge pop-shop -y
-   
 fi
 
 # Add repo and install MakeMKV
