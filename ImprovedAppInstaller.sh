@@ -10,11 +10,6 @@ log_and_display() {
 
 # List of .deb packages to install
 deb_packages=(
-  "gnome-sushi"
-  "imagemagick"
-  "nautilus-image-converter"
-  "nautilus-admin"
-  "ffmpegthumbnailer"
   "fortune-mod"
   "cowsay"
   "folder-color"
@@ -116,6 +111,13 @@ sudo apt-get autoremove -y
 log_and_display "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
 sleep 2s
 sudo apt install nala -y
+
+# Check if Desktop Environment is Gnome
+log_and_display "\e[1;34m Installing Gnome utilities, if needed. \e[0m"
+sleep 2s
+if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
+  sudo apt-get install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
+fi
 
 # Add repo and install MakeMKV
 log_and_display "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
