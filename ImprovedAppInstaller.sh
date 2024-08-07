@@ -100,7 +100,8 @@ sudo apt upgrade -y
 # Install Nala
 log_and_display "\e[1;34m Installing Nala. Because it is better than apt. \e[0m"
 sleep 2s
-sudo apt install nala -y
+sudo apt install curl -y
+curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
 # Remove old version of LibeOffice
