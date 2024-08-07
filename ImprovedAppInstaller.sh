@@ -117,18 +117,19 @@ if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
   sudo nala install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
-# Check the OS
+# Check the OS for Pop OS specific steps
+log_and_display "\e[1;34m Checking OS to see if Pop OS specific steps are needed. \e[0m"
+sleep 2s
+
 os_name=$(lsb_release -si)
 
 if [ "$os_name" == "Pop" ]; then
-    log_and_display "Running on Pop!_OS. Proceeding with installation and uninstallation."
-
     # Install cosmic-icons and cosmic-store
     sudo nala install cosmic-icons cosmic-store -y
 
     # Uninstall the Pop Shop
-    sudo nala remove pop-shop
-    sudo nala purge pop-shop
+    sudo nala remove pop-shop -y
+    sudo nala purge pop-shop -y
    
 fi
 
