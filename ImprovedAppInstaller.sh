@@ -13,7 +13,6 @@ deb_packages=(
   "fortune-mod"
   "cowsay"
   "folder-color"
-  "nautilus-dropbox"
   "ubuntu-restricted-extras"
   "ffmpeg"
   "mpv"
@@ -77,6 +76,7 @@ flatpak_apps=(
   "net.davidotek.pupgui2"
   "com.vscodium.codium"
   "com.jeffser.Alpaca"
+  "com.dropbox.Client"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
