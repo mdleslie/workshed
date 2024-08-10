@@ -72,7 +72,7 @@ flatpak_apps=(
   "org.localsend.localsend_app"
   "io.github.shiftey.Desktop"
   "com.github.tchx84.Flatseal"
-  "org.gnome.Evolution"
+  "eu.betterbird.Betterbird"
   "net.davidotek.pupgui2"
   "com.vscodium.codium"
   "com.jeffser.Alpaca"
