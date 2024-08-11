@@ -42,7 +42,6 @@ deb_packages=(
   "nfs-common"
   "cifs-utils"
   "gamemode"
-  "gnome-tweaks"
   "lutris"
   "steam"
   "cpu-x"
@@ -83,12 +82,42 @@ flatpak_apps=(
 installed_deb_packages=()
 installed_flatpak_apps=()
 
-# Introduction
+# Cleanup function
+cleanup() {
+    log_and_display "\e[1;34m Cleaning up... \e[0m"
+    
+    # Remove any temporary files
+    rm -f /tmp/install_script_*
+
+    # Revert .bashrc if the script didn't complete successfully
+    if [ -f ~/.bashrc.bak ] && [ "$script_completed" != "true" ]; then
+        mv ~/.bashrc.bak ~/.bashrc
+        log_and_display "\e[1;34m Reverted .bashrc to original state. \e[0m"
+    fi
+
+    # Add any other cleanup tasks here
+    
+    log_and_display "\e[1;34m Cleanup completed. \e[0m"
+}
+
+# Trap for cleanup
+trap cleanup EXIT
+
+# Variable to track script completion
+script_completed="false"
+
+# Introduction and instruction
 log_and_display "\e[1;34m This script should run unattended. \e[0m"
 sleep 1s
-
 log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
 sleep 3s
+
+# Function to cache sudo credentials and keep them alive
+cache_sudo() {
+    sudo -v
+    ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
+}
+
 
 # Update
 log_and_display "\e[1;34m Preparing system before installing applications. \e[0m" 
@@ -96,6 +125,7 @@ sleep 1s
 
 sudo apt update
 sudo apt upgrade -y
+
 
 # Install Nala
 log_and_display "\e[1;34m Adding curl and installing Nala. Because it is better than apt. \e[0m"
@@ -115,7 +145,7 @@ sudo nala autoremove -y
 log_and_display "\e[1;34m Installing Gnome utilities, if needed. \e[0m"
 sleep 2s
 if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
-  sudo nala install gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
+  sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
 # Check the OS for Pop OS specific steps
@@ -193,6 +223,8 @@ if ! command -v flatpak &> /dev/null; then
   sudo nala install -y flatpak
 fi
 
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
 # Iterate through the list of Flatpak applications
 for app in "${flatpak_apps[@]}"; do
   if flatpak list | grep -qw "$app"; then
@@ -263,6 +295,10 @@ if [[ $? -ne 0 ]]; then
   log_and_display "\e[1;34m Failed to download maid logo. \e[0m"
   exit 1
 fi
+
+# Needed for cleanup functions:
+script_completed="true"
+
 
 log_and_display "\e[1;34m Finishing up now. Shop smart, shop S-Mart. \e[0m"
 sleep 1s
