@@ -15,7 +15,15 @@
 SLEEP=2s
 now=$(date)
 
-echo -e "\e[1;34m Step 1: Updating apt and flatpak packages. Don't Mix Danger, Handle with Care! \e[0m"  
+# Define the log file path
+log_file="/home/$USER/update_log.txt"
+
+# Function to log and display messages
+log_and_display() {
+  echo -e "$1" | lolcat | tee -a "$log_file"
+}
+
+log_and_display "Step 1: Updating apt and flatpak packages. Don't Mix Danger, Handle with Care!"  
 
 sudo nala update
 
@@ -23,7 +31,7 @@ flatpak update -y
 
 echo -e "\e[44m                                            \e[0m"
 
-echo -e "\e[1;34m Step 2: Repairing Flatpacks. Groovy. \e[0m"  
+log_and_display "Step 2: Repairing Flatpacks. Groovy."  
 
 sleep $SLEEP
 
@@ -31,7 +39,7 @@ sudo flatpak repair
 
 echo -e "\e[44m                                            \e[0m"
 
-echo -e "\e[1;34m Step 3: Upgrading apt packages. So no more runnin. I aim to misbehave. \e[0m"
+log_and_display "Step 3: Upgrading apt packages. So no more runnin. I aim to misbehave."
 
 sleep $SLEEP
 
@@ -40,7 +48,7 @@ sudo apt full-upgrade -y
 
 echo -e "\e[44m                                            \e[0m"
 
-echo -e "\e[1;34m Step 4: Cleaning up apt and flatpak. Don't Panic. \e[0m"  
+log_and_display "Step 4: Cleaning up apt and flatpak. Don't Panic."  
 
 sleep $SLEEP
  
@@ -50,34 +58,25 @@ flatpak uninstall --unused -y
 
 echo -e "\e[44m                                            \e[0m"
 
-echo -e "\e[1;34m Step 5: Updating audit file now. You heard about Pluto? That's messed up, right? \e[0m"
+log_and_display "Step 5: Updating audit file now. You heard about Pluto? That's messed up, right?"
 
 sudo date >> "/home/$USER/updatelog.txt"
-
-echo -e "\e[1;34m The system time and date is: \e[0m"
-echo -e "\e[1;34m $now \e[0m"
-
-sudo cat "/home/$USER/updatelog.txt" | tail -10
 
 echo -e "\e[44m                                            \e[0m"
 
 sleep $SLEEP
 
-#fastfetch -l maid  
-
-#sleep $SLEEP
-
 echo -e "\e[44m                                            \e[0m"
 
-echo -e "\e[1;34m The system desktop is: \e[0m"
+log_and_display "The system desktop is:"
 echo $XDG_SESSION_DESKTOP
 
-echo -e "\e[1;34m The windowing system is: \e[0m"
+log_and_display"The windowing system is:"
 echo $XDG_SESSION_TYPE
 
 echo -e "\e[44m                                            \e[0m"
 
-echo -e "\e[1;34m Step 5: Workshed upgrade script is finished running. Shop smart, Shop S-Mart! \e[0m"
+log_and_display "Step 5: Workshed upgrade script is finished running. Shop smart, Shop S-Mart!"
 
 figlet Workshed | lolcat -a -d 3
 

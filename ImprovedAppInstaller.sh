@@ -5,7 +5,7 @@ log_file="/home/$USER/install_log.txt"
 
 # Function to log and display messages
 log_and_display() {
-  echo -e "$1" | tee -a "$log_file"
+  echo -e "$1" | lolcat | tee -a "$log_file"
 }
 
 # List of .deb packages to install
@@ -84,7 +84,7 @@ installed_flatpak_apps=()
 
 # Cleanup function
 cleanup() {
-    log_and_display "\e[1;34m Cleaning up... \e[0m"
+    log_and_display "Cleaning up..."
     
     # Remove any temporary files
     rm -f /tmp/install_script_*
@@ -97,7 +97,7 @@ cleanup() {
 
     # Add any other cleanup tasks here
     
-    log_and_display "\e[1;34m Cleanup completed. \e[0m"
+    log_and_display "Cleanup completed."
 }
 
 # Trap for cleanup
@@ -107,9 +107,9 @@ trap cleanup EXIT
 script_completed="false"
 
 # Introduction and instruction
-log_and_display "\e[1;34m This script should run unattended to automate setting up a clean OS install.\e[0m"
+log_and_display "This script should run unattended to automate setting up a clean OS install."
 sleep 2s
-log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
+log_and_display "Don't Mix Danger, Handle with Care!"
 sleep 3s
 
 # Function to cache sudo credentials and keep them alive
@@ -125,7 +125,7 @@ cache_sudo() {
 }
 
 # Update apt and install any needed upgrades first
-log_and_display "\e[1;34m Preparing system before installing new applications. This will install any available upgrades.  \e[0m" 
+log_and_display "Preparing system before installing new applications. This will install any available upgrades." 
 sleep 1s
 
 sudo apt update
@@ -133,32 +133,32 @@ sudo apt upgrade -y
 
 
 # Install Nala so we can use it instead of apt for the rest of the script
-log_and_display "\e[1;34m Adding curl and installing Nala. Because it is better than apt. \e[0m"
+log_and_display "Adding curl and installing Nala. Because it is better than apt."
 sleep 2s
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
 # Remove old version of LibeOffice until OSes start shipping newer versions.
-log_and_display "\e[1;34m Removing the old packaged version of Libre Office. The script will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
+log_and_display "Removing the old packaged version of Libre Office. The script will install from flatpak later in the script. The flatpak version is more up to date."
 sleep 3s
 sudo nala remove --purge -y "libreoffice*"
 sudo nala clean -y
 sudo nala autoremove -y
 
 # Check if Desktop Environment is Gnome and installing utilities to make Gnome usable.
-log_and_display "\e[1;34m Installing Gnome utilities, if needed. \e[0m"
+log_and_display "Installing Gnome utilities, if needed."
 sleep 2s
 if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
   sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
 # Check to see if the OS is Pop OS so we can use Pop OS app store. And uninstall the Pop Shop.
-log_and_display "\e[1;34m Checking OS to see if Pop OS specific steps are needed. \e[0m"
+log_and_display "Checking OS to see if Pop OS specific steps are needed."
 sleep 2s
 os_name=$(lsb_release -si)
 if [[ "$os_name" == "Pop" || "$os_name" == "Pop!_OS" ]]; then
-    log_and_display "\e[1;34m Running on Pop!_OS. Proceeding with installation and uninstallation. \e[0m"
+    log_and_display "Running on Pop!_OS. Proceeding with installation and uninstallation."
     # Install cosmic-icons and cosmic-store
     sudo nala install cosmic-icons cosmic-store -y
     # Uninstall the Pop Shop
@@ -167,14 +167,14 @@ if [[ "$os_name" == "Pop" || "$os_name" == "Pop!_OS" ]]; then
 fi
 
 # Add repo and install MakeMKV that actually works.
-log_and_display "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
+log_and_display "Installing MakeMKV from the heyarje repo. This one works better than the flathub one." 
 sleep 2s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
 
 # Add repo and install FastFetch
-log_and_display "\e[1;34m Installing Fastfetch from the zhangsongcui repo. Make sure to confirm actions. This step is needed until fastfest is available as a system or flatpak install. \e[0m" 
+log_and_display "Installing Fastfetch from the zhangsongcui repo. Make sure to confirm actions. This step is needed until fastfest is available as a system or flatpak install." 
 sleep 2s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
@@ -199,33 +199,33 @@ is_flatpak_installed() {
   flatpak list | grep -qw "$1"
 }
 
-log_and_display "\e[1;34m Installing deb packages now. \e[0m" 
+log_and_display "Installing deb packages now." 
 sleep 2s
 
 # Update package list for .deb packages
-log_and_display "\e[1;34m Updating package list...\e[0m"
+log_and_display "Updating package list..."
 sudo nala update
 
 # Install each .deb package if not already installed
 for package in "${deb_packages[@]}"; do
   if dpkg -l | grep -qw "$package"; then
-    log_and_display "\e[1;34m $package is already installed, skipping. \e[0m"
+    log_and_display " $package is already installed, skipping."
   else
-    log_and_display "\e[1;34m Installing $package...\e[0m"
+    log_and_display "Installing $package..."
     if sudo nala install -y "$package"; then
       installed_deb_packages+=("$package")
     else
-      log_and_display "\e[1;34m Failed to install $package. \e[0m"
+      log_and_display "Failed to install $package."
     fi
   fi
 done
 
-log_and_display "\e[1;34m Installing flatpak applications now. \e[0m" 
+log_and_display "Installing flatpak applications now." 
 sleep 2s
 
 # Install Flatpak if not already installed
 if ! command -v flatpak &> /dev/null; then
-  log_and_display "\e[1;34m Flatpak is not installed, installing Flatpak... \e[0m"
+  log_and_display "Flatpak is not installed, installing Flatpak..."
   sudo nala install -y flatpak
   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
@@ -233,60 +233,60 @@ fi
 # Iterate through the list of Flatpak applications
 for app in "${flatpak_apps[@]}"; do
   if flatpak list | grep -qw "$app"; then
-    log_and_display "\e[1;34m $app is already installed, skipping. \e[0m"
+    log_and_display "$app is already installed, skipping."
   else
-    log_and_display "\e[1;34m Installing $app... \e[0m"
+    log_and_display "Installing $app... "
     if flatpak install -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
       installed_flatpak_apps+=("$app")
-      log_and_display "\e[1;34m $app installed successfully. \e[0m"
+      log_and_display "$app installed successfully."
     else
-      log_and_display "\e[1;34m Failed to install $app. Check for errors. \e[0m"
+      log_and_display "Failed to install $app. Check for errors."
     fi
   fi
 done
 
 # Generate installed applications report
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
-  log_and_display "\e[1;34m No new programs were installed. \e[0m"
+  log_and_display "No new programs were installed."
 else
-  log_and_display "\e[1;34m The following .deb packages were installed: \e[0m"
+  log_and_display "The following .deb packages were installed:"
   for package in "${installed_deb_packages[@]}"; do
     echo "- $package" | tee -a "$log_file"
   done
-  log_and_display "\e[1;34m The following Flatpak applications were installed: \e[0m"
+  log_and_display "The following Flatpak applications were installed:"
   for app in "${installed_flatpak_apps[@]}"; do
     echo "- $app" | tee -a "$log_file"
   done
 fi
 
 # Create update script
-log_and_display "\e[1;34m Creating and downloading the update.sh script. This will make updates easier. \e[0m"
+log_and_display "Creating and downloading the update.sh script. This will make updates easier."
 sleep 2s
 sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o /usr/bin/update.sh
 if [[ $? -ne 0 ]]; then
-  log_and_display "\e[1;34m Failed to download update.sh script. \e[0m"
+  log_and_display "Failed to download update.sh script."
   exit 1
 fi
 sudo chmod +x /usr/bin/update.sh
 
 # Modify .bashrc file
-log_and_display "\e[1;34m Modifying .bashrc file to include useful aliases. \e[0m" 
+log_and_display "Modifying .bashrc file to include useful aliases." 
 sleep 3s
 
 # Make a backup of the original .bashrc file
 sudo cp ~/.bashrc ~/.bashrc.bak
 
 # Download and append the new aliases to the .bashrc file
-log_and_display "\e[1;34m Downloading and appending aliases to .bashrc file... \e[0m"
+log_and_display "Downloading and appending aliases to .bashrc file..."
 sleep 2s
 curl -sL "https://github.com/mdleslie/workshed/raw/workshed/bash.rc%20aliases" | tee -a ~/.bashrc
 if [[ $? -ne 0 ]]; then
-  log_and_display "\e[1;34m Failed to download bash.rc aliases. \e[0m"
+  log_and_display "Failed to download bash.rc aliases."
   exit 1
 fi
 
 # Adding a Band Maid logo for fastfetch
-log_and_display "\e[1;34m Adding new logo for fastfetch. An impossibly hard rocking maid logo. \e[0m"
+log_and_display "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
 sleep 3s
 
 # Create the logos directory if it doesn't already exist
@@ -297,7 +297,7 @@ curl -sL "https://github.com/mdleslie/workshed/raw/workshed/maid" -o ~/.local/sh
 
 # Check if the download was successful
 if [[ $? -ne 0 ]]; then
-  log_and_display "\e[1;34m Failed to download maid logo. \e[0m"
+  log_and_display "Failed to download maid logo."
   exit 1
 fi
 
@@ -307,10 +307,7 @@ script_completed="true"
 sudo nala autoremove -y
 sudo nala clean -y
 
-log_and_display "\e[1;34m Finishing up now. Shop smart, shop S-Mart. \e[0m"
+log_and_display "Finishing up now. Shop smart, shop S-Mart."
 sleep 3s
-
-
-
 
 figlet Workshed | lolcat -a -d 3
