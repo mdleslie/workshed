@@ -119,6 +119,20 @@ display() {
     echo -e "${color}$message${NC}" | lolcat
 }
 
+# Function to display a progress bar
+show_progress() {
+  local duration=$1
+  local increment=$((duration / 20))
+  local counter=0
+  printf "["
+  while [ $counter -le 20 ]; do
+    printf "#"
+    sleep $increment
+    counter=$((counter + 1))
+  done
+  printf "]\n"
+}
+
 # Error handling
 set -e
 trap 'log ERROR "An error occurred. Exit code: $?"' ERR
@@ -154,9 +168,9 @@ cache_sudo() {
 # Start of script
 log INFO "Starting installation script"
 display $BLUE "This script will automate setting up a clean OS install."
-sleep 2s
+show_progress 2
 display $YELLOW "Don't Mix Danger, Handle with Care!"
-sleep 3s
+show_progress 3
 
 # Cache sudo credentials
 log INFO "Caching sudo credentials"
@@ -171,6 +185,7 @@ sudo apt upgrade -y
 # Install Nala
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
+show_progress 2
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
@@ -178,6 +193,7 @@ sudo nala update
 # Remove LibreOffice
 log INFO "Removing LibreOffice"
 display $YELLOW "Removing the old packaged version of LibreOffice."
+show_progress 3
 sudo nala remove --purge -y "libreoffice*"
 sudo nala clean 
 sudo nala autoremove -y
@@ -189,6 +205,7 @@ echo "DESKTOP_SESSION: $DESKTOP_SESSION"
 if [[ "$DESKTOP_SESSION" =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
     log "INFO" "Installing Gnome utilities"
     display "$GREEN" "Installing Gnome utilities."
+    show_progress 3
     sudo apt install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
@@ -197,6 +214,7 @@ os_name=$(lsb_release -si)
 if [[ "$os_name" == "Pop" || "$os_name" == "Pop!_OS" ]]; then
     log INFO "Running Pop!_OS specific steps"
     display $GREEN "Running on Pop!_OS. Proceeding with installation and uninstallation."
+    show_progress 3
     sudo nala install cosmic-icons cosmic-store -y
     sudo nala remove pop-shop -y
     sudo nala purge pop-shop -y
@@ -205,6 +223,7 @@ fi
 # Install MakeMKV
 log INFO "Installing MakeMKV"
 display $GREEN "Installing MakeMKV from the heyarje repo."
+show_progress 3
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
@@ -212,6 +231,7 @@ sudo nala install makemkv-bin makemkv-oss -y
 # Install FastFetch
 log INFO "Installing FastFetch"
 display $GREEN "Installing Fastfetch from the zhangsongcui repo."
+show_progress 3
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
@@ -273,9 +293,12 @@ else
     printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
 fi
 
+show_progress 5
+
 # Create update script
 log INFO "Creating update script"
 display $GREEN "Creating and downloading the update.sh script."
+show_progress 3
 sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o /usr/bin/update.sh
 if [[ $? -ne 0 ]]; then
     log ERROR "Failed to download update.sh script"
@@ -286,6 +309,7 @@ sudo chmod +x /usr/bin/update.sh
 # Modify .bashrc file
 log INFO "Modifying .bashrc file"
 display $GREEN "Modifying .bashrc file to include useful aliases."
+show_progress 3
 sudo cp ~/.bashrc ~/.bashrc.bak
 curl -sL "https://github.com/mdleslie/workshed/raw/workshed/bash.rc%20aliases" | tee -a ~/.bashrc
 if [[ $? -ne 0 ]]; then
@@ -296,6 +320,7 @@ fi
 # Add Band Maid logo for fastfetch
 log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
+show_progress 3
 mkdir -p ~/.local/share/fastfetch/logos
 curl -sL "https://github.com/mdleslie/workshed/raw/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 if [[ $? -ne 0 ]]; then
@@ -312,7 +337,7 @@ sudo nala clean
 script_completed="true"
 log INFO "Installation script completed successfully"
 display $BLUE "Finishing up now. Shop smart, shop S-Mart."
-sleep 3s
+show_progress 5
 
 figlet Workshed | lolcat -a -d 3
 
