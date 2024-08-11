@@ -119,6 +119,18 @@ display() {
     echo -e "${color}$message${NC}" | lolcat
 }
 
+# Function to check if the output is a terminal
+lol() {
+  if [ -t 1 ]; then
+    "$@" | lolcat
+  else
+    "$@"
+  fi
+}
+
+# Bind the function to the RETURN key
+bind 'RETURN: "\e[1~lol \e[4~\n"'
+
 # Function to display a progress bar
 show_progress() {
   local duration=$1
