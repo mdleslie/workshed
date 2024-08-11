@@ -303,7 +303,7 @@ fi
 # Cleanup
 log INFO "Performing final cleanup"
 sudo nala autoremove -y
-sudo nala clean -y
+sudo nala clean
 
 # Script completion
 script_completed="true"
