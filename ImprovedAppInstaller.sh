@@ -113,11 +113,16 @@ log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
 sleep 3s
 
 # Function to cache sudo credentials and keep them alive
+#
+# This function runs the 'sudo -v' command to validate the user's sudo credentials.
+# It then starts an infinite loop that periodically checks if the sudo process is still running.
+# If the process is still running, it sleeps for 60 seconds. If the process is not running,
+# the loop exits. The output of the loop is redirected to '/dev/null' to suppress any output.
+# The function is run in the background using the '&' operator.
 cache_sudo() {
     sudo -v
     ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
 }
-
 
 # Update
 log_and_display "\e[1;34m Preparing system before installing applications. \e[0m" 
