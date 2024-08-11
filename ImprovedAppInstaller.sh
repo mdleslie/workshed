@@ -88,6 +88,7 @@ installed_flatpak_apps=()
 # Check if lolcat is installed
 if ! command -v lolcat &> /dev/null; then
     log_and_display " lolcat is not installed. Installing lolcat."
+    sleep 5s
     sudo apt update && sudo apt install -y lolcat
 fi
 
@@ -131,20 +132,6 @@ lol() {
 # Bind the function to the RETURN key
 bind 'RETURN: "\e[1~lol \e[4~\n"'
 
-# Function to display a progress bar
-show_progress() {
-  local duration=$1
-  local increment=$((duration / 20))
-  local counter=0
-  printf "["
-  while [ $counter -le 20 ]; do
-    printf "#"
-    sleep $increment
-    counter=$((counter + 1))
-  done
-  printf "]\n"
-}
-
 # Error handling
 set -e
 trap 'log ERROR "An error occurred. Exit code: $?"' ERR
@@ -179,10 +166,10 @@ cache_sudo() {
 
 # Start of script
 log INFO "Starting installation script"
-display $BLUE "This script will automate setting up a clean OS install."
-show_progress 5
-display $YELLOW "Don't Mix Danger, Handle with Care!"
-show_progress 5
+display $GREEN "This script will automate setting up a clean OS install."
+sleep 5s
+display $BLUE "Don't Mix Danger, Handle with Care!"
+sleep 5s
 
 # Cache sudo credentials
 log INFO "Caching sudo credentials"
@@ -191,22 +178,22 @@ cache_sudo
 # Update and upgrade system
 log INFO "Updating and upgrading system"
 display $GREEN "Preparing system before installing new applications."
-show_progress 5
+sleep 5s
 sudo apt update
 sudo apt upgrade -y
 
 # Install Nala
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
-show_progress 5
+sleep 5s
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
 # Remove LibreOffice
 log INFO "Removing LibreOffice"
-display $YELLOW "Removing the old packaged version of LibreOffice."
-show_progress 5
+display $GREEN "Removing the old packaged version of LibreOffice."
+sleep 5s
 sudo nala remove --purge -y "libreoffice*"
 sudo nala clean 
 sudo nala autoremove -y
@@ -218,8 +205,8 @@ echo "DESKTOP_SESSION: $DESKTOP_SESSION"
 if [[ "$DESKTOP_SESSION" =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
     log "INFO" "Installing Gnome utilities"
     display "$GREEN" "Installing Gnome utilities."
-    show_progress 5
-    sudo apt install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
+    sleep 5s
+    sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
 # Check for Pop!_OS
@@ -227,7 +214,7 @@ os_name=$(lsb_release -si)
 if [[ "$os_name" == "Pop" || "$os_name" == "Pop!_OS" ]]; then
     log INFO "Running Pop!_OS specific steps"
     display $GREEN "Running on Pop!_OS. Proceeding with installation and uninstallation."
-    show_progress 5
+    sleep 5s
 
     # Check if pop-shop is installed
     if dpkg -l pop-shop | grep -q "ii"; then
@@ -244,7 +231,7 @@ fi
 # Install MakeMKV
 log INFO "Installing MakeMKV"
 display $GREEN "Installing MakeMKV from the heyarje repo."
-show_progress 5
+sleep 5s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
@@ -252,7 +239,7 @@ sudo nala install makemkv-bin makemkv-oss -y
 # Install FastFetch
 log INFO "Installing FastFetch"
 display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-show_progress 5
+sleep 5s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
@@ -314,12 +301,12 @@ else
     printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
 fi
 
-show_progress 5
+sleep 10s
 
 # Create update script
 log INFO "Creating update script"
 display $GREEN "Creating and downloading the update.sh script."
-show_progress 5
+sleep 5s
 sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o /usr/bin/update.sh
 if [[ $? -ne 0 ]]; then
     log ERROR "Failed to download update.sh script"
@@ -330,7 +317,7 @@ sudo chmod +x /usr/bin/update.sh
 # Modify .bashrc file
 log INFO "Modifying .bashrc file"
 display $GREEN "Modifying .bashrc file to include useful aliases."
-show_progress 5
+sleep 5s
 sudo cp ~/.bashrc ~/.bashrc.bak
 curl -sL "https://github.com/mdleslie/workshed/raw/workshed/bash.rc%20aliases" | tee -a ~/.bashrc
 if [[ $? -ne 0 ]]; then
@@ -341,7 +328,7 @@ fi
 # Add Band Maid logo for fastfetch
 log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
-show_progress 5
+sleep 5s
 mkdir -p ~/.local/share/fastfetch/logos
 curl -sL "https://github.com/mdleslie/workshed/raw/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 if [[ $? -ne 0 ]]; then
@@ -358,7 +345,7 @@ sudo nala clean
 script_completed="true"
 log INFO "Installation script completed successfully"
 display $BLUE "Finishing up now. Shop smart, shop S-Mart."
-show_progress 5
+sleep 10s
 
 figlet Workshed | lolcat -a -d 3
 
