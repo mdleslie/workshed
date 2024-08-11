@@ -304,12 +304,13 @@ fi
 # Needed for cleanup functions:
 script_completed="true"
 
+sudo nala autoremove -y
+sudo nala clean -y
 
 log_and_display "\e[1;34m Finishing up now. Shop smart, shop S-Mart. \e[0m"
 sleep 3s
 
-sudo nala autoremove -y
-sudo nala clean -y
+
 
 
 figlet Workshed | lolcat -a -d 3
