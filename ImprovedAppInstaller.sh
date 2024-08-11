@@ -5,7 +5,10 @@ log_file="/home/$USER/install_log.txt"
 
 # Function to log and display messages
 log_and_display() {
-  echo -e "$1" | lolcat | tee -a "$log_file"
+  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  message="$timestamp: $1"
+  echo "$message" | lolcat
+  echo "$message" >> "$log_file"
 }
 
 # List of .deb packages to install
@@ -84,7 +87,7 @@ installed_flatpak_apps=()
 
 # Check if lolcat is installed
 if ! command -v lolcat &> /dev/null; then
-    log_and_display "\e[1;31m lolcat is not installed. Installing lolcat...\e[0m"
+    log_and_display " lolcat is not installed. Installing lolcat."
     sudo apt update && sudo apt install -y lolcat
 fi
 
