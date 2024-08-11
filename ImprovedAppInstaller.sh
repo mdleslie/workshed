@@ -47,7 +47,6 @@ deb_packages=(
   "cpu-x"
   "python3"
   "pip"
-  "lolcat"
   "figlet"
   "fonts-inter"
   "mangohud"
@@ -81,6 +80,9 @@ flatpak_apps=(
 # Array to store the names of installed .deb packages and Flatpak applications
 installed_deb_packages=()
 installed_flatpak_apps=()
+
+
+sudo apt install lolcat -y
 
 # Cleanup function
 cleanup() {
