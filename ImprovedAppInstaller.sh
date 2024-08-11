@@ -107,8 +107,8 @@ trap cleanup EXIT
 script_completed="false"
 
 # Introduction and instruction
-log_and_display "\e[1;34m This script should run unattended. \e[0m"
-sleep 1s
+log_and_display "\e[1;34m This script should run unattended to automate setting up a clean OS install.\e[0m"
+sleep 2s
 log_and_display "\e[1;34m Don't Mix Danger, Handle with Care! \e[0m"
 sleep 3s
 
@@ -124,40 +124,41 @@ cache_sudo() {
     ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
 }
 
-# Update
-log_and_display "\e[1;34m Preparing system before installing applications. \e[0m" 
+# Update apt and install any needed upgrades first
+log_and_display "\e[1;34m Preparing system before installing new applications. This will install any available upgrades.  \e[0m" 
 sleep 1s
 
 sudo apt update
 sudo apt upgrade -y
 
 
-# Install Nala
+# Install Nala so we can use it instead of apt for the rest of the script
 log_and_display "\e[1;34m Adding curl and installing Nala. Because it is better than apt. \e[0m"
 sleep 2s
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
-# Remove old version of LibeOffice
+# Remove old version of LibeOffice until OSes start shipping newer versions.
 log_and_display "\e[1;34m Removing the old packaged version of Libre Office. The script will install from flatpak later in the script. The flatpak version is more up to date. \e[0m"
 sleep 3s
 sudo nala remove --purge -y "libreoffice*"
 sudo nala clean -y
 sudo nala autoremove -y
 
-# Check if Desktop Environment is Gnome
+# Check if Desktop Environment is Gnome and installing utilities to make Gnome usable.
 log_and_display "\e[1;34m Installing Gnome utilities, if needed. \e[0m"
 sleep 2s
 if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
   sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
-# Check the OS for Pop OS specific steps
+# Check to see if the OS is Pop OS so we can use Pop OS app store. And uninstall the Pop Shop.
 log_and_display "\e[1;34m Checking OS to see if Pop OS specific steps are needed. \e[0m"
 sleep 2s
 os_name=$(lsb_release -si)
-if [ "$os_name" == "Pop" ]; then
+if [[ "$os_name" == "Pop" || "$os_name" == "Pop!_OS" ]]; then
+    log_and_display "\e[1;34m Running on Pop!_OS. Proceeding with installation and uninstallation. \e[0m"
     # Install cosmic-icons and cosmic-store
     sudo nala install cosmic-icons cosmic-store -y
     # Uninstall the Pop Shop
@@ -165,7 +166,7 @@ if [ "$os_name" == "Pop" ]; then
     sudo nala purge pop-shop -y
 fi
 
-# Add repo and install MakeMKV
+# Add repo and install MakeMKV that actually works.
 log_and_display "\e[1;34m Installing MakeMKV from the heyarje repo. This one works better than the flathub one. \e[0m" 
 sleep 2s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
@@ -226,9 +227,8 @@ sleep 2s
 if ! command -v flatpak &> /dev/null; then
   log_and_display "\e[1;34m Flatpak is not installed, installing Flatpak... \e[0m"
   sudo nala install -y flatpak
+  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
-
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # Iterate through the list of Flatpak applications
 for app in "${flatpak_apps[@]}"; do
@@ -245,7 +245,7 @@ for app in "${flatpak_apps[@]}"; do
   fi
 done
 
-# Generate report
+# Generate installed applications report
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
   log_and_display "\e[1;34m No new programs were installed. \e[0m"
 else
@@ -260,7 +260,7 @@ else
 fi
 
 # Create update script
-log_and_display "\e[1;34m Modifying update.sh file... \e[0m"
+log_and_display "\e[1;34m Creating and downloading the update.sh script. This will make updates easier. \e[0m"
 sleep 2s
 sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o /usr/bin/update.sh
 if [[ $? -ne 0 ]]; then
@@ -270,8 +270,8 @@ fi
 sudo chmod +x /usr/bin/update.sh
 
 # Modify .bashrc file
-log_and_display "\e[1;34m Modifying .bashrc file... \e[0m" 
-sleep 2s
+log_and_display "\e[1;34m Modifying .bashrc file to include useful aliases. \e[0m" 
+sleep 3s
 
 # Make a backup of the original .bashrc file
 sudo cp ~/.bashrc ~/.bashrc.bak
@@ -285,9 +285,9 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-# Adding new logo for fastfetch
-log_and_display "\e[1;34m Adding new logo for fastfetch... \e[0m"
-sleep 2s
+# Adding a Band Maid logo for fastfetch
+log_and_display "\e[1;34m Adding new logo for fastfetch. An impossibly hard rocking maid logo. \e[0m"
+sleep 3s
 
 # Create the logos directory if it doesn't already exist
 mkdir -p ~/.local/share/fastfetch/logos
@@ -306,6 +306,6 @@ script_completed="true"
 
 
 log_and_display "\e[1;34m Finishing up now. Shop smart, shop S-Mart. \e[0m"
-sleep 1s
+sleep 3s
 
 figlet Workshed | lolcat -a -d 3
