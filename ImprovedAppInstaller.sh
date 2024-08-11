@@ -182,11 +182,14 @@ sudo nala remove --purge -y "libreoffice*"
 sudo nala clean -y
 sudo nala autoremove -y
 
+# Debug: Print DESKTOP_SESSION
+echo "DESKTOP_SESSION: $DESKTOP_SESSION"
+
 # Install Gnome utilities if needed
-if [[ $(echo "$DESKTOP_SESSION") =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
-    log INFO "Installing Gnome utilities"
-    display $GREEN "Installing Gnome utilities."
-    sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
+if [[ "$DESKTOP_SESSION" =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
+    log "INFO" "Installing Gnome utilities"
+    display "$GREEN" "Installing Gnome utilities."
+    sudo apt install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
 
 # Check for Pop!_OS
