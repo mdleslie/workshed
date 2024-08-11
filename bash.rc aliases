@@ -16,7 +16,7 @@ alias i='sudo nala install'
 alias mem5='ps auxf | sort -nr -k 4 | head -5'
 alias parrot='curl parrot.live'
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
-alias update='update.sh'
+alias update='update.sh | lolcat'
 alias yt='youtube-dl --add-metadata -ic'
 alias fetch='sudo nala fetch'
 alias fix='sudo apt --fix-broken install'
@@ -24,12 +24,13 @@ alias mkdir='mkdir -pv'
 alias wget='wget -c'
 alias du='ncdu'
 alias df='pydf'
+alias cat='cat | lolcat'
 
 
 
 ### Fastfetch logo ###
 ##############Place maid logo in ~/.local/share/fastfetch/logos/maid for below to work
-alias fastfetch='fastfetch -l maid'
+alias fastfetch='fastfetch -l maid | lolcat'
 
 # Nice username colors
 export PS1='\[\e[0;36m\]\u\[\e[0m\]@\[\e[0;32m\]\h\[\e[0m\]:\[\e[0;34m\]\w\[\e[0m\]> '

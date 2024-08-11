@@ -11,6 +11,7 @@
 
 #################################################################
 
+
 SLEEP=2s
 now=$(date)
 
@@ -56,7 +57,7 @@ sudo date >> "/home/$USER/updatelog.txt"
 echo -e "\e[1;34m The system time and date is: \e[0m"
 echo -e "\e[1;34m $now \e[0m"
 
-sudo cat "/home/$USER/updatelog.txt" | tail -5
+sudo cat "/home/$USER/updatelog.txt" | tail -10
 
 echo -e "\e[44m                                            \e[0m"
 
