@@ -179,7 +179,7 @@ sudo nala update
 log INFO "Removing LibreOffice"
 display $YELLOW "Removing the old packaged version of LibreOffice."
 sudo nala remove --purge -y "libreoffice*"
-sudo nala clean -y
+sudo nala clean 
 sudo nala autoremove -y
 
 # Debug: Print DESKTOP_SESSION
@@ -306,7 +306,7 @@ fi
 # Cleanup
 log INFO "Performing final cleanup"
 sudo nala autoremove -y
-sudo nala clean -y
+sudo nala clean
 
 # Script completion
 script_completed="true"
