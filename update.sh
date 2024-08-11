@@ -23,6 +23,12 @@ log_and_display() {
   echo -e "$1" | lolcat | tee -a "$log_file"
 }
 
+# Check if lolcat is installed
+if ! command -v lolcat &> /dev/null; then
+    log_and_display "\e[1;31m lolcat is not installed. Installing lolcat...\e[0m"
+    sudo apt update && sudo apt install -y lolcat
+fi
+
 log_and_display "Step 1: Updating apt and flatpak packages. Don't Mix Danger, Handle with Care!"  
 
 sudo nala update

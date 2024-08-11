@@ -82,7 +82,11 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 
-sudo apt install lolcat -y
+# Check if lolcat is installed
+if ! command -v lolcat &> /dev/null; then
+    log_and_display "\e[1;31m lolcat is not installed. Installing lolcat...\e[0m"
+    sudo apt update && sudo apt install -y lolcat
+fi
 
 # Cleanup function
 cleanup() {
