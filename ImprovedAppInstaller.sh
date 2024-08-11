@@ -92,6 +92,8 @@ if ! command -v lolcat &> /dev/null; then
     sudo apt update && sudo apt install -y lolcat
 fi
 
+echo '########################################' | lolcat
+
 # Define log files
 log_file="/home/$USER/install_log.txt"
 update_summary="/home/$USER/install_summary.txt"
@@ -171,6 +173,8 @@ sleep 5s
 display $BLUE "Don't Mix Danger, Handle with Care!"
 sleep 5s
 
+echo '########################################' | lolcat
+
 # Cache sudo credentials
 log INFO "Caching sudo credentials"
 cache_sudo
@@ -182,6 +186,8 @@ sleep 5s
 sudo apt update
 sudo apt upgrade -y
 
+echo '########################################' | lolcat
+
 # Install Nala
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
@@ -190,6 +196,8 @@ sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
+echo '########################################' | lolcat
+
 # Remove LibreOffice
 log INFO "Removing LibreOffice"
 display $GREEN "Removing the old packaged version of LibreOffice."
@@ -197,6 +205,8 @@ sleep 5s
 sudo nala remove --purge -y "libreoffice*"
 sudo nala clean 
 sudo nala autoremove -y
+
+echo '########################################' | lolcat
 
 # Debug: Print DESKTOP_SESSION
 echo "DESKTOP_SESSION: $DESKTOP_SESSION"
@@ -208,6 +218,8 @@ if [[ "$DESKTOP_SESSION" =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
     sleep 5s
     sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
 fi
+
+echo '########################################' | lolcat
 
 # Check for Pop!_OS
 os_name=$(lsb_release -si)
@@ -228,6 +240,8 @@ if [[ "$os_name" == "Pop" || "$os_name" == "Pop!_OS" ]]; then
     sudo nala install cosmic-icons cosmic-store -y
 fi
 
+echo '########################################' | lolcat
+
 # Install MakeMKV
 log INFO "Installing MakeMKV"
 display $GREEN "Installing MakeMKV from the heyarje repo."
@@ -235,6 +249,8 @@ sleep 5s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
+
+echo '########################################' | lolcat
 
 # Install FastFetch
 log INFO "Installing FastFetch"
@@ -244,12 +260,16 @@ sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
 
+echo '########################################' | lolcat
+
 # Preconfigure Microsoft fonts and libdvd-pkg
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 export DEBIAN_FRONTEND=noninteractive
 sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
+
+echo '########################################' | lolcat
 
 # Install .deb packages
 log INFO "Installing .deb packages"
@@ -266,6 +286,8 @@ for package in "${deb_packages[@]}"; do
         fi
     fi
 done
+
+echo '########################################' | lolcat
 
 # Install Flatpak applications
 log INFO "Installing Flatpak applications"
@@ -290,6 +312,8 @@ for app in "${flatpak_apps[@]}"; do
     fi
 done
 
+echo '########################################' | lolcat
+
 # Generate installation report
 log INFO "Generating installation report"
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
@@ -300,6 +324,8 @@ else
     echo "Installed Flatpak applications:" >> "$update_summary"
     printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
 fi
+
+echo '########################################' | lolcat
 
 sleep 10s
 
@@ -314,6 +340,8 @@ if [[ $? -ne 0 ]]; then
 fi
 sudo chmod +x /usr/bin/update.sh
 
+echo '########################################' | lolcat
+
 # Modify .bashrc file
 log INFO "Modifying .bashrc file"
 display $GREEN "Modifying .bashrc file to include useful aliases."
@@ -324,6 +352,8 @@ if [[ $? -ne 0 ]]; then
     log ERROR "Failed to download bash.rc aliases"
     exit 1
 fi
+
+echo '########################################' | lolcat
 
 # Add Band Maid logo for fastfetch
 log INFO "Adding Band Maid logo for fastfetch"
@@ -336,10 +366,14 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
+echo '########################################' | lolcat
+
 # Cleanup
 log INFO "Performing final cleanup"
 sudo nala autoremove -y
 sudo nala clean
+
+echo '########################################' | lolcat
 
 # Script completion
 script_completed="true"
@@ -347,7 +381,12 @@ log INFO "Installation script completed successfully"
 display $BLUE "Finishing up now. Shop smart, shop S-Mart."
 sleep 10s
 
+echo '########################################' | lolcat
+
 figlet Workshed | lolcat -a -d 3
 
 log INFO "Installation summary saved to $update_summary"
 display $GREEN "Installation summary saved to $update_summary"
+
+
+echo '########################################' | lolcat
