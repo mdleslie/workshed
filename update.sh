@@ -24,6 +24,12 @@ display() {
     echo "$1" | lolcat
 }
 
+# Check if system is pending a reboot
+if [ -f /var/run/reboot-required ]; then
+    log WARNING "A system reboot is required. Please reboot before running this script."
+    exit 1
+fi
+
 # Error handling
 set -e
 trap 'log ERROR "An error occurred. Exit code: $?"' ERR
@@ -45,12 +51,23 @@ echo "$nala_update" >> "$update_summary"
 echo "Flatpak update:" >> "$update_summary"
 echo "$flatpak_update" >> "$update_summary"
 
+# Pop specific upgrade
+log INFO "Updating Pop!_OS specific components"
+display "Upgrades specific to Pop OS!"
+pop_os_update=$(sudo pop-upgrade release upgrade 2>&1)
+echo "Pop!_OS update:" >> "$update_summary"
+echo "$pop_os_update" >> "$update_summary"
+
+sleep $SLEEP
+
 log INFO "Step 2: Repairing Flatpaks"
 display "Step 2: Repairing Flatpacks. Groovy."
 sleep $SLEEP
 flatpak_repair=$(sudo flatpak repair 2>&1)
 echo "Flatpak repair:" >> "$update_summary"
 echo "$flatpak_repair" >> "$update_summary"
+
+sleep $SLEEP
 
 log INFO "Step 3: Upgrading apt packages"
 display "Step 3: Upgrading apt packages. So no more runnin. I aim to misbehave."
@@ -62,6 +79,8 @@ echo "$nala_upgrade" >> "$update_summary"
 echo "Apt full-upgrade:" >> "$update_summary"
 echo "$apt_upgrade" >> "$update_summary"
 
+sleep $SLEEP
+
 log INFO "Step 4: Cleaning up"
 display "Step 4: Cleaning up. Don't Panic."
 sleep $SLEEP
@@ -72,6 +91,8 @@ echo "$nala_autoremove" >> "$update_summary"
 echo "Flatpak unused uninstall:" >> "$update_summary"
 echo "$flatpak_uninstall" >> "$update_summary"
 
+sleep $SLEEP
+
 log INFO "Step 5: Updating audit file"
 display "Step 5: Updating audit file now. You heard about Pluto? That's messed up, right?"
 echo "$now - Update completed" >> "/home/$USER/update_audit.txt"
@@ -79,23 +100,43 @@ echo "$now - Update completed" >> "/home/$USER/update_audit.txt"
 sleep $SLEEP
 
 log INFO "System desktop: $XDG_SESSION_DESKTOP"
-display "The system desktop is: $XDG_SESSION_DESKTOP"
+display "Your current system desktop is: $XDG_SESSION_DESKTOP"
+
+sleep $SLEEP
 
 log INFO "Windowing system: $XDG_SESSION_TYPE"
-display "The windowing system is: $XDG_SESSION_TYPE"
+display "Your current windowing system is: $XDG_SESSION_TYPE"
+
+sleep $SLEEP
 
 log INFO "Update script finished"
-display "Step 5: Workshed upgrade script is finished running. Shop smart, Shop S-Mart!"
+display "Workshed upgrade script is finished running. Shop smart, Shop S-Mart!"
 
+sleep $SLEEP
 
 sudo date >> "/home/$USER/update_log.txt"
 
 log INFO "Update summary saved to $update_summary"
 display "Update summary saved to $update_summary"
 
+# Updates were successful or failed.
+if [ $? -eq 0 ]; then
+    log INFO "All updates completed successfully"
+    display "All updates successful. Who Dey!"
+else
+    log ERROR "Some updates failed. Check the logs for details."
+    display "Some updates have failed. Check logs for details."
+fi
+
 sudo cat "/home/$USER/update_audit.txt" | tail -10 | lolcat
 
 sleep $SLEEP
+
+# Reboot request if kernal has been upgraded.
+if [ -f /var/run/reboot-required ]; then
+    log WARNING "A system reboot is required after the updates."
+    display "A reboot is required for upgrade."
+fi
 
 figlet Workshed | lolcat -a -d 3
 
