@@ -22,26 +22,14 @@ deb_packages=(
   "mediainfo"
   "vlc"
   "youtube-dl"
-  "libdvdcss2"
-  "libavcodec-extra"
   "libssl-dev"
   "libexpat1-dev"
   "libgl1-mesa-dev"
   "libgstreamer1.0-dev"
   "libgstreamer-plugins-base1.0-dev" 
-  "libgstreamer-plugins-bad1.0-dev" 
-  "gstreamer1.0-plugins-base" 
-  "gstreamer1.0-plugins-good" 
-  "gstreamer1.0-plugins-bad" 
-  "gstreamer1.0-plugins-ugly" 
-  "gstreamer1.0-libav" 
-  "gstreamer1.0-tools" 
-  "gstreamer1.0-x" 
-  "gstreamer1.0-alsa" 
-  "gstreamer1.0-gl" 
-  "gstreamer1.0-gtk3" 
+  "libgstreamer-plugins-bad1.0-dev"  
+  "gstreamer1.0-plugins-bad"   
   "gstreamer1.0-qt5" 
-  "gstreamer1.0-pulseaudio"
   "nfs-common"
   "cifs-utils"
   "gamemode"
@@ -55,6 +43,12 @@ deb_packages=(
   "mangohud"
   "ncdu"
   "pydf"
+  "gnome-tweaks" 
+  "gnome-sushi" 
+  "imagemagick"
+  "nautilus-image-converter" 
+  "nautilus-admin" 
+  "ffmpegthumbnailer"
 )
 
 # List of Flatpak applications to install
@@ -211,13 +205,7 @@ echo '########################################' | lolcat
 # Debug: Print DESKTOP_SESSION
 echo "DESKTOP_SESSION: $DESKTOP_SESSION"
 
-# Install Gnome utilities if needed
-if [[ "$DESKTOP_SESSION" =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
-    log "INFO" "Installing Gnome utilities"
-    display "$GREEN" "Installing Gnome utilities."
-    sleep 5s
-    sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
-fi
+sleep 5s
 
 echo '########################################' | lolcat
 
