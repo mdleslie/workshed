@@ -86,11 +86,14 @@ display "The windowing system is: $XDG_SESSION_TYPE"
 
 log INFO "Update script finished"
 display "Step 5: Workshed upgrade script is finished running. Shop smart, Shop S-Mart!"
-sleep $SLEEP
 
+
+sudo date >> "/home/$USER/update_log.txt"
 
 log INFO "Update summary saved to $update_summary"
 display "Update summary saved to $update_summary"
+
+sudo cat "/home/$USER/update_audit.txt" | tail -10 | lolcat
 
 sleep $SLEEP
 
