@@ -3,7 +3,7 @@
 SLEEP=2s
 now=$(date +"%Y-%m-%d %H:%M:%S")
 log_file="/home/$USER/update_log.txt"
-update_summary="/home/$USER/update_summary.txt"
+update_summary="/home/$USER/uupdate_summary_$(date +"%Y%m%d_%H%M%S").txt"
 
 # Log rotation
 if [ -f "$log_file" ]; then
@@ -58,12 +58,17 @@ if (( $(echo "$available_space < 5" | bc -l) )); then
     exit 1
 fi
 
+# Prompt for sudo password early
+sudo echo "Sudo access granted. Starting update process..."
+
 log INFO "Updating packages"
 display "Updating packages. Don't Mix Danger, Handle with Care!"
 nala_update=$(sudo nala update 2>&1)
 flatpak_update=$(flatpak update -y 2>&1)
+echo "$nala_update" >> "$log_file"
 echo "Nala update:" >> "$update_summary"
 echo "$nala_update" >> "$update_summary"
+echo "$flatpak_update" >> "$log_file"
 echo "Flatpak update:" >> "$update_summary"
 echo "$flatpak_update" >> "$update_summary"
 
@@ -73,6 +78,7 @@ display "Upgrades specific to Pop OS!"
 pop_os_update=$(sudo pop-upgrade release upgrade 2>&1)
 echo "Pop!_OS update:" >> "$update_summary"
 echo "$pop_os_update" >> "$update_summary"
+echo "$pop_os_update" >> "$log_file"
 
 sleep $SLEEP
 
@@ -82,6 +88,7 @@ sleep $SLEEP
 flatpak_repair=$(sudo flatpak repair 2>&1)
 echo "Flatpak repair:" >> "$update_summary"
 echo "$flatpak_repair" >> "$update_summary"
+echo "$flatpak_repair" >> "$log_file"
 
 sleep $SLEEP
 
@@ -94,6 +101,8 @@ echo "Nala upgrade:" >> "$update_summary"
 echo "$nala_upgrade" >> "$update_summary"
 echo "Apt full-upgrade:" >> "$update_summary"
 echo "$apt_upgrade" >> "$update_summary"
+echo "$nala_upgrade" >> "$log_file"
+echo "$apt_upgrade" >> "$log_file"
 
 sleep $SLEEP
 
@@ -106,6 +115,8 @@ echo "Nala autoremove:" >> "$update_summary"
 echo "$nala_autoremove" >> "$update_summary"
 echo "Flatpak unused uninstall:" >> "$update_summary"
 echo "$flatpak_uninstall" >> "$update_summary"
+echo "$nala_autoremove" >> "$log_file"
+echo "$flatpak_uninstall" >> "$log_file"
 
 sleep $SLEEP
 
