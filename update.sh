@@ -39,11 +39,27 @@ log INFO "Starting update script"
 # Check if lolcat is installed
 if ! command -v lolcat &> /dev/null; then
     log WARNING "lolcat is not installed. Installing lolcat."
+    display "Installing lolcat. It is nice."
     sudo apt update && sudo apt install -y lolcat
 fi
 
-log INFO "Step 1: Updating packages"
-display "Step 1: Updating packages. Don't Mix Danger, Handle with Care!"
+# Check if nala is installed
+if ! command -v nala &> /dev/null; then
+    log WARNING "nala is not installed. Installing nala."
+    display "Installing Nala. Because it is better than apt."
+    sudo apt update && sudo apt install -y nala
+fi
+
+# Checking available Hard drive space.
+available_space=$(df -h / | awk 'NR==2 {print $4}' | sed 's/G//')
+if (( $(echo "$available_space < 5" | bc -l) )); then
+    log WARNING "Less than 5GB of free space available. Clean up disk space before updating."
+    display "WARNING!!!  Less than 5GB of free space available. Clean up disk space before updating!"
+    exit 1
+fi
+
+log INFO "Updating packages"
+display "Updating packages. Don't Mix Danger, Handle with Care!"
 nala_update=$(sudo nala update 2>&1)
 flatpak_update=$(flatpak update -y 2>&1)
 echo "Nala update:" >> "$update_summary"
@@ -60,8 +76,8 @@ echo "$pop_os_update" >> "$update_summary"
 
 sleep $SLEEP
 
-log INFO "Step 2: Repairing Flatpaks"
-display "Step 2: Repairing Flatpacks. Groovy."
+log INFO "Repairing Flatpaks"
+display "Repairing Flatpacks. Groovy."
 sleep $SLEEP
 flatpak_repair=$(sudo flatpak repair 2>&1)
 echo "Flatpak repair:" >> "$update_summary"
@@ -69,8 +85,8 @@ echo "$flatpak_repair" >> "$update_summary"
 
 sleep $SLEEP
 
-log INFO "Step 3: Upgrading apt packages"
-display "Step 3: Upgrading apt packages. So no more runnin. I aim to misbehave."
+log INFO "Upgrading apt packages"
+display "Upgrading apt packages. So no more runnin. I aim to misbehave."
 sleep $SLEEP
 nala_upgrade=$(sudo nala upgrade -y 2>&1)
 apt_upgrade=$(sudo apt full-upgrade -y 2>&1)
@@ -81,8 +97,8 @@ echo "$apt_upgrade" >> "$update_summary"
 
 sleep $SLEEP
 
-log INFO "Step 4: Cleaning up"
-display "Step 4: Cleaning up. Don't Panic."
+log INFO "Cleaning up"
+display "Cleaning up. Don't Panic."
 sleep $SLEEP
 nala_autoremove=$(sudo nala autoremove -y 2>&1)
 flatpak_uninstall=$(flatpak uninstall --unused -y 2>&1)
@@ -93,8 +109,8 @@ echo "$flatpak_uninstall" >> "$update_summary"
 
 sleep $SLEEP
 
-log INFO "Step 5: Updating audit file"
-display "Step 5: Updating audit file now. You heard about Pluto? That's messed up, right?"
+log INFO "Updating audit file"
+display "Updating audit file now. You heard about Pluto? That's messed up, right?"
 echo "$now - Update completed" >> "/home/$USER/update_audit.txt"
 
 sleep $SLEEP
@@ -106,11 +122,6 @@ sleep $SLEEP
 
 log INFO "Windowing system: $XDG_SESSION_TYPE"
 display "Your current windowing system is: $XDG_SESSION_TYPE"
-
-sleep $SLEEP
-
-log INFO "Update script finished"
-display "Workshed upgrade script is finished running. Shop smart, Shop S-Mart!"
 
 sleep $SLEEP
 
@@ -137,6 +148,11 @@ if [ -f /var/run/reboot-required ]; then
     log WARNING "A system reboot is required after the updates."
     display "A reboot is required for upgrade."
 fi
+
+log INFO "Update script finished"
+display "Workshed upgrade script is finished running. Shop smart, Shop S-Mart!"
+
+sleep $SLEEP
 
 figlet Workshed | lolcat -a -d 3
 
