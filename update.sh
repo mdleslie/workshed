@@ -51,15 +51,32 @@ if ! command -v nala &> /dev/null; then
 fi
 
 # Checking available Hard drive space.
-available_space=$(df -h / | awk 'NR==2 {print $4}' | sed 's/G//')
-if (( $(echo "$available_space < 5" | bc -l) )); then
-    log WARNING "Less than 5GB of free space available. Clean up disk space before updating."
-    display "WARNING!!!  Less than 5GB of free space available. Clean up disk space before updating!"
+available_space=$(df -h $HOME | awk 'NR==2 {print $4}')
+available_space_numeric=$(echo $available_space | sed 's/[^0-9.]//g')
+available_space_unit=$(echo $available_space | sed 's/[0-9.]//g')
+
+case $available_space_unit in
+    [Gg]*) multiplier=1 ;;
+    [Mm]*) multiplier=0.001 ;;
+    [Kk]*) multiplier=0.000001 ;;
+    *) multiplier=1000 ;;
+esac
+
+available_space_gb=$(echo "$available_space_numeric * $multiplier" | bc)
+
+if (( $(echo "$available_space_gb < 5" | bc -l) )); then
+    echo "WARNING!!! Less than 5GB of free space available. Clean up disk space before updating!"
     exit 1
 fi
 
 # Prompt for sudo password early
-sudo echo "Sudo access granted. Starting update process..."
+echo "This script requires sudo privileges. Please enter your password when prompted."
+if sudo -v; then
+    echo "Sudo access granted. Starting update process..."
+else
+    echo "Failed to obtain sudo privileges. Exiting."
+    exit 1
+fi
 
 log INFO "Updating packages"
 display "Updating packages. Don't Mix Danger, Handle with Care!"
