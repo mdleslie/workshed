@@ -259,6 +259,8 @@ sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 
 echo '########################################' | lolcat
 
+sleep 5s
+
 # Install .deb packages
 log INFO "Installing .deb packages"
 display $GREEN "Installing .deb packages."
@@ -276,6 +278,8 @@ for package in "${deb_packages[@]}"; do
 done
 
 echo '########################################' | lolcat
+
+sleep 5s
 
 # Install Flatpak applications
 log INFO "Installing Flatpak applications"
@@ -315,7 +319,7 @@ fi
 
 echo '########################################' | lolcat
 
-sleep 10s
+sleep 5s
 
 # Create update script
 log INFO "Creating update script"
@@ -338,6 +342,20 @@ sudo cp ~/.bashrc ~/.bashrc.bak
 curl -sL "https://github.com/mdleslie/workshed/raw/workshed/bash.rc%20aliases" | tee -a ~/.bashrc
 if [[ $? -ne 0 ]]; then
     log ERROR "Failed to download bash.rc aliases"
+    exit 1
+fi
+
+echo '########################################' | lolcat
+
+# Modify fstab file
+log INFO "Modifying fstab file"
+display $BLUE "Modifying fstab file to include nfs mount to Arkive."
+mkdir -p /mnt/Arkive
+sleep 5s
+sudo cp /etc/fstab /etc/fstab.bak
+curl -sL "https://github.com/mdleslie/workshed/blob/workshed/fstab" | tee -a /etc/fstab
+if [[ $? -ne 0 ]]; then
+    log ERROR "Failed to download nfs mount fstab entry"
     exit 1
 fi
 
