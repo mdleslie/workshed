@@ -163,7 +163,7 @@ cache_sudo() {
 # Start of script
 log INFO "Starting installation script"
 display $GREEN "This script will automate setting up a clean OS install."
-sleep 5s
+sleep 2s
 display $BLUE "Don't Mix Danger, Handle with Care!"
 sleep 5s
 
@@ -176,7 +176,7 @@ cache_sudo
 # Update and upgrade system
 log INFO "Updating and upgrading system"
 display $GREEN "Preparing system before installing new applications."
-sleep 5s
+sleep 2s
 sudo apt update
 sudo apt upgrade -y
 
@@ -185,7 +185,7 @@ echo '########################################' | lolcat
 # Install Nala
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
-sleep 5s
+sleep 2s
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
@@ -195,7 +195,7 @@ echo '########################################' | lolcat
 # Remove LibreOffice
 log INFO "Removing LibreOffice"
 display $GREEN "Removing the old packaged version of LibreOffice."
-sleep 5s
+sleep 2s
 sudo nala remove --purge -y "libreoffice*"
 sudo nala clean 
 sudo nala autoremove -y
@@ -204,8 +204,6 @@ echo '########################################' | lolcat
 
 # Debug: Print DESKTOP_SESSION
 echo "DESKTOP_SESSION: $DESKTOP_SESSION"
-
-sleep 5s
 
 echo '########################################' | lolcat
 
@@ -233,7 +231,7 @@ echo '########################################' | lolcat
 # Install MakeMKV
 log INFO "Installing MakeMKV"
 display $GREEN "Installing MakeMKV from the heyarje repo."
-sleep 5s
+sleep 2s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
@@ -243,7 +241,7 @@ echo '########################################' | lolcat
 # Install FastFetch
 log INFO "Installing FastFetch"
 display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-sleep 5s
+sleep 2s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
@@ -258,8 +256,8 @@ sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 
 echo '########################################' | lolcat
-
-sleep 5s
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Install .deb packages
 log INFO "Installing .deb packages"
@@ -278,8 +276,8 @@ for package in "${deb_packages[@]}"; do
 done
 
 echo '########################################' | lolcat
-
-sleep 5s
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Install Flatpak applications
 log INFO "Installing Flatpak applications"
@@ -305,6 +303,8 @@ for app in "${flatpak_apps[@]}"; do
 done
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Generate installation report
 log INFO "Generating installation report"
@@ -319,54 +319,90 @@ fi
 
 echo '########################################' | lolcat
 
-sleep 5s
-
 # Create update script
 log INFO "Creating update script"
 display $GREEN "Creating and downloading the update.sh script."
-sleep 5s
-sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o /usr/bin/update.sh
-if [[ $? -ne 0 ]]; then
-    log ERROR "Failed to download update.sh script"
+
+update_script="/usr/bin/update.sh"
+sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o "$update_script"
+if [[ $? -eq 0 && -s "$update_script" ]]; then
+    sudo chmod +x "$update_script"
+    log INFO "Successfully downloaded and set up update.sh script"
+else
+    log ERROR "Failed to download update.sh script or the downloaded file is empty"
+    sudo rm -f "$update_script"  # Clean up in case of a partial download
     exit 1
 fi
-sudo chmod +x /usr/bin/update.sh
 
 echo '########################################' | lolcat
 
 # Modify .bashrc file
 log INFO "Modifying .bashrc file"
 display $GREEN "Modifying .bashrc file to include useful aliases."
-sleep 5s
-sudo cp ~/.bashrc ~/.bashrc.bak
-curl -sL "https://github.com/mdleslie/workshed/raw/workshed/bash.rc%20aliases" | tee -a ~/.bashrc
-if [[ $? -ne 0 ]]; then
+
+# Backup existing .bashrc
+cp ~/.bashrc ~/.bashrc.bak
+
+# Download and append aliases
+aliases=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%20aliases")
+if [[ $? -eq 0 && -n "$aliases" ]]; then
+    echo -e "\n# Added aliases\n$aliases" >> ~/.bashrc
+    if [[ $? -eq 0 ]]; then
+        log INFO "Successfully added aliases to .bashrc"
+    else
+        log ERROR "Failed to modify .bashrc file"
+        exit 1
+    fi
+else
     log ERROR "Failed to download bash.rc aliases"
     exit 1
 fi
+
+log INFO "Successfully modified .bashrc"
+display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
 
 echo '########################################' | lolcat
 
 # Modify fstab file
 log INFO "Modifying fstab file"
-display $BLUE "Modifying fstab file to include nfs mount to Arkive."
-mkdir -p /mnt/Arkive
-sleep 5s
+display $BLUE "Modifying fstab file to include NFS mount to Arkive."
+
+# Create mount point
+sudo mkdir -p /mnt/Arkive
+
+# Backup existing fstab
 sudo cp /etc/fstab /etc/fstab.bak
-curl -sL "https://github.com/mdleslie/workshed/blob/workshed/fstab" | tee -a /etc/fstab
-if [[ $? -ne 0 ]]; then
-    log ERROR "Failed to download nfs mount fstab entry"
+
+# Download and append NFS mount entry
+fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")
+if [[ $? -eq 0 && -n "$fstab_entry" ]]; then
+    echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
+    if [[ $? -eq 0 ]]; then
+        log INFO "Successfully added NFS mount entry to fstab"
+    else
+        log ERROR "Failed to modify fstab file"
+        exit 1
+    fi
+else
+    log ERROR "Failed to download NFS mount fstab entry"
     exit 1
 fi
+
+# Validate fstab
+if ! sudo mount -a; then
+    log ERROR "Failed to mount all entries in fstab. Please check /etc/fstab for errors."
+    exit 1
+fi
+
+log INFO "Successfully modified fstab and verified mounts"
 
 echo '########################################' | lolcat
 
 # Add Band Maid logo for fastfetch
 log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
-sleep 5s
 mkdir -p ~/.local/share/fastfetch/logos
-curl -sL "https://github.com/mdleslie/workshed/raw/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
+curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 if [[ $? -ne 0 ]]; then
     log ERROR "Failed to download maid logo"
     exit 1
@@ -385,8 +421,12 @@ echo '########################################' | lolcat
 script_completed="true"
 log INFO "Installation script completed successfully"
 display $BLUE "Finishing up now. Shop smart, shop S-Mart."
-sleep 10s
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 figlet Workshed | lolcat -a -d 3
