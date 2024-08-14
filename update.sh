@@ -5,7 +5,7 @@ mkdir -p /home/$USER/logs
 SLEEP=2s
 now=$(date +"%Y-%m-%d %H:%M:%S")
 log_file="/home/$USER/logs/update_log.txt"
-update_summary="/home/$USER/update_summary_$(date +"%Y%m%d_%H%M%S").txt"
+update_summary="/home/$USER/logs/update_summary_$(date +"%Y%m%d_%H%M%S").txt"
 
 # Log rotation
 if [ -f "$log_file" ]; then
