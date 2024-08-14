@@ -49,6 +49,10 @@ deb_packages=(
   "nautilus-image-converter" 
   "nautilus-admin" 
   "ffmpegthumbnailer"
+  "bind9-dnsutils"
+  "inetutils-traceroute"
+  "whois"
+  "nmap"
 )
 
 # List of Flatpak applications to install
