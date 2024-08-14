@@ -1,9 +1,11 @@
 #!/bin/bash
 
+mkdir -p /home/$USER/logs
+
 SLEEP=2s
 now=$(date +"%Y-%m-%d %H:%M:%S")
-log_file="/home/$USER/update_log.txt"
-update_summary="/home/$USER/uupdate_summary_$(date +"%Y%m%d_%H%M%S").txt"
+log_file="/home/$USER/logs/update_log.txt"
+update_summary="/home/$USER/update_summary_$(date +"%Y%m%d_%H%M%S").txt"
 
 # Log rotation
 if [ -f "$log_file" ]; then
@@ -139,7 +141,7 @@ sleep $SLEEP
 
 log INFO "Updating audit file"
 display "Updating audit file now. You heard about Pluto? That's messed up, right?"
-echo "$now - Update completed" >> "/home/$USER/update_audit.txt"
+echo "$now - Update completed" >> "/home/$USER/logs/update_audit.txt"
 
 sleep $SLEEP
 
@@ -153,7 +155,7 @@ display "Your current windowing system is: $XDG_SESSION_TYPE"
 
 sleep $SLEEP
 
-sudo date >> "/home/$USER/update_log.txt"
+sudo date >> "$log_file"
 
 log INFO "Update summary saved to $update_summary"
 display "Update summary saved to $update_summary"
@@ -167,7 +169,7 @@ else
     display "Some updates have failed. Check logs for details."
 fi
 
-sudo cat "/home/$USER/update_audit.txt" | tail -10 | lolcat
+sudo cat "/home/$USER/logs/update_audit.txt" | tail -10 | lolcat
 
 sleep $SLEEP
 
