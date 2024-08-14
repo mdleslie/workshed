@@ -53,6 +53,7 @@ deb_packages=(
   "inetutils-traceroute"
   "whois"
   "nmap"
+  "btop"
 )
 
 # List of Flatpak applications to install
