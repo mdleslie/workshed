@@ -54,6 +54,8 @@ deb_packages=(
   "whois"
   "nmap"
   "btop"
+  "mkvtoolnix"
+  "mkvtoolnix-gui"
 )
 
 # List of Flatpak applications to install
