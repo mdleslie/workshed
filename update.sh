@@ -72,7 +72,7 @@ if (( $(echo "$available_space_gb < 5" | bc -l) )); then
 fi
 
 # Prompt for sudo password early
-echo "This script requires sudo privileges. Please enter your password when prompted."
+echo "This script requires sudo privileges. Please enter your password now."
 if sudo -v; then
     echo "Sudo access granted. Starting update process..."
 else
