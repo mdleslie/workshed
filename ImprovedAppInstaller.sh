@@ -78,6 +78,7 @@ flatpak_apps=(
   "com.vscodium.codium"
   "com.jeffser.Alpaca"
   "com.dropbox.Client"
+  "org.jdownloader.JDownloader"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
