@@ -22,26 +22,14 @@ deb_packages=(
   "mediainfo"
   "vlc"
   "youtube-dl"
-  "libdvdcss2"
-  "libavcodec-extra"
   "libssl-dev"
   "libexpat1-dev"
   "libgl1-mesa-dev"
   "libgstreamer1.0-dev"
   "libgstreamer-plugins-base1.0-dev" 
-  "libgstreamer-plugins-bad1.0-dev" 
-  "gstreamer1.0-plugins-base" 
-  "gstreamer1.0-plugins-good" 
-  "gstreamer1.0-plugins-bad" 
-  "gstreamer1.0-plugins-ugly" 
-  "gstreamer1.0-libav" 
-  "gstreamer1.0-tools" 
-  "gstreamer1.0-x" 
-  "gstreamer1.0-alsa" 
-  "gstreamer1.0-gl" 
-  "gstreamer1.0-gtk3" 
+  "libgstreamer-plugins-bad1.0-dev"  
+  "gstreamer1.0-plugins-bad"   
   "gstreamer1.0-qt5" 
-  "gstreamer1.0-pulseaudio"
   "nfs-common"
   "cifs-utils"
   "gamemode"
@@ -55,6 +43,19 @@ deb_packages=(
   "mangohud"
   "ncdu"
   "pydf"
+  "gnome-tweaks" 
+  "gnome-sushi" 
+  "imagemagick"
+  "nautilus-image-converter" 
+  "nautilus-admin" 
+  "ffmpegthumbnailer"
+  "bind9-dnsutils"
+  "inetutils-traceroute"
+  "whois"
+  "nmap"
+  "btop"
+  "mkvtoolnix"
+  "mkvtoolnix-gui"
 )
 
 # List of Flatpak applications to install
@@ -170,7 +171,7 @@ cache_sudo() {
 # Start of script
 log INFO "Starting installation script"
 display $GREEN "This script will automate setting up a clean OS install."
-sleep 5s
+sleep 2s
 display $BLUE "Don't Mix Danger, Handle with Care!"
 sleep 5s
 
@@ -183,7 +184,7 @@ cache_sudo
 # Update and upgrade system
 log INFO "Updating and upgrading system"
 display $GREEN "Preparing system before installing new applications."
-sleep 5s
+sleep 2s
 sudo apt update
 sudo apt upgrade -y
 
@@ -192,7 +193,7 @@ echo '########################################' | lolcat
 # Install Nala
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
-sleep 5s
+sleep 2s
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
@@ -202,7 +203,7 @@ echo '########################################' | lolcat
 # Remove LibreOffice
 log INFO "Removing LibreOffice"
 display $GREEN "Removing the old packaged version of LibreOffice."
-sleep 5s
+sleep 2s
 sudo nala remove --purge -y "libreoffice*"
 sudo nala clean 
 sudo nala autoremove -y
@@ -211,14 +212,6 @@ echo '########################################' | lolcat
 
 # Debug: Print DESKTOP_SESSION
 echo "DESKTOP_SESSION: $DESKTOP_SESSION"
-
-# Install Gnome utilities if needed
-if [[ "$DESKTOP_SESSION" =~ [Gg][Nn][Oo][Mm][Ee] ]]; then
-    log "INFO" "Installing Gnome utilities"
-    display "$GREEN" "Installing Gnome utilities."
-    sleep 5s
-    sudo nala install gnome-tweaks gnome-sushi imagemagick nautilus-image-converter nautilus-admin ffmpegthumbnailer -y
-fi
 
 echo '########################################' | lolcat
 
@@ -246,7 +239,7 @@ echo '########################################' | lolcat
 # Install MakeMKV
 log INFO "Installing MakeMKV"
 display $GREEN "Installing MakeMKV from the heyarje repo."
-sleep 5s
+sleep 2s
 sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 sudo nala update
 sudo nala install makemkv-bin makemkv-oss -y
@@ -256,7 +249,7 @@ echo '########################################' | lolcat
 # Install FastFetch
 log INFO "Installing FastFetch"
 display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-sleep 5s
+sleep 2s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
@@ -270,6 +263,8 @@ export DEBIAN_FRONTEND=noninteractive
 sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Install .deb packages
@@ -288,6 +283,8 @@ for package in "${deb_packages[@]}"; do
     fi
 done
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Install Flatpak applications
@@ -314,6 +311,8 @@ for app in "${flatpak_apps[@]}"; do
 done
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Generate installation report
 log INFO "Generating installation report"
@@ -328,40 +327,90 @@ fi
 
 echo '########################################' | lolcat
 
-sleep 10s
-
 # Create update script
 log INFO "Creating update script"
 display $GREEN "Creating and downloading the update.sh script."
-sleep 5s
-sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o /usr/bin/update.sh
-if [[ $? -ne 0 ]]; then
-    log ERROR "Failed to download update.sh script"
+
+update_script="/usr/bin/update.sh"
+sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o "$update_script"
+if [[ $? -eq 0 && -s "$update_script" ]]; then
+    sudo chmod +x "$update_script"
+    log INFO "Successfully downloaded and set up update.sh script"
+else
+    log ERROR "Failed to download update.sh script or the downloaded file is empty"
+    sudo rm -f "$update_script"  # Clean up in case of a partial download
     exit 1
 fi
-sudo chmod +x /usr/bin/update.sh
 
 echo '########################################' | lolcat
 
 # Modify .bashrc file
 log INFO "Modifying .bashrc file"
 display $GREEN "Modifying .bashrc file to include useful aliases."
-sleep 5s
-sudo cp ~/.bashrc ~/.bashrc.bak
-curl -sL "https://github.com/mdleslie/workshed/raw/workshed/bash.rc%20aliases" | tee -a ~/.bashrc
-if [[ $? -ne 0 ]]; then
+
+# Backup existing .bashrc
+cp ~/.bashrc ~/.bashrc.bak
+
+# Download and append aliases
+aliases=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%20aliases")
+if [[ $? -eq 0 && -n "$aliases" ]]; then
+    echo -e "\n# Added aliases\n$aliases" >> ~/.bashrc
+    if [[ $? -eq 0 ]]; then
+        log INFO "Successfully added aliases to .bashrc"
+    else
+        log ERROR "Failed to modify .bashrc file"
+        exit 1
+    fi
+else
     log ERROR "Failed to download bash.rc aliases"
     exit 1
 fi
+
+log INFO "Successfully modified .bashrc"
+display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
+
+echo '########################################' | lolcat
+
+# Modify fstab file
+log INFO "Modifying fstab file"
+display $BLUE "Modifying fstab file to include NFS mount to Arkive."
+
+# Create mount point
+sudo mkdir -p /mnt/Arkive
+
+# Backup existing fstab
+sudo cp /etc/fstab /etc/fstab.bak
+
+# Download and append NFS mount entry
+fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")
+if [[ $? -eq 0 && -n "$fstab_entry" ]]; then
+    echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
+    if [[ $? -eq 0 ]]; then
+        log INFO "Successfully added NFS mount entry to fstab"
+    else
+        log ERROR "Failed to modify fstab file"
+        exit 1
+    fi
+else
+    log ERROR "Failed to download NFS mount fstab entry"
+    exit 1
+fi
+
+# Validate fstab
+if ! sudo mount -a; then
+    log ERROR "Failed to mount all entries in fstab. Please check /etc/fstab for errors."
+    exit 1
+fi
+
+log INFO "Successfully modified fstab and verified mounts"
 
 echo '########################################' | lolcat
 
 # Add Band Maid logo for fastfetch
 log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
-sleep 5s
 mkdir -p ~/.local/share/fastfetch/logos
-curl -sL "https://github.com/mdleslie/workshed/raw/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
+curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 if [[ $? -ne 0 ]]; then
     log ERROR "Failed to download maid logo"
     exit 1
@@ -380,8 +429,12 @@ echo '########################################' | lolcat
 script_completed="true"
 log INFO "Installation script completed successfully"
 display $BLUE "Finishing up now. Shop smart, shop S-Mart."
-sleep 10s
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 figlet Workshed | lolcat -a -d 3

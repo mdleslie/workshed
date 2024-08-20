@@ -1,9 +1,11 @@
 #!/bin/bash
 
+mkdir -p /home/$USER/logs
+
 SLEEP=2s
 now=$(date +"%Y-%m-%d %H:%M:%S")
-log_file="/home/$USER/update_log.txt"
-update_summary="/home/$USER/uupdate_summary_$(date +"%Y%m%d_%H%M%S").txt"
+log_file="/home/$USER/logs/update_log.txt"
+update_summary="/home/$USER/logs/update_summary_$(date +"%Y%m%d_%H%M%S").txt"
 
 # Log rotation
 if [ -f "$log_file" ]; then
@@ -51,15 +53,32 @@ if ! command -v nala &> /dev/null; then
 fi
 
 # Checking available Hard drive space.
-available_space=$(df -h / | awk 'NR==2 {print $4}' | sed 's/G//')
-if (( $(echo "$available_space < 5" | bc -l) )); then
-    log WARNING "Less than 5GB of free space available. Clean up disk space before updating."
-    display "WARNING!!!  Less than 5GB of free space available. Clean up disk space before updating!"
+available_space=$(df -h $HOME | awk 'NR==2 {print $4}')
+available_space_numeric=$(echo $available_space | sed 's/[^0-9.]//g')
+available_space_unit=$(echo $available_space | sed 's/[0-9.]//g')
+
+case $available_space_unit in
+    [Gg]*) multiplier=1 ;;
+    [Mm]*) multiplier=0.001 ;;
+    [Kk]*) multiplier=0.000001 ;;
+    *) multiplier=1000 ;;
+esac
+
+available_space_gb=$(echo "$available_space_numeric * $multiplier" | bc)
+
+if (( $(echo "$available_space_gb < 5" | bc -l) )); then
+    echo "WARNING!!! Less than 5GB of free space available. Clean up disk space before updating!"
     exit 1
 fi
 
 # Prompt for sudo password early
-sudo echo "Sudo access granted. Starting update process..."
+echo "This script requires sudo privileges. Enter password for $USER now."
+if sudo -v; then
+    echo "Sudo access granted. Starting update process..."
+else
+    echo "Failed to obtain sudo privileges. Exiting."
+    exit 1
+fi
 
 log INFO "Updating packages"
 display "Updating packages. Don't Mix Danger, Handle with Care!"
@@ -122,7 +141,7 @@ sleep $SLEEP
 
 log INFO "Updating audit file"
 display "Updating audit file now. You heard about Pluto? That's messed up, right?"
-echo "$now - Update completed" >> "/home/$USER/update_audit.txt"
+echo "$now - Update completed" >> "/home/$USER/logs/update_audit.txt"
 
 sleep $SLEEP
 
@@ -136,7 +155,7 @@ display "Your current windowing system is: $XDG_SESSION_TYPE"
 
 sleep $SLEEP
 
-sudo date >> "/home/$USER/update_log.txt"
+sudo date >> "$log_file"
 
 log INFO "Update summary saved to $update_summary"
 display "Update summary saved to $update_summary"
@@ -150,7 +169,7 @@ else
     display "Some updates have failed. Check logs for details."
 fi
 
-sudo cat "/home/$USER/update_audit.txt" | tail -10 | lolcat
+sudo cat "/home/$USER/logs/update_audit.txt" | tail -10 | lolcat
 
 sleep $SLEEP
 
