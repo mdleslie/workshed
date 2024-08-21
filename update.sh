@@ -73,6 +73,7 @@ fi
 
 # Prompt for sudo password early
 echo "This script requires sudo privileges. Enter password for $USER now."
+sleep .2s
 if sudo -v; then
     echo "Sudo access granted. Starting update process..."
 else
