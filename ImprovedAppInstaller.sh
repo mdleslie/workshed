@@ -80,6 +80,7 @@ flatpak_apps=(
   "com.jeffser.Alpaca"
   "com.dropbox.Client"
   "org.jdownloader.JDownloader"
+  "com.github.qarmin.czkawka"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
