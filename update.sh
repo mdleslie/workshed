@@ -83,60 +83,36 @@ fi
 
 log INFO "Updating packages"
 display "Updating packages. Don't Mix Danger, Handle with Care!"
-nala_update=$(sudo nala update 2>&1)
-flatpak_update=$(flatpak update -y 2>&1)
-echo "$nala_update" >> "$log_file"
-echo "Nala update:" >> "$update_summary"
-echo "$nala_update" >> "$update_summary"
-echo "$flatpak_update" >> "$log_file"
-echo "Flatpak update:" >> "$update_summary"
-echo "$flatpak_update" >> "$update_summary"
+sudo nala update -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+flatpak update -y --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 # Pop specific upgrade
 log INFO "Updating Pop!_OS specific components"
 display "Upgrades specific to Pop OS!"
-pop_os_update=$(sudo pop-upgrade release upgrade 2>&1)
-echo "Pop!_OS update:" >> "$update_summary"
-echo "$pop_os_update" >> "$update_summary"
-echo "$pop_os_update" >> "$log_file"
+sudo pop-upgrade release upgrade 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 sleep $SLEEP
 
 log INFO "Repairing Flatpaks"
 display "Repairing Flatpacks. Groovy."
 sleep $SLEEP
-flatpak_repair=$(sudo flatpak repair 2>&1)
-echo "Flatpak repair:" >> "$update_summary"
-echo "$flatpak_repair" >> "$update_summary"
-echo "$flatpak_repair" >> "$log_file"
+sudo flatpak repair --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 sleep $SLEEP
 
 log INFO "Upgrading apt packages"
 display "Upgrading apt packages. So no more runnin. I aim to misbehave."
 sleep $SLEEP
-nala_upgrade=$(sudo nala upgrade -y 2>&1)
-apt_upgrade=$(sudo apt full-upgrade -y 2>&1)
-echo "Nala upgrade:" >> "$update_summary"
-echo "$nala_upgrade" >> "$update_summary"
-echo "Apt full-upgrade:" >> "$update_summary"
-echo "$apt_upgrade" >> "$update_summary"
-echo "$nala_upgrade" >> "$log_file"
-echo "$apt_upgrade" >> "$log_file"
+sudo nala upgrade -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+sudo apt full-upgrade -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 sleep $SLEEP
 
 log INFO "Cleaning up"
 display "Cleaning up. Don't Panic."
 sleep $SLEEP
-nala_autoremove=$(sudo nala autoremove -y 2>&1)
-flatpak_uninstall=$(flatpak uninstall --unused -y 2>&1)
-echo "Nala autoremove:" >> "$update_summary"
-echo "$nala_autoremove" >> "$update_summary"
-echo "Flatpak unused uninstall:" >> "$update_summary"
-echo "$flatpak_uninstall" >> "$update_summary"
-echo "$nala_autoremove" >> "$log_file"
-echo "$flatpak_uninstall" >> "$log_file"
+sudo nala autoremove -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+flatpak uninstall --unused -y --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 sleep $SLEEP
 
@@ -174,7 +150,7 @@ sudo cat "/home/$USER/logs/update_audit.txt" | tail -10 | lolcat
 
 sleep $SLEEP
 
-# Reboot request if kernal has been upgraded.
+# Reboot request if kernel has been upgraded.
 if [ -f /var/run/reboot-required ]; then
     log WARNING "A system reboot is required after the updates."
     display "A reboot is required for upgrade."
