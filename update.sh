@@ -73,7 +73,7 @@ fi
 
 # Prompt for sudo password early
 echo "This script requires sudo privileges. Enter password for $USER now."
-sleep .2s
+sleep 2s
 if sudo -v; then
     echo "Sudo access granted. Starting update process..."
 else
@@ -83,12 +83,14 @@ fi
 
 log INFO "Updating packages"
 display "Updating packages. Don't Mix Danger, Handle with Care!"
+sleep 2s
 sudo nala update -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 flatpak update -y --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 # Pop specific upgrade
 log INFO "Updating Pop!_OS specific components"
 display "Upgrades specific to Pop OS!"
+sleep 2s
 sudo pop-upgrade release upgrade 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 sleep $SLEEP
@@ -145,6 +147,8 @@ else
     log ERROR "Some updates failed. Check the logs for details."
     display "Some updates have failed. Check logs for details."
 fi
+
+sleep $SLEEP
 
 sudo cat "/home/$USER/logs/update_audit.txt" | tail -10 | lolcat
 
