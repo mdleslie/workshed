@@ -82,6 +82,7 @@ flatpak_apps=(
   "org.jdownloader.JDownloader"
   "com.github.qarmin.czkawka"
   "org.darktable.Darktable"
+  "com.mattermost.Desktop"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
