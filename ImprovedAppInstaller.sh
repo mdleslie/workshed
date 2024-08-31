@@ -56,6 +56,7 @@ deb_packages=(
   "btop"
   "mkvtoolnix"
   "mkvtoolnix-gui"
+  "caja-dropbox"
 )
 
 # List of Flatpak applications to install
