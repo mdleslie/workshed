@@ -79,7 +79,6 @@ flatpak_apps=(
   "net.davidotek.pupgui2"
   "com.vscodium.codium"
   "com.jeffser.Alpaca"
-  "com.dropbox.Client"
   "org.jdownloader.JDownloader"
   "com.github.qarmin.czkawka"
   "org.darktable.Darktable"
