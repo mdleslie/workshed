@@ -2,7 +2,6 @@
 
 mkdir -p /home/$USER/logs
 
-SLEEP=2s
 now=$(date +"%Y-%m-%d %H:%M:%S")
 log_file="/home/$USER/logs/update_log.txt"
 update_summary="/home/$USER/logs/update_summary_$(date +"%Y%m%d_%H%M%S").txt"
@@ -67,7 +66,6 @@ fi
 
 # Prompt for sudo password early
 log_and_display INFO "This script requires sudo privileges. Enter password for $USER now."
-sleep 2s
 if sudo -v; then
     log_and_display INFO "Sudo access granted. Starting update process..."
 else
