@@ -83,6 +83,7 @@ flatpak_apps=(
   "com.github.qarmin.czkawka"
   "org.darktable.Darktable"
   "com.mattermost.Desktop"
+  "io.gitlab.theevilskeleton.Upscaler"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
