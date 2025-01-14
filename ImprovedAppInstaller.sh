@@ -86,6 +86,8 @@ flatpak_apps=(
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
   "fm.reaper.Reaper"
+  "com.google.Chrome"
+  "org.kde.digikam"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
