@@ -85,6 +85,7 @@ flatpak_apps=(
   "io.gitlab.theevilskeleton.Upscaler"
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
+  "fm.reaper.Reaper"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
