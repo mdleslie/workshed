@@ -21,7 +21,6 @@ deb_packages=(
   "mpv"
   "mediainfo"
   "vlc"
-  "youtube-dl"
   "libssl-dev"
   "libexpat1-dev"
   "libgl1-mesa-dev"
@@ -261,6 +260,14 @@ sleep 2s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
+
+echo '########################################' | lolcat
+
+# Install yt-dlp
+log INFO "Installing yt-dlp"
+display $GREEN "Installing yt-dlp."
+sleep 2s
+python3 -m pip install -U "yt-dlp[default]"
 
 echo '########################################' | lolcat
 
