@@ -426,8 +426,10 @@ log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
 mkdir -p ~/.local/share/fastfetch/logos
 curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
-if [[ $? -ne 0 ]]; then
-    log ERROR "Failed to download maid logo"
+if [[ $? -eq 0 && -s ~/.local/share/fastfetch/logos/maid ]]; then  # Check exit code AND file size
+    log INFO "Successfully downloaded Band Maid logo"
+else
+    log ERROR "Failed to download Band Maid logo. Curl exited with code $?"
     exit 1
 fi
 
