@@ -85,7 +85,6 @@ flatpak_apps=(
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
   "fm.reaper.Reaper"
-  "com.google.Chrome"
   "org.kde.digikam"
 )
 
@@ -277,6 +276,7 @@ echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select t
 export DEBIAN_FRONTEND=noninteractive
 sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
+unset DEBIAN_FRONTEND
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -316,9 +316,9 @@ for app in "${flatpak_apps[@]}"; do
         log INFO "$app is already installed, skipping."
     else
         log INFO "Installing $app"
-        if flatpak install -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
+        if flatpak install -y --noninteractive flathub "$app" &>> "$log_file"; then
             installed_flatpak_apps+=("$app")
-            log INFO "$app installed successfully"
+            # The success message is now logged via the redirection above.
         else
             log ERROR "Failed to install $app"
         fi
@@ -398,16 +398,16 @@ sudo cp /etc/fstab /etc/fstab.bak
 
 # Download and append NFS mount entry
 fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")
-if [[ $? -eq 0 && -n "$fstab_entry" ]]; then
+if [[ $? -eq 0 && -n "$fstab_entry" ]]; then  # Check curl exit code AND file content
     echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
     if [[ $? -eq 0 ]]; then
         log INFO "Successfully added NFS mount entry to fstab"
     else
-        log ERROR "Failed to modify fstab file"
+        log ERROR "Failed to modify fstab file (writing to /etc/fstab)."
         exit 1
     fi
 else
-    log ERROR "Failed to download NFS mount fstab entry"
+    log ERROR "Failed to download NFS mount fstab entry. Curl exited with code $?"
     exit 1
 fi
 
