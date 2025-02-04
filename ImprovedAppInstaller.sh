@@ -28,7 +28,12 @@ deb_packages=(
   "libgstreamer-plugins-base1.0-dev" 
   "libgstreamer-plugins-bad1.0-dev"  
   "gstreamer1.0-plugins-bad"   
-  "gstreamer1.0-qt5" 
+  "gstreamer1.0-qt5"
+  "gstreamer1.0-plugins-ugly"
+  "gstreamer1.0-plugins-good"
+  "gstreamer1.0-libav"
+  "libavcodec-extra"
+  "chromium-codecs-ffmpeg-extra" 
   "nfs-common"
   "cifs-utils"
   "gamemode"
@@ -86,6 +91,10 @@ flatpak_apps=(
   "io.github.flattool.Warehouse"
   "fm.reaper.Reaper"
   "org.kde.digikam"
+  "org.ardour.Ardour"
+  "org.guitarix.Guitarix"
+  "dev.bragefuglseth.Fretboard"
+  "net.sourceforge.kmetronome"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
