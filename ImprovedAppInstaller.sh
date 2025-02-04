@@ -303,12 +303,6 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Install yt-dlp
-log INFO "Installing yt-dlp"
-display $GREEN "Installing yt-dlp."
-sleep 2s
-python3 -m pip install -U "yt-dlp[default]"
-
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
