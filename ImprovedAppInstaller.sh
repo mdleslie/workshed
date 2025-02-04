@@ -271,14 +271,6 @@ sudo nala install fastfetch -y
 
 echo '########################################' | lolcat
 
-# Install yt-dlp
-log INFO "Installing yt-dlp"
-display $GREEN "Installing yt-dlp."
-sleep 2s
-python3 -m pip install -U "yt-dlp[default]"
-
-echo '########################################' | lolcat
-
 # Preconfigure Microsoft fonts and libdvd-pkg
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
@@ -306,6 +298,16 @@ for package in "${deb_packages[@]}"; do
         fi
     fi
 done
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+# Install yt-dlp
+log INFO "Installing yt-dlp"
+display $GREEN "Installing yt-dlp."
+sleep 2s
+python3 -m pip install -U "yt-dlp[default]"
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
