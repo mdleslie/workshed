@@ -446,8 +446,8 @@ echo '########################################' | lolcat
 log INFO "Installing yt-dlp"
 display $GREEN "Installing yt-dlp."
 sleep 2s
-curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/bin/yt-dlp
-chmod a+rx ~/bin/yt-dlp
+curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/usr/local/sbin/yt-dlp
+chmod a+rx ~/usr/local/sbin/yt-dlp
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
