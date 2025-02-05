@@ -416,14 +416,17 @@ else
     exit 1
 fi
 
+# Test section #
 # Validate fstab
-if ! sudo mount -a; then
-    log ERROR "Failed to mount all entries in fstab. Please check /etc/fstab for errors."
-    exit 1
-fi
+#if ! sudo mount -a; then
+#    log ERROR "Failed to mount all entries in fstab. Please check /etc/fstab for errors."
+#    exit 1
+#fi
 
-log INFO "Successfully modified fstab and verified mounts"
+#log INFO "Successfully modified fstab and verified mounts"
 
+
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Add Band Maid logo for fastfetch
