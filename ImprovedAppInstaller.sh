@@ -90,7 +90,6 @@ flatpak_apps=(
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
   "fm.reaper.Reaper"
-  "org.kde.digikam"
   "org.ardour.Ardour"
   "org.guitarix.Guitarix"
   "dev.bragefuglseth.Fretboard"
