@@ -446,7 +446,8 @@ echo '########################################' | lolcat
 log INFO "Installing yt-dlp"
 display $GREEN "Installing yt-dlp."
 sleep 2s
-python3 -m pip install -U "yt-dlp[default]"
+curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/.local/bin/yt-dlp
+chmod a+rx ~/.local/bin/yt-dlp
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
