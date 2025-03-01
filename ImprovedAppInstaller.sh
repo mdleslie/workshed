@@ -94,6 +94,7 @@ flatpak_apps=(
   "org.guitarix.Guitarix"
   "dev.bragefuglseth.Fretboard"
   "net.sourceforge.kmetronome"
+  "com.github.IsmaelMartinez.teams_for_linux"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
@@ -182,7 +183,7 @@ cache_sudo() {
     ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
 }
 
-# Start of script
+# Start of script installation message
 log INFO "Starting installation script"
 display $GREEN "This script will automate setting up a clean OS install."
 sleep 2s
@@ -301,7 +302,6 @@ done
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -415,7 +415,7 @@ else
     exit 1
 fi
 
-# Test section #
+# Test section, might be able to add this section again with new Pop OS release #
 # Validate fstab
 #if ! sudo mount -a; then
 #    log ERROR "Failed to mount all entries in fstab. Please check /etc/fstab for errors."
@@ -470,4 +470,9 @@ log INFO "Installation summary saved to $update_summary"
 display $GREEN "Installation summary saved to $update_summary"
 
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
