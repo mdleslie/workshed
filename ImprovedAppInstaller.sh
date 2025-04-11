@@ -90,10 +90,8 @@ flatpak_apps=(
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
   "fm.reaper.Reaper"
-  "org.ardour.Ardour"
   "org.guitarix.Guitarix"
-  "dev.bragefuglseth.Fretboard"
-  "net.sourceforge.kmetronome"
+  "com.discordapp.Discord"
   "com.github.IsmaelMartinez.teams_for_linux"
 )
 
