@@ -86,12 +86,12 @@ flatpak_apps=(
   "com.github.qarmin.czkawka"
   "org.darktable.Darktable"
   "com.mattermost.Desktop"
-  "io.gitlab.theevilskeleton.Upscaler"
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
   "fm.reaper.Reaper"
   "org.guitarix.Guitarix"
   "com.discordapp.Discord"
+  "org.kde.haruna"
   "com.github.IsmaelMartinez.teams_for_linux"
 )
 
