@@ -343,6 +343,19 @@ else
 fi
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+#Install yt-dlp
+log INFO "Installing Yt Dlp"
+display $GREEN "Installing YT DLP app"
+python3 -m pip install -U "yt-dlp[default]"
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Create update script
 log INFO "Creating update script"
