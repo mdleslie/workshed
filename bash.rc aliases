@@ -33,6 +33,7 @@ alias wget='wget -c'
 alias du='ncdu'
 alias df='pydf'
 alias cat='cat | lolcat'
+alias rm='rm -i'
 
 
 
@@ -67,6 +68,6 @@ fuck() { # do sudo, or sudo the last command if no argument given
 
 # SSH
 
-alias dell="ssh david@192.168.1.111"
+#alias dell="ssh david@192.168.1.111"
 alias merlin="ssh david@192.168.1.100 -p 42"
 alias arkive="ssh david@192.168.1.150 -p 42"
