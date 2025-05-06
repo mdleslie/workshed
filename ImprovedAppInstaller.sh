@@ -93,6 +93,7 @@ flatpak_apps=(
   "com.discordapp.Discord"
   "org.kde.haruna"
   "com.github.IsmaelMartinez.teams_for_linux"
+  "com.github.taiko2k.tauonmb"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
