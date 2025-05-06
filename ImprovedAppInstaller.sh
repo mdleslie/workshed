@@ -7,7 +7,7 @@ log_file="/home/$USER/install_log.txt"
 log_and_display() {
   timestamp=$(date +"%Y-%m-%d %H:%M:%S")
   message="$timestamp: $1"
-  echo "$message" | lolcat
+  echo "$message"
   echo "$message" >> "$log_file"
 }
 
@@ -188,8 +188,14 @@ log INFO "Starting installation script"
 display $GREEN "This script will automate setting up a clean OS install."
 sleep 2s
 display $BLUE "Don't Mix Danger, Handle with Care!"
+sleep 2s
+display $RED "Don't Mix Danger, Handle with Care!"
+sleep 2s
+display $GREEN "Don't Mix Danger, Handle with Care!"
 sleep 5s
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Cache sudo credentials
@@ -329,6 +335,9 @@ for app in "${flatpak_apps[@]}"; do
     fi
 done
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
