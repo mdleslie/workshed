@@ -94,6 +94,7 @@ flatpak_apps=(
   "org.kde.haruna"
   "com.github.IsmaelMartinez.teams_for_linux"
   "com.github.taiko2k.tauonmb"
+  "us.zoom.Zoom"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
