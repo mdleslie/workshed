@@ -15,7 +15,7 @@ figlet Workshed | lolcat -a -d 3
 
 # Aliases #
 
-alias df='df -h -x squashfs -x tmpfs -x devtmpfs'
+#alias df='df -h -x squashfs -x tmpfs -x devtmpfs'
 alias extip='curl icanhazip.com'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
