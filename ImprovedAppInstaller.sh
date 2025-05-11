@@ -94,6 +94,7 @@ flatpak_apps=(
   "org.kde.haruna"
   "com.github.IsmaelMartinez.teams_for_linux"
   "com.github.taiko2k.tauonmb"
+  "com.makemkv.MakeMKV"
   "us.zoom.Zoom"
 )
 
@@ -258,12 +259,12 @@ fi
 echo '########################################' | lolcat
 
 # Install MakeMKV
-log INFO "Installing MakeMKV"
-display $GREEN "Installing MakeMKV from the heyarje repo."
-sleep 2s
-sudo add-apt-repository -y ppa:heyarje/makemkv-beta
-sudo nala update
-sudo nala install makemkv-bin makemkv-oss -y
+#log INFO "Installing MakeMKV"
+#display $GREEN "Installing MakeMKV from the heyarje repo."
+#sleep 2s
+#sudo add-apt-repository -y ppa:heyarje/makemkv-beta
+#sudo nala update
+#sudo nala install makemkv-bin makemkv-oss -y
 
 echo '########################################' | lolcat
 
