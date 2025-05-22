@@ -260,12 +260,16 @@ fi
 echo '########################################' | lolcat
 
 # Install MakeMKV
+# This was broken at last test, leaving here so I can add it back if it works again in the future.
+# If this works in futre, remove makemkv from flatpak array.
+##################
 #log INFO "Installing MakeMKV"
 #display $GREEN "Installing MakeMKV from the heyarje repo."
 #sleep 2s
 #sudo add-apt-repository -y ppa:heyarje/makemkv-beta
 #sudo nala update
 #sudo nala install makemkv-bin makemkv-oss -y
+#########################
 
 echo '########################################' | lolcat
 
@@ -485,6 +489,7 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+display $RED "Don't mix danger, handle with care!"
 
 figlet Workshed | lolcat -a -d 3
 
