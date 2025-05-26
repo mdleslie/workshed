@@ -96,6 +96,7 @@ flatpak_apps=(
   "com.github.IsmaelMartinez.teams_for_linux"
   "com.github.taiko2k.tauonmb"
   "com.makemkv.MakeMKV"
+  "org.inkscape.Inkscape"
   "us.zoom.Zoom"
 )
 
