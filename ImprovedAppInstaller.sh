@@ -97,6 +97,7 @@ flatpak_apps=(
   "com.github.taiko2k.tauonmb"
   "com.makemkv.MakeMKV"
   "org.inkscape.Inkscape"
+  "ar.com.tuxguitar.TuxGuitar"
   "us.zoom.Zoom"
 )
 
