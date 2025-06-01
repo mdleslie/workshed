@@ -98,6 +98,7 @@ flatpak_apps=(
   "com.makemkv.MakeMKV"
   "org.inkscape.Inkscape"
   "ar.com.tuxguitar.TuxGuitar"
+  "com.rtosta.zapzap"
   "us.zoom.Zoom"
 )
 
