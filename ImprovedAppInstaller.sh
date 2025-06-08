@@ -65,7 +65,6 @@ deb_packages=(
   "nasm"
   "mkvtoolnix"
   "mkvtoolnix-gui"
-  "caja-dropbox"
 )
 
 # List of Flatpak applications to install
@@ -104,6 +103,7 @@ flatpak_apps=(
   "ar.com.tuxguitar.TuxGuitar"
   "com.rtosta.zapzap"
   "us.zoom.Zoom"
+  "com.dropbox.Client"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
