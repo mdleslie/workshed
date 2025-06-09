@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Pop OS/Ubuntu Setup Script - Maybe Slightly Improved Version
+# Author: workshed
+# Description: Automated setup script for fresh Pop OS/Ubuntu Studio installations
+
 # Define the log file path
 log_file="/home/$USER/install_log.txt"
 
@@ -15,7 +19,6 @@ log_and_display() {
 deb_packages=(
   "fortune-mod"
   "cowsay"
-  "folder-color"
   "ubuntu-restricted-extras"
   "ffmpeg"
   "mpv"
@@ -41,13 +44,12 @@ deb_packages=(
   "steam"
   "cpu-x"
   "python3"
-  "pip"
+  "python3-pip"
   "figlet"
   "fonts-inter"
   "mangohud"
   "ncdu"
-  "pydf" 
-  "nautilus-admin" 
+  "pydf"  
   "ffmpegthumbnailer"
   "bind9-dnsutils"
   "inetutils-traceroute"
@@ -59,8 +61,6 @@ deb_packages=(
   "libx11-dev"
   "lv2-dev"
   "nasm"
-  "mkvtoolnix"
-  "mkvtoolnix-gui"
 )
 
 # List of Flatpak applications to install
@@ -190,6 +190,8 @@ cache_sudo() {
 
 # Start of script installation message
 log INFO "Starting installation script"
+display $GREEN "Lets go, it's showtime!"
+sleep 5s
 display $GREEN "This script will automate setting up a clean OS install."
 sleep 2s
 display $BLUE "Don't Mix Danger, Handle with Care!"
@@ -197,8 +199,6 @@ sleep 2s
 display $RED "Don't Mix Danger, Handle with Care!"
 sleep 2s
 display $GREEN "Don't Mix Danger, Handle with Care!"
-sleep 5s
-display $GREEN "Lets go, it's showtime!"
 sleep 5s
 
 echo '########################################' | lolcat
