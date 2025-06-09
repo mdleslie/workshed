@@ -61,6 +61,7 @@ deb_packages=(
   "libx11-dev"
   "lv2-dev"
   "nasm"
+  "obs-studio"
 )
 
 # List of Flatpak applications to install
@@ -71,7 +72,6 @@ flatpak_apps=(
   "com.brave.Browser"
   "org.kde.kdenlive"
   "fr.handbrake.ghb"
-  "com.obsproject.Studio"
   "io.missioncenter.MissionCenter"
   "org.telegram.desktop"
   "com.bitwarden.desktop"
@@ -230,17 +230,16 @@ echo '########################################' | lolcat
 
 # Remove LibreOffice 
 #This section is for Pop OS installs with old versions of Libreoffice.
-#Commenting out but leaving incase of future need.
 
-#log INFO "Removing LibreOffice"
-#display $GREEN "Removing the old packaged version of LibreOffice."
-#sleep 2s
-#sudo nala remove --purge -y "libreoffice*"
-#sudo nala clean 
-#sudo nala autoremove -y
+log INFO "Removing LibreOffice"
+display $GREEN "Removing the old packaged version of LibreOffice."
+sleep 2s
+sudo nala remove --purge -y "libreoffice*"
+sudo nala clean 
+sudo nala autoremove -y
 
 echo '########################################' | lolcat
-
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Install FastFetch
