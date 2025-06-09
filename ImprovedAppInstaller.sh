@@ -198,6 +198,8 @@ display $RED "Don't Mix Danger, Handle with Care!"
 sleep 2s
 display $GREEN "Don't Mix Danger, Handle with Care!"
 sleep 5s
+display $GREEN "Lets go, it's showtime!"
+sleep 5s
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -226,53 +228,18 @@ sudo nala update
 
 echo '########################################' | lolcat
 
-# Remove LibreOffice
-log INFO "Removing LibreOffice"
-display $GREEN "Removing the old packaged version of LibreOffice."
-sleep 2s
-sudo nala remove --purge -y "libreoffice*"
-sudo nala clean 
-sudo nala autoremove -y
+# Remove LibreOffice 
+#This section is for Pop OS installs with old versions of Libreoffice.
+#Commenting out but leaving incase of future need.
 
-echo '########################################' | lolcat
-
-# Debug: Print DESKTOP_SESSION
-echo "DESKTOP_SESSION: $DESKTOP_SESSION"
-
-echo '########################################' | lolcat
-
-# Check for Pop!_OS
-os_name=$(lsb_release -si)
-if [[ "$os_name" == "Pop" || "$os_name" == "Pop!_OS" ]]; then
-    log INFO "Running Pop!_OS specific steps"
-    display $GREEN "Running on Pop!_OS. Proceeding with installation and uninstallation."
-    sleep 5s
-
-    # Check if pop-shop is installed
-    if dpkg -l pop-shop | grep -q "ii"; then
-        sudo nala remove pop-shop -y
-        sudo nala purge pop-shop -y
-        log INFO "Removed pop-shop successfully."
-    else
-        log INFO "pop-shop is not installed."
-    fi
-
-    sudo nala install cosmic-icons cosmic-store -y
-fi
-
-echo '########################################' | lolcat
-
-# Install MakeMKV
-# This was broken at last test, leaving here so I can add it back if it works again in the future.
-# If this works in futre, remove makemkv from flatpak array.
-##################
-#log INFO "Installing MakeMKV"
-#display $GREEN "Installing MakeMKV from the heyarje repo."
+#log INFO "Removing LibreOffice"
+#display $GREEN "Removing the old packaged version of LibreOffice."
 #sleep 2s
-#sudo add-apt-repository -y ppa:heyarje/makemkv-beta
-#sudo nala update
-#sudo nala install makemkv-bin makemkv-oss -y
-#########################
+#sudo nala remove --purge -y "libreoffice*"
+#sudo nala clean 
+#sudo nala autoremove -y
+
+echo '########################################' | lolcat
 
 echo '########################################' | lolcat
 
