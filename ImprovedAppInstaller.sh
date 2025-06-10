@@ -102,6 +102,7 @@ flatpak_apps=(
   "com.rtosta.zapzap"
   "us.zoom.Zoom"
   "com.dropbox.Client"
+  "org.rncbc.qpwgraph"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
