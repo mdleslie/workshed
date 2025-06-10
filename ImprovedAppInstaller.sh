@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Pop OS/Ubuntu Setup Script - Maybe Slightly Improved Version
-# Author: workshed
-# Description: Automated setup script for fresh Pop OS/Ubuntu Studio installations
+# Author: workshed mdltruck556@gmail.com
+# Description: Automated setup script for fresh Pop OS.
 
 # Define the log file path
 log_file="/home/$USER/install_log.txt"
