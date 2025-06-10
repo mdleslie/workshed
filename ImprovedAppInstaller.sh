@@ -62,6 +62,7 @@ deb_packages=(
   "lv2-dev"
   "nasm"
   "obs-studio"
+  "jackd2"
 )
 
 # List of Flatpak applications to install
