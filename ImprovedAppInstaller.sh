@@ -63,6 +63,7 @@ deb_packages=(
   "nasm"
   "obs-studio"
   "jackd2"
+  "qjackctl"
 )
 
 # List of Flatpak applications to install
