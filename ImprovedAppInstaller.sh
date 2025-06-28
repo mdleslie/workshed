@@ -530,15 +530,23 @@ echo '########################################' | lolcat
 ## Create Update Script
 
 log INFO "Creating update script"
-display "$GREEN" "Creating and downloading the update.sh script."
-
+display $GREEN "Creating and downloading the update.sh script."
 update_script="/usr/bin/update.sh"
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh" "$update_script" "update.sh script"; then
+sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o "$update_script"
+if [[ $? -eq 0 && -s "$update_script" ]]; then
+
     sudo chmod +x "$update_script"
-    log INFO "Successfully downloaded and set up update.sh script."
+
+    log INFO "Successfully downloaded and set up update.sh script"
+
 else
-    log ERROR "Failed to download update.sh script or the downloaded file is empty. Exiting."
+
+    log ERROR "Failed to download update.sh script or the downloaded file is empty"
+
+    sudo rm -f "$update_script"  # Clean up in case of a partial downloadMore actions
+
     exit 1
+
 fi
 echo '########################################' | lolcat
 
@@ -548,71 +556,78 @@ log INFO "Modifying .bashrc file"
 display "$GREEN" "Modifying .bashrc file to include useful aliases."
 
 # Backup existing .bashrc
-if cp ~/.bashrc ~/.bashrc.bak; then
-    bashrc_backed_up="true" # Set flag for cleanup
-    log INFO "Backed up ~/.bashrc to ~/.bashrc.bak."
-else
-    log ERROR "Failed to backup ~/.bashrc. Continuing without backup."
-    # Don't exit, but log the warning.
-fi
+cp ~/.bashrc ~/.bashrc.bak
 
 # Download and append aliases (URL encoded space for robustness)
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%20aliases" "/tmp/bashrc_aliases_temp" "bash.rc aliases"; then
-    if [[ -s "/tmp/bashrc_aliases_temp" ]]; then
-        echo -e "\n# Added aliases by workshed setup script\n$(cat /tmp/bashrc_aliases_temp)" >> ~/.bashrc
-        rm -f "/tmp/bashrc_aliases_temp"
-        log INFO "Successfully added aliases to .bashrc."
+aliases=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%20aliases")
+if [[ $? -eq 0 && -n "$aliases" ]]; then
+
+    echo -e "\n# Added aliases\n$aliases" >> ~/.bashrc
+
+    if [[ $? -eq 0 ]]; then
+
+        log INFO "Successfully added aliases to .bashrc"
+
     else
-        log ERROR "Downloaded bash.rc aliases is empty. Not modifying .bashrc."
-        rm -f "/tmp/bashrc_aliases_temp"
+
+        log ERROR "Failed to modify .bashrc file"
+
         exit 1
+
     fi
+
 else
-    log ERROR "Failed to download bash.rc aliases. Not modifying .bashrc. Exiting."
+
+    log ERROR "Failed to download bash.rc aliases"
+
     exit 1
+
 fi
 
 log INFO "Successfully modified .bashrc"
-display "$GREEN" "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
+
+display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."More actions
+
 echo '########################################' | lolcat
 
 ## Modify fstab File
 
-log INFO "Modifying fstab file"
-display "$BLUE" "Modifying fstab file to include NFS mount to Arkive."
+log INFO "Modifying fstab file"More actions
+
+display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 
 # Create mount point
-if sudo mkdir -p /mnt/Arkive; then
-    log INFO "Mount point /mnt/Arkive created or already exists."
-else
-    log ERROR "Failed to create mount point /mnt/Arkive. Exiting."
-    exit 1
-fi
+
+sudo mkdir -p /mnt/Arkive
 
 # Backup existing fstab
-if sudo cp /etc/fstab /etc/fstab.bak; then
-    fstab_backed_up="true" # Set flag for cleanup
-    log INFO "Backed up /etc/fstab to /etc/fstab.bak."
-else
-    log ERROR "Failed to backup /etc/fstab. Continuing without backup."
-    # Don't exit, but log the warning.
-fi
+
+sudo cp /etc/fstab /etc/fstab.bak
 
 # Download and append NFS mount entry
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab" "/tmp/fstab_entry_temp" "NFS mount fstab entry"; then
-    if [[ -s "/tmp/fstab_entry_temp" ]]; then
-        echo "" | sudo tee -a /etc/fstab > /dev/null # Add a blank line for separation
-        sudo tee -a /etc/fstab < "/tmp/fstab_entry_temp" > /dev/null
-        rm -f "/tmp/fstab_entry_temp"
-        log INFO "Successfully added NFS mount entry to fstab."
+fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")More actions
+if [[ $? -eq 0 && -n "$fstab_entry" ]]; then  # Check curl exit code AND file content
+
+    echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
+
+    if [[ $? -eq 0 ]]; then
+
+        log INFO "Successfully added NFS mount entry to fstab"
+
     else
-        log ERROR "Downloaded NFS mount fstab entry is empty. Not modifying fstab."
-        rm -f "/tmp/fstab_entry_temp"
+
+        log ERROR "Failed to modify fstab file (writing to /etc/fstab)."
+
         exit 1
+
     fi
+
 else
-    log ERROR "Failed to download NFS mount fstab entry. Not modifying fstab. Exiting."
+
+    log ERROR "Failed to download NFS mount fstab entry. Curl exited with code $?"
+
     exit 1
+
 fi
 
 # Test section, might be able to add this section again with new Pop OS release #
@@ -627,20 +642,21 @@ echo '########################################' | lolcat
 
 ## Add Band Maid Logo for Fastfetch
 
-log INFO "Adding Band Maid logo for fastfetch"
-display "$GREEN" "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
-if mkdir -p ~/.local/share/fastfetch/logos; then
-    log INFO "Fastfetch logos directory created or already exists."
-else
-    log ERROR "Failed to create fastfetch logos directory. Exiting."
-    exit 1
-fi
+log INFO "Adding Band Maid logo for fastfetch"More actions
+display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
+mkdir -p ~/.local/share/fastfetch/logos
+curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" ~/.local/share/fastfetch/logos/maid "Band Maid logo"; then
-    log INFO "Successfully downloaded Band Maid logo."
+if [[ $? -eq 0 && -s ~/.local/share/fastfetch/logos/maid ]]; then  # Check exit code AND file size
+
+    log INFO "Successfully downloaded Band Maid logo"
+
 else
-    log ERROR "Failed to download Band Maid logo. Exiting."
+
+    log ERROR "Failed to download Band Maid logo. Curl exited with code $?"
+
     exit 1
+
 fi
 echo '########################################' | lolcat
 
