@@ -116,6 +116,8 @@ if ! command -v lolcat &> /dev/null; then
 fi
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Define log files
 log_file="/home/$USER/install_log.txt"
@@ -193,8 +195,18 @@ cache_sudo() {
 log INFO "Starting installation script"
 display $GREEN "Lets go, it's showtime!"
 sleep 5s
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
 display $GREEN "This script will automate setting up a clean OS install."
-sleep 2s
+sleep 5s
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
 display $BLUE "Don't Mix Danger, Handle with Care!"
 sleep 2s
 display $RED "Don't Mix Danger, Handle with Care!"
@@ -216,11 +228,13 @@ sudo apt update
 sudo apt upgrade -y
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Install Nala
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
-sleep 2s
+sleep 5s
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
@@ -228,16 +242,17 @@ sudo nala update
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
 
 # Install FastFetch
 log INFO "Installing FastFetch"
 display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-sleep 2s
+sleep 5s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Preconfigure Microsoft fonts and libdvd-pkg
@@ -247,6 +262,10 @@ export DEBIAN_FRONTEND=noninteractive
 sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 unset DEBIAN_FRONTEND
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Pre-configure debconf settings for jackd2 to accept real-time priority.
 log INFO "Preconfiguring Jackd2 with real time priority
@@ -272,10 +291,6 @@ else
     echo "User '$USER' is already in the 'audio' group."
 fi
 
-
-
-
-
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -299,9 +314,7 @@ done
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+
 
 # Install Flatpak applications
 log INFO "Installing Flatpak applications"
@@ -329,9 +342,6 @@ done
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
 
 # Generate installation report
 log INFO "Generating installation report"
@@ -347,12 +357,10 @@ fi
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
 
 #For future use
 #For future use
 
-echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -372,6 +380,8 @@ else
     exit 1
 fi
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Modify .bashrc file
@@ -399,6 +409,8 @@ fi
 log INFO "Successfully modified .bashrc"
 display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Modify fstab file
@@ -435,7 +447,7 @@ fi
 
 #log INFO "Successfully modified fstab and verified mounts"
 
-
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
@@ -451,7 +463,6 @@ else
     exit 1
 fi
 
-echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -471,13 +482,14 @@ fi
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
 
 # Cleanup
 log INFO "Performing final cleanup"
 sudo nala autoremove -y
 sudo nala clean
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Script completion
@@ -488,10 +500,7 @@ display $BLUE "Finishing up now. Shop smart, shop S-Mart."
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-display $RED "Don't mix danger, handle with care!"
+
 
 figlet Workshed | lolcat -a -d 3
 
@@ -502,4 +511,5 @@ display $GREEN "Installation summary saved to $update_summary"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+display $RED "Don't mix danger, handle with care!"
 
