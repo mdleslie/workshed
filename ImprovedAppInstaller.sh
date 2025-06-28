@@ -456,6 +456,23 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
+# Add config for Pipewire
+log INFO "Adding configuration for Pipewire"
+display $GREEN "Adding configuration for Pipewire. Setting sample rate and buffer size."
+mkdir -p ~/.config/pipewire/pipewire.conf
+curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/pipewire.conf" -o ~/.config/pipewire/pipewire.conf
+if [[ $? -eq 0 && -s ~/.config/pipewire/pipewire.confd ]]; then  # Check exit code AND file size
+    log INFO "Successfully downloaded Pipewire config."
+else
+    log ERROR "Failed to download Pipewire config. Curl exited with code $?"
+    exit 1
+fi
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
 # Cleanup
 log INFO "Performing final cleanup"
 sudo nala autoremove -y
