@@ -240,8 +240,6 @@ echo '########################################' | lolcat
 
 display "$BLUE" "Don't Mix Danger, Handle with Care! This script makes significant system changes."
 sleep 3
-display "$RED" "Review the script contents before proceeding."
-sleep 3
 echo '########################################' | lolcat
 
 ## User Authentication and Credential Management
@@ -252,26 +250,6 @@ display "$YELLOW" "Authenticating user and managing credentials."
 # Cache sudo credentials for the duration of the script
 cache_sudo
 
-# --- OPTIONAL: Handle Other Credentials Securely (e.g., for NFS shares with authentication) ---
-# For network shares that require a username and password (e.g., SMB/CIFS or some NFS setups),
-# DO NOT hardcode credentials directly in the script.
-#
-# Recommendations for handling other credentials:
-# 1. Prompt the user for credentials at runtime (least secure for automation, but most interactive).
-# 2. Use a secrets management tool (e.g., HashiCorp Vault, KeePassXC, Gnome Keyring) to retrieve them.
-# 3. Store credentials in a permission-restricted file (e.g., ~/.smbcredentials with 0600 permissions)
-#    and read them from there. This is common for fstab entries for SMB/CIFS mounts.
-#
-# Example (conceptual, for demonstration for fstab):
-# NFS in your script is using 'defaults' which implies no authentication.
-# If you were mounting an SMB share that needed user/pass:
-# read -sp "Enter SMB username: " smb_user
-# echo
-# read -sp "Enter SMB password: " smb_pass
-# echo
-# # Then use $smb_user and $smb_pass for the mount command or fstab entry.
-# # Remember to clear variables after use if they held sensitive info.
-# unset smb_user smb_pass
 log INFO "Finished User Authentication and Credential Management section. Sudo active."
 echo '########################################' | lolcat
 
