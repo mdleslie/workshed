@@ -241,11 +241,15 @@ echo '########################################' | lolcat
 # Preconfigure Microsoft fonts and libdvd-pkg
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 display "$GREEN" "Setting up Microsoft fonts EULA and libdvd-pkg."
-# Ensure DEBIAN_FRONTEND is noninteractive for debconf-set-selections
+# Ensure DEBIAN_FRONTEND is noninteractive for debconf-set-selections and apt install
 export DEBIAN_FRONTEND=noninteractive
 if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections && \
    sudo apt -yq install libdvd-pkg; then
     log INFO "Microsoft fonts EULA accepted and libdvd-pkg installed."
+    # The b-i_libdvdcss.sh script is usually run automatically by the package post-install.
+    # However, if it still prompts, ensuring DEBIAN_FRONTEND=noninteractive during apt install
+    # should prevent it. Explicitly calling it here is a fallback, but the main fix
+    # is the DEBIAN_FRONTEND setting for the apt command itself.
     if sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh; then
         log INFO "libdvdcss.sh script executed successfully."
     else
@@ -254,7 +258,7 @@ if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula selec
 else
     log ERROR "Failed to preconfigure Microsoft fonts or install libdvd-pkg."
 fi
-unset DEBIAN_FRONTEND
+unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
 echo '########################################' | lolcat
 
 # Pre-configure debconf settings for jackd2 to accept real-time priority.
