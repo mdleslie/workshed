@@ -15,6 +15,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+sudo apt install lolcat -y
 
 # Function to log messages to file and optionally to syslog
 # This function is used by 'log INFO', 'log ERROR', 'log WARNING'
