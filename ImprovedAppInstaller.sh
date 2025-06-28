@@ -83,7 +83,6 @@ flatpak_apps=(
     "eu.betterbird.Betterbird"
     "net.davidotek.pupgui2"
     "com.vscodium.codium"
-    "org.jdownloader.JDownloader"
     "com.github.qarmin.czkawka"
     "org.darktable.Darktable"
     "com.mattermost.Desktop"
