@@ -564,13 +564,13 @@ fi
 
 log INFO "Successfully modified .bashrc"
 
-display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."More actions
+display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
 
 echo '########################################' | lolcat
 
 ## Modify fstab File
 
-log INFO "Modifying fstab file"More actions
+log INFO "Modifying fstab file"
 
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 
@@ -583,7 +583,7 @@ sudo mkdir -p /mnt/Arkive
 sudo cp /etc/fstab /etc/fstab.bak
 
 # Download and append NFS mount entry
-fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")More actions
+fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")
 if [[ $? -eq 0 && -n "$fstab_entry" ]]; then  # Check curl exit code AND file content
 
     echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
@@ -620,7 +620,7 @@ echo '########################################' | lolcat
 
 ## Add Band Maid Logo for Fastfetch
 
-log INFO "Adding Band Maid logo for fastfetch"More actions
+log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
 mkdir -p ~/.local/share/fastfetch/logos
 curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
