@@ -16,6 +16,94 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# List of .deb packages to install
+deb_packages=(
+    "fortune-mod"
+    "cowsay"
+    "ubuntu-restricted-extras"
+    "ffmpeg"
+    "mpv"
+    "mediainfo"
+    "vlc"
+    "libssl-dev"
+    "libexpat1-dev"
+    "libgl1-mesa-dev"
+    "libgstreamer1.0-dev"
+    "libgstreamer-plugins-base1.0-dev"
+    "libgstreamer-plugins-bad1.0-dev"
+    "gstreamer1.0-plugins-bad"
+    "gstreamer1.0-qt5"
+    "gstreamer1.0-plugins-ugly"
+    "gstreamer1.0-plugins-good"
+    "gstreamer1.0-libav"
+    "libavcodec-extra"
+    "chromium-codecs-ffmpeg-extra"
+    "nfs-common"
+    "cifs-utils"
+    "gamemode"
+    "lutris"
+    "steam"
+    "cpu-x"
+    "python3"
+    "python3-pip"
+    "figlet"
+    "fonts-inter"
+    "mangohud"
+    "ncdu"
+    "pydf"
+    "ffmpegthumbnailer"
+    "bind9-dnsutils"
+    "inetutils-traceroute"
+    "whois"
+    "nmap"
+    "btop"
+    "cmake"
+    "libcairo2-dev"
+    "libx11-dev"
+    "lv2-dev"
+    "nasm"
+    "obs-studio"
+    "qjackctl"
+)
+
+# List of Flatpak applications to install
+flatpak_apps=(
+    "net.cozic.joplin_desktop"
+    "com.synology.SynologyDrive"
+    "com.brave.Browser"
+    "org.kde.kdenlive"
+    "fr.handbrake.ghb"
+    "io.missioncenter.MissionCenter"
+    "org.telegram.desktop"
+    "com.bitwarden.desktop"
+    "io.github.aandrew_me.ytdn"
+    "org.localsend.localsend_app"
+    "io.github.shiftey.Desktop"
+    "com.github.tchx84.Flatseal"
+    "eu.betterbird.Betterbird"
+    "net.davidotek.pupgui2"
+    "com.vscodium.codium"
+    "org.jdownloader.JDownloader"
+    "com.github.qarmin.czkawka"
+    "org.darktable.Darktable"
+    "com.google.Chrome"
+    "io.github.flattool.Warehouse"
+    "fm.reaper.Reaper"
+    "org.guitarix.Guitarix"
+    "com.discordapp.Discord"
+    "org.kde.haruna"
+    "com.github.IsmaelMartinez.teams_for_linux"
+    "com.github.taiko2k.tauonmb"
+    "com.makemkv.MakeMKV"
+    "org.inkscape.Inkscape"
+    "ar.com.tuxguitar.TuxGuitar"
+    "com.rtosta.zapzap"
+    "us.zoom.Zoom"
+    "com.dropbox.Client"
+    "org.rncbc.qpwgraph"
+)
+
+
 # Check if lolcat is installed, install if not
 if ! command -v lolcat &> /dev/null; then
     echo -e "${YELLOW}lolcat not found, installing it now...${NC}"
@@ -233,253 +321,3 @@ sleep 3
 if sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch && sudo nala update && sudo nala install fastfetch -y; then
     log INFO "Fastfetch installed successfully."
 else
-    log ERROR "Failed to install Fastfetch."
-    exit 1
-fi
-echo '########################################' | lolcat
-
-# Preconfigure Microsoft fonts and libdvd-pkg
-log INFO "Preconfiguring Microsoft fonts and libdvd-pkg for unattended install."
-display "$GREEN" "Setting up Microsoft fonts EULA and libdvd-pkg."
-
-# Pre-accept Microsoft fonts EULA
-if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections; then
-    log INFO "Microsoft fonts EULA pre-accepted."
-else
-    log ERROR "Failed to pre-accept Microsoft fonts EULA."
-    exit 1
-fi
-
-# Install ttf-mscorefonts-installer and libdvd-pkg non-interactively
-export DEBIAN_FRONTEND=noninteractive
-if sudo apt-get -yq install ttf-mscorefonts-installer libdvd-pkg; then
-    log INFO "Microsoft fonts and libdvd-pkg installed."
-
-    # Execute the libdvdcss build script directly for unattended build
-    display "$YELLOW" "Running libdvd-pkg build script for libdvdcss non-interactively..."
-    if sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh; then
-        log INFO "libdvdcss build script executed successfully. libdvdcss should be installed."
-    else
-        log ERROR "Failed to execute libdvdcss build script. DVD playback might be affected."
-        exit 1 # Exit if libdvdcss cannot be built, as it's critical for DVDs.
-    fi
-else
-    log ERROR "Failed to install Microsoft fonts or libdvd-pkg."
-    exit 1 # This is a critical step, so exit if it fails.
-fi
-unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
-echo '########################################' | lolcat
-
-# Pre-configure debconf settings for jackd2 to accept real-time priority.
-log INFO "Preconfiguring Jackd2 with real-time priority for unattended install."
-display "$GREEN" "Configuring Jackd2 for real-time audio and adding user to audio group."
-
-# Set DEBIAN_FRONTEND for non-interactive installation
-export DEBIAN_FRONTEND=noninteractive
-
-# Pre-set debconf selections for jackd2
-if echo "jackd2 jackd2/install_type boolean true" | sudo debconf-set-selections && \
-   echo "jackd2 jackd2/rt_allow boolean true" | sudo debconf-set-selections && \
-   echo "jackd2 jackd2/priority string 99" | sudo debconf-set-selections; then
-    log INFO "Jackd2 debconf settings preconfigured."
-else
-    log ERROR "Failed to preconfigure Jackd2 debconf settings. Installation might prompt for input."
-    # Continue, but note the potential for interruption.
-fi
-
-log INFO "Installing jackd2..."
-# Explicitly use DEBIAN_FRONTEND=noninteractive for the apt install command
-if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jackd2; then
-    log INFO "Jackd2 installed successfully."
-    # Similar to libdvd-pkg, trigger any post-install setup for jackd2 if necessary.
-    # While jackd2 doesn't have a direct equivalent to b-i_libdvdcss.sh,
-    # ensuring debconf settings are applied *before* install is the key.
-    # dpkg-reconfigure jackd2 might be an option if issues persist, but usually
-    # setting debconf selections and installing handles it.
-else
-    log ERROR "Failed to install jackd2. Audio applications might be affected."
-    exit 1 # This is a critical step, so exit if it fails.
-fi
-
-unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
-
-# Add the current user to the 'audio' group.
-if ! id -nG "$USER" | grep -qw "audio"; then
-    log INFO "Adding user '$USER' to the 'audio' group."
-    if sudo usermod -a -G audio "$USER"; then
-        log INFO "Successfully added user '$USER' to audio group."
-        display "$YELLOW" "Please log out and log back in for the 'audio' group membership to take effect for real-time audio."
-    else
-        log ERROR "Failed to add user '$USER' to audio group."
-        exit 1 # Exit if user cannot be added to audio group, as real-time audio won't work.
-    fi
-else
-    log INFO "User '$USER' is already in the 'audio' group."
-fi
-echo '########################################' | lolcat
-
-# List of .deb packages to install
-deb_packages=(
-    "fortune-mod"
-    "cowsay"
-    "ubuntu-restricted-extras"
-    "ffmpeg"
-    "mpv"
-    "mediainfo"
-    "vlc"
-    "libssl-dev"
-    "libexpat1-dev"
-    "libgl1-mesa-dev"
-    "libgstreamer1.0-dev"
-    "libgstreamer-plugins-base1.0-dev"
-    "libgstreamer-plugins-bad1.0-dev"
-    "gstreamer1.0-plugins-bad"
-    "gstreamer1.0-qt5"
-    "gstreamer1.0-plugins-ugly"
-    "gstreamer1.0-plugins-good"
-    "gstreamer1.0-libav"
-    "libavcodec-extra"
-    "chromium-codecs-ffmpeg-extra"
-    "nfs-common"
-    "cifs-utils"
-    "gamemode"
-    "lutris"
-    "steam"
-    "cpu-x"
-    "python3"
-    "python3-pip"
-    "figlet"
-    "fonts-inter"
-    "mangohud"
-    "ncdu"
-    "pydf"
-    "ffmpegthumbnailer"
-    "bind9-dnsutils"
-    "inetutils-traceroute"
-    "whois"
-    "nmap"
-    "btop"
-    "cmake"
-    "libcairo2-dev"
-    "libx11-dev"
-    "lv2-dev"
-    "nasm"
-    "obs-studio"
-    "qjackctl"
-)
-
-# List of Flatpak applications to install
-flatpak_apps=(
-    "net.cozic.joplin_desktop"
-    "com.synology.SynologyDrive"
-    "com.brave.Browser"
-    "org.kde.kdenlive"
-    "fr.handbrake.ghb"
-    "io.missioncenter.MissionCenter"
-    "org.telegram.desktop"
-    "com.bitwarden.desktop"
-    "io.github.aandrew_me.ytdn"
-    "org.localsend.localsend_app"
-    "io.github.shiftey.Desktop"
-    "com.github.tchx84.Flatseal"
-    "eu.betterbird.Betterbird"
-    "net.davidotek.pupgui2"
-    "com.vscodium.codium"
-    "org.jdownloader.JDownloader"
-    "com.github.qarmin.czkawka"
-    "org.darktable.Darktable"
-    "com.mattermost.Desktop"
-    "com.google.Chrome"
-    "io.github.flattool.Warehouse"
-    "fm.reaper.Reaper"
-    "org.guitarix.Guitarix"
-    "com.discordapp.Discord"
-    "org.kde.haruna"
-    "com.github.IsmaelMartinez.teams_for_linux"
-    "com.github.taiko2k.tauonmb"
-    "com.makemkv.MakeMKV"
-    "org.inkscape.Inkscape"
-    "ar.com.tuxguitar.TuxGuitar"
-    "com.rtosta.zapzap"
-    "us.zoom.Zoom"
-    "com.dropbox.Client"
-    "org.rncbc.qpwgraph"
-)
-
-# Array to store the names of installed .deb packages and Flatpak applications
-installed_deb_packages=()
-installed_flatpak_apps=()
-
-# Install .deb packages
-log INFO "Installing .deb packages"
-display "$GREEN" "Installing core .deb packages."
-for package in "${deb_packages[@]}"; do
-    if dpkg -s "$package" &> /dev/null; then # Use dpkg -s for more reliable check
-        log INFO "$package is already installed, skipping."
-    else
-        log INFO "Attempting to install $package"
-        if sudo nala install -y "$package"; then
-            installed_deb_packages+=("$package")
-            log INFO "Successfully installed $package"
-        else
-            log ERROR "Failed to install $package. Skipping to next package."
-        fi
-    fi
-done
-echo '########################################' | lolcat
-
-# Install Flatpak applications
-log INFO "Installing Flatpak applications"
-display "$GREEN" "Installing Flatpak applications from Flathub."
-
-# Ensure Flatpak is installed
-if ! command -v flatpak &> /dev/null; then
-    log INFO "Flatpak not found, attempting to install Flatpak."
-    if ! sudo nala install -y flatpak; then
-        log ERROR "Failed to install Flatpak. Cannot install Flatpak applications."
-        exit 1 # Flatpak apps are a major part, exit if Flatpak itself fails
-    fi
-fi
-
-# Add Flathub remote if not already present
-if ! flatpak remotes | grep -q "flathub"; then
-    log INFO "Adding Flathub remote."
-    if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
-        log INFO "Successfully added Flathub remote."
-    else
-        log ERROR "Failed to add Flathub remote. Flatpak applications might not be installable."
-        # Continue, but Flatpak installations will likely fail
-    fi
-else
-    log INFO "Flathub remote already exists."
-fi
-
-for app in "${flatpak_apps[@]}"; do
-    # Check if flatpak info for the app exists, indicating it's installed
-    if flatpak info "$app" &> /dev/null; then
-        log INFO "$app is already installed, skipping."
-    else
-        log INFO "Attempting to install Flatpak application: $app"
-        if flatpak install -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
-            installed_flatpak_apps+=("$app")
-            log INFO "Successfully installed $app"
-        else
-            log ERROR "Failed to install Flatpak application: $app. Check $log_file for details. Skipping to next Flatpak app."
-        fi
-    fi
-done
-echo '########################################' | lolcat
-
-# Generate installation report
-log INFO "Generating installation report"
-# Clear previous summary content
-> "$update_summary"
-if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
-    log INFO "No new programs were installed in this run."
-    echo "No new programs were installed in this run." >> "$update_summary"
-else
-    echo "--- Newly Installed Programs ---" >> "$update_summary"
-    if [ ${#installed_deb_packages[@]} -gt 0 ]; then
-        echo "" >> "$update_summary"
-        echo "Installed .deb packages:" >> "$update_summary"
-        printf '%s\
