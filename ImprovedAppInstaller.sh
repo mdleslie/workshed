@@ -62,13 +62,11 @@ deb_packages=(
   "lv2-dev"
   "nasm"
   "obs-studio"
-  "jackd2"
   "qjackctl"
 )
 
 # List of Flatpak applications to install
 flatpak_apps=(
-  "org.libreoffice.LibreOffice"
   "net.cozic.joplin_desktop"
   "com.synology.SynologyDrive"
   "com.brave.Browser"
@@ -200,8 +198,6 @@ sleep 2s
 display $BLUE "Don't Mix Danger, Handle with Care!"
 sleep 2s
 display $RED "Don't Mix Danger, Handle with Care!"
-sleep 2s
-display $GREEN "Don't Mix Danger, Handle with Care!"
 sleep 5s
 
 echo '########################################' | lolcat
@@ -230,17 +226,6 @@ curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
 echo '########################################' | lolcat
-
-# Remove LibreOffice 
-#This section is for Pop OS installs with old versions of Libreoffice.
-
-log INFO "Removing LibreOffice"
-display $GREEN "Removing the old packaged version of LibreOffice."
-sleep 2s
-sudo nala remove --purge -y "libreoffice*"
-sudo nala clean 
-sudo nala autoremove -y
-
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -262,6 +247,34 @@ export DEBIAN_FRONTEND=noninteractive
 sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 unset DEBIAN_FRONTEND
+
+# Pre-configure debconf settings for jackd2 to accept real-time priority.
+log INFO "Preconfiguring Jackd2 with real time priority
+# 'install_type' usually asks about configuring default real-time permissions.
+# 'rt_allow' explicitly grants real-time permissions.
+# 'priority' sets the real-time priority level (99 is a common high value).
+echo "jackd2 jackd2/install_type boolean true" | sudo debconf-set-selections"
+echo "jackd2 jackd2/rt_allow boolean true" | sudo debconf-set-selections"
+echo "jackd2 jackd2/priority string 99" | sudo debconf-set-selections"
+
+echo "Installing jackd2..."
+sudo apt-get install -y jackd2
+
+# Add the current user to the 'audio' group. This is crucial for real-time
+# audio processing with JACK. If the user is already in the group, it will
+# not cause an error.
+# This change requires the user to log out and log back in to take effect.
+if ! id -nG "$USER" | grep -qw "audio"; then
+    echo "Adding user '$USER' to the 'audio' group."
+    sudo usermod -a -G audio "$USER"
+    echo "Please log out and log back in for the 'audio' group membership to take effect."
+else
+    echo "User '$USER' is already in the 'audio' group."
+fi
+
+
+
+
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -472,6 +485,4 @@ display $GREEN "Installation summary saved to $update_summary"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+
