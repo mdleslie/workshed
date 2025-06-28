@@ -226,9 +226,8 @@ cache_sudo() {
     log INFO "Sudo credential caching started (PID: $sudo_keeper_pid). Sudo will be kept alive."
 }
 
----
 ## Script Start
----
+
 log INFO "Starting Pop OS/Ubuntu Setup Script"
 display "$GREEN" "Let's go, it's showtime!"
 sleep 2
@@ -245,9 +244,8 @@ display "$RED" "Review the script contents before proceeding."
 sleep 3
 echo '########################################' | lolcat
 
----
 ## User Authentication and Credential Management
----
+
 log INFO "Entering User Authentication and Credential Management section."
 display "$YELLOW" "Authenticating user and managing credentials."
 
@@ -277,9 +275,8 @@ cache_sudo
 log INFO "Finished User Authentication and Credential Management section. Sudo active."
 echo '########################################' | lolcat
 
----
 ## System Update and Upgrade
----
+
 log INFO "Updating and upgrading system"
 display "$GREEN" "Preparing system before installing new applications."
 sleep 2
@@ -291,9 +288,9 @@ else
 fi
 echo '########################################' | lolcat
 
----
+
 ## Install Nala
----
+
 log INFO "Installing Nala"
 display "$GREEN" "Adding curl and installing Nala, as it's often preferred over apt."
 sleep 3
@@ -327,9 +324,9 @@ else
 fi
 echo '########################################' | lolcat
 
----
+
 ## Install FastFetch
----
+
 log INFO "Installing FastFetch"
 display "$GREEN" "Installing Fastfetch from the zhangsongcui repo."
 sleep 3
@@ -341,9 +338,8 @@ else
 fi
 echo '########################################' | lolcat
 
----
 ## Preconfigure Microsoft Fonts and libdvd-pkg
----
+
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg for unattended install."
 display "$GREEN" "Setting up Microsoft fonts EULA and libdvd-pkg."
 
@@ -374,9 +370,8 @@ fi
 unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
 echo '########################################' | lolcat
 
----
 ## Preconfigure Jackd2
----
+
 log INFO "Preconfiguring Jackd2 with real-time priority for unattended install."
 display "$GREEN" "Configuring Jackd2 for real-time audio and adding user to audio group."
 
@@ -419,9 +414,8 @@ else
 fi
 echo '########################################' | lolcat
 
----
 ## Configure Pipewire (new section)
----
+
 log INFO "Adding configuration for Pipewire"
 display "$GREEN" "Adding configuration for Pipewire. Setting sample rate and buffer size."
 
@@ -442,9 +436,8 @@ else
 fi
 echo '########################################' | lolcat
 
----
 ## Install .deb Packages
----
+
 log INFO "Installing .deb packages"
 display "$GREEN" "Installing core .deb packages."
 for package in "${deb_packages[@]}"; do
@@ -464,9 +457,9 @@ for package in "${deb_packages[@]}"; do
 done
 echo '########################################' | lolcat
 
----
+
 ## Install Flatpak Applications
----
+
 log INFO "Installing Flatpak applications"
 display "$GREEN" "Installing Flatpak applications from Flathub."
 
@@ -509,9 +502,8 @@ for app in "${flatpak_apps[@]}"; do
 done
 echo '########################################' | lolcat
 
----
 ## Generate Installation Report
----
+
 log INFO "Generating installation report"
 # Clear previous summary content
 > "$update_summary"
@@ -535,9 +527,8 @@ fi
 log INFO "Installation summary written to $update_summary"
 echo '########################################' | lolcat
 
----
 ## Create Update Script
----
+
 log INFO "Creating update script"
 display "$GREEN" "Creating and downloading the update.sh script."
 
@@ -551,9 +542,8 @@ else
 fi
 echo '########################################' | lolcat
 
----
 ## Modify .bashrc File
----
+
 log INFO "Modifying .bashrc file"
 display "$GREEN" "Modifying .bashrc file to include useful aliases."
 
@@ -586,9 +576,8 @@ log INFO "Successfully modified .bashrc"
 display "$GREEN" "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
 echo '########################################' | lolcat
 
----
 ## Modify fstab File
----
+
 log INFO "Modifying fstab file"
 display "$BLUE" "Modifying fstab file to include NFS mount to Arkive."
 
@@ -636,9 +625,8 @@ fi
 
 echo '########################################' | lolcat
 
----
 ## Add Band Maid Logo for Fastfetch
----
+
 log INFO "Adding Band Maid logo for fastfetch"
 display "$GREEN" "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
 if mkdir -p ~/.local/share/fastfetch/logos; then
@@ -656,9 +644,8 @@ else
 fi
 echo '########################################' | lolcat
 
----
 ## Final System Cleanup
----
+
 log INFO "Performing final cleanup"
 display "$GREEN" "Running final system cleanup."
 if sudo nala autoremove -y && sudo nala clean; then
@@ -668,9 +655,9 @@ else
 fi
 echo '########################################' | lolcat
 
----
+
 ## Script Completion
----
+
 script_completed="true" # Mark script as completed for cleanup function
 log INFO "Installation script completed successfully."
 display "$BLUE" "Finishing up now. Shop smart, shop S-Mart."
@@ -686,5 +673,7 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 display "$RED" "Don't mix danger, handle with care!"
+display "$GREEN" "Po."
+display "$BLUE" "Groovy."
 
 exit 0
