@@ -82,7 +82,7 @@ safe_curl() {
     else
         log ERROR "Failed to download $description from $url (curl exit code: $?). Removing incomplete file."
         rm -f "$output"
-        return 1
+            return 1
     fi
 }
 
@@ -242,21 +242,29 @@ echo '########################################' | lolcat
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg for unattended install."
 display "$GREEN" "Setting up Microsoft fonts EULA and libdvd-pkg."
 
-# Ensure DEBIAN_FRONTEND is noninteractive for debconf-set-selections and apt install
+# Pre-accept Microsoft fonts EULA
+if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections; then
+    log INFO "Microsoft fonts EULA pre-accepted."
+else
+    log ERROR "Failed to pre-accept Microsoft fonts EULA."
+    exit 1
+fi
+
+# Install ttf-mscorefonts-installer and libdvd-pkg non-interactively
 export DEBIAN_FRONTEND=noninteractive
-if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections && \
-   sudo apt-get -yq install ttf-mscorefonts-installer libdvd-pkg; then
-    log INFO "Microsoft fonts EULA accepted and libdvd-pkg installed."
-    # Explicitly reconfigure libdvd-pkg to ensure libdvdcss is built and installed non-interactively
-    display "$YELLOW" "Reconfiguring libdvd-pkg to ensure libdvdcss is built and installed non-interactively..."
-    if sudo dpkg-reconfigure libdvd-pkg; then
-        log INFO "libdvd-pkg reconfigured successfully, libdvdcss should be installed."
+if sudo apt-get -yq install ttf-mscorefonts-installer libdvd-pkg; then
+    log INFO "Microsoft fonts and libdvd-pkg installed."
+
+    # Execute the libdvdcss build script directly for unattended build
+    display "$YELLOW" "Running libdvd-pkg build script for libdvdcss non-interactively..."
+    if sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh; then
+        log INFO "libdvdcss build script executed successfully. libdvdcss should be installed."
     else
-        log ERROR "Failed to reconfigure libdvd-pkg. DVD playback might be affected."
-        exit 1 # Exit if libdvd-pkg cannot be fully configured
+        log ERROR "Failed to execute libdvdcss build script. DVD playback might be affected."
+        exit 1 # Exit if libdvdcss cannot be built, as it's critical for DVDs.
     fi
 else
-    log ERROR "Failed to preconfigure Microsoft fonts or install libdvd-pkg."
+    log ERROR "Failed to install Microsoft fonts or libdvd-pkg."
     exit 1 # This is a critical step, so exit if it fails.
 fi
 unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
@@ -283,6 +291,11 @@ log INFO "Installing jackd2..."
 # Explicitly use DEBIAN_FRONTEND=noninteractive for the apt install command
 if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jackd2; then
     log INFO "Jackd2 installed successfully."
+    # Similar to libdvd-pkg, trigger any post-install setup for jackd2 if necessary.
+    # While jackd2 doesn't have a direct equivalent to b-i_libdvdcss.sh,
+    # ensuring debconf settings are applied *before* install is the key.
+    # dpkg-reconfigure jackd2 might be an option if issues persist, but usually
+    # setting debconf selections and installing handles it.
 else
     log ERROR "Failed to install jackd2. Audio applications might be affected."
     exit 1 # This is a critical step, so exit if it fails.
@@ -469,177 +482,4 @@ else
     if [ ${#installed_deb_packages[@]} -gt 0 ]; then
         echo "" >> "$update_summary"
         echo "Installed .deb packages:" >> "$update_summary"
-        printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
-    fi
-    if [ ${#installed_flatpak_apps[@]} -gt 0 ]; then
-        echo "" >> "$update_summary"
-        echo "Installed Flatpak applications:" >> "$update_summary"
-        printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
-    fi
-fi
-log INFO "Installation summary saved to $update_summary"
-display "$GREEN" "Installation summary saved to $update_summary"
-echo '########################################' | lolcat
-
-# Create update script
-log INFO "Creating update script"
-# Path: /usr/bin/update.sh
-display "$GREEN" "Creating and downloading the update.sh script to /usr/bin."
-
-update_script="/usr/bin/update.sh" # Path remains /usr/bin/
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh" "$update_script" "update.sh script"; then
-    if sudo chmod +x "$update_script"; then
-        log INFO "Successfully set up update.sh script with executable permissions at $update_script."
-    else
-        log ERROR "Failed to set executable permissions for update.sh script."
-        exit 1
-    fi
-else
-    log ERROR "Failed to download and set up update.sh script."
-    exit 1
-fi
-echo '########################################' | lolcat
-
-# Modify .bashrc file
-log INFO "Modifying .bashrc file"
-display "$GREEN" "Modifying .bashrc file to include useful aliases."
-
-# Backup existing .bashrc
-if cp ~/.bashrc ~/.bashrc.bak; then
-    bashrc_backed_up="true"
-    log INFO "Backed up ~/.bashrc to ~/.bashrc.bak."
-else
-    log ERROR "Failed to backup ~/.bashrc. Proceeding without backup."
-    # Do not exit here, continue if backup fails, but log it.
-fi
-
-# Download and append aliases
-aliases_url="https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%20aliases"
-aliases_temp="/tmp/bash_aliases_temp"
-
-if safe_curl "$aliases_url" "$aliases_temp" "bash aliases"; then
-    echo -e "\n# Added by Pop OS/Ubuntu Setup Script" >> ~/.bashrc
-    cat "$aliases_temp" >> ~/.bashrc
-    rm -f "$aliases_temp"
-    log INFO "Successfully added aliases to .bashrc."
-    display "$GREEN" "To apply .bashrc changes, run 'source ~/.bashrc' or start a new terminal session."
-else
-    log ERROR "Failed to download and add bash aliases. ~/.bashrc not modified with new aliases."
-    # Do not exit here, allow script to continue
-fi
-echo '########################################' | lolcat
-
-# Modify fstab file
-log INFO "Modifying fstab file"
-display "$BLUE" "Modifying fstab file to include NFS mount to Arkive."
-
-# Create mount point
-if sudo mkdir -p /mnt/Arkive; then
-    log INFO "Created mount point /mnt/Arkive."
-else
-    log ERROR "Failed to create mount point /mnt/Arkive. Exiting fstab modification."
-    exit 1
-fi
-
-# Backup existing fstab
-if sudo cp /etc/fstab /etc/fstab.bak; then
-    fstab_backed_up="true"
-    log INFO "Backed up /etc/fstab to /etc/fstab.bak."
-else
-    log ERROR "Failed to backup /etc/fstab. Proceeding without fstab backup."
-    # Do not exit here, continue if backup fails, but log it.
-fi
-
-# Download and append NFS mount entry
-fstab_entry_url="https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab"
-fstab_temp="/tmp/fstab_entry_temp"
-
-if safe_curl "$fstab_entry_url" "$fstab_temp" "fstab entry"; then
-    # Use 'grep -q' to check if the entry already exists to prevent duplicates
-    # Assuming "192.168.1.100:/mnt/user/Arkive" is the unique identifier for your mount
-    if ! grep -q "192.168.1.100:/mnt/user/Arkive" /etc/fstab; then
-        if sudo tee -a /etc/fstab < "$fstab_temp" > /dev/null; then
-            log INFO "Successfully added NFS mount entry to fstab."
-            display "$GREEN" "NFS mount entry added. Remember to run 'sudo mount -a' to test it and reboot for permanent application."
-        else
-            log ERROR "Failed to append NFS entry to /etc/fstab."
-            exit 1
-        fi
-    else
-        log INFO "NFS mount entry already exists in /etc/fstab, skipping addition."
-    fi
-    rm -f "$fstab_temp"
-else
-    log ERROR "Failed to download NFS mount fstab entry. /etc/fstab not modified."
-    exit 1
-fi
-echo '########################################' | lolcat
-
-# Add Band Maid logo for fastfetch
-log INFO "Adding Band Maid logo for fastfetch"
-display "$GREEN" "Adding new logo for fastfetch: an impossibly hard rocking maid logo."
-
-# Create directory for fastfetch logos
-if mkdir -p ~/.local/share/fastfetch/logos; then
-    log INFO "Created fastfetch logos directory."
-else
-    log ERROR "Failed to create fastfetch logos directory. Cannot add custom logo."
-    # Continue, as this is not a critical failure
-fi
-
-logo_path=~/.local/share/fastfetch/logos/maid
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" "$logo_path" "Band Maid logo"; then
-    log INFO "Successfully downloaded Band Maid logo to $logo_path."
-    display "$GREEN" "Band Maid logo downloaded. You can now use it with Fastfetch (e.g., 'fastfetch --logo maid')."
-else
-    log ERROR "Failed to download Band Maid logo."
-fi
-echo '########################################' | lolcat
-
-# Add config for Pipewire
-log INFO "Adding configuration for Pipewire"
-display "$GREEN" "Adding configuration for Pipewire. Setting sample rate and buffer size."
-
-# Create the pipewire config directory
-if mkdir -p ~/.config/pipewire/; then
-    log INFO "Created Pipewire config directory."
-else
-    log ERROR "Failed to create Pipewire config directory. Cannot apply custom Pipewire config."
-    # Continue, as this is not a critical failure
-fi
-
-config_path=~/.config/pipewire/pipewire.conf
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/pipewire.conf" "$config_path" "Pipewire config"; then
-    log INFO "Successfully downloaded Pipewire config to $config_path."
-    display "$GREEN" "Pipewire config applied. Restart Pipewire or reboot for changes to take effect."
-else
-    log ERROR "Failed to download Pipewire config."
-fi
-echo '########################################' | lolcat
-
-# Cleanup
-log INFO "Performing final system cleanup"
-display "$GREEN" "Running final system cleanup (autoremove and clean)."
-if sudo nala autoremove -y && sudo nala clean; then
-    log INFO "System cleanup completed successfully."
-else
-    log WARNING "System cleanup encountered issues."
-fi
-echo '########################################' | lolcat
-
-# Script completion
-script_completed="true" # Mark script as successfully completed
-log INFO "Pop OS/Ubuntu Setup Script completed successfully."
-display "$BLUE" "Finishing up now. Shop smart, shop S-Mart."
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-
-lol figlet "Workshed" # Use 'lol' function for figlet
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-display "$RED" "Don't mix danger, handle with care!"
-display "$GREEN" "Po."
+        printf '%s\
