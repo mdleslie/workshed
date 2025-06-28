@@ -239,12 +239,13 @@ fi
 echo '########################################' | lolcat
 
 # Preconfigure Microsoft fonts and libdvd-pkg
-log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
+log INFO "Preconfiguring Microsoft fonts and libdvd-pkg for unattended install."
 display "$GREEN" "Setting up Microsoft fonts EULA and libdvd-pkg."
+
 # Ensure DEBIAN_FRONTEND is noninteractive for debconf-set-selections and apt install
 export DEBIAN_FRONTEND=noninteractive
 if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections && \
-   sudo apt -yq install ttf-mscorefonts-installer libdvd-pkg; then
+   sudo apt-get -yq install ttf-mscorefonts-installer libdvd-pkg; then
     log INFO "Microsoft fonts EULA accepted and libdvd-pkg installed."
     # Explicitly reconfigure libdvd-pkg to ensure libdvdcss is built and installed non-interactively
     display "$YELLOW" "Reconfiguring libdvd-pkg to ensure libdvdcss is built and installed non-interactively..."
@@ -252,8 +253,7 @@ if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula selec
         log INFO "libdvd-pkg reconfigured successfully, libdvdcss should be installed."
     else
         log ERROR "Failed to reconfigure libdvd-pkg. DVD playback might be affected."
-        # Decide if you want to exit here if DVD playback is critical.
-        # For now, we'll continue but log the error.
+        exit 1 # Exit if libdvd-pkg cannot be fully configured
     fi
 else
     log ERROR "Failed to preconfigure Microsoft fonts or install libdvd-pkg."
@@ -263,20 +263,20 @@ unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
 echo '########################################' | lolcat
 
 # Pre-configure debconf settings for jackd2 to accept real-time priority.
-log INFO "Preconfiguring Jackd2 with real-time priority."
+log INFO "Preconfiguring Jackd2 with real-time priority for unattended install."
 display "$GREEN" "Configuring Jackd2 for real-time audio and adding user to audio group."
 
 # Set DEBIAN_FRONTEND for non-interactive installation
 export DEBIAN_FRONTEND=noninteractive
 
-# Verify jackd2 debconf settings (no change needed, already correct)
+# Pre-set debconf selections for jackd2
 if echo "jackd2 jackd2/install_type boolean true" | sudo debconf-set-selections && \
    echo "jackd2 jackd2/rt_allow boolean true" | sudo debconf-set-selections && \
    echo "jackd2 jackd2/priority string 99" | sudo debconf-set-selections; then
     log INFO "Jackd2 debconf settings preconfigured."
 else
-    log ERROR "Failed to preconfigure Jackd2 debconf settings."
-    # Continue as Jackd2 installation might still proceed, but without optimal settings.
+    log ERROR "Failed to preconfigure Jackd2 debconf settings. Installation might prompt for input."
+    # Continue, but note the potential for interruption.
 fi
 
 log INFO "Installing jackd2..."
@@ -285,7 +285,7 @@ if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jackd2; then
     log INFO "Jackd2 installed successfully."
 else
     log ERROR "Failed to install jackd2. Audio applications might be affected."
-    # Continue, but log the error
+    exit 1 # This is a critical step, so exit if it fails.
 fi
 
 unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
@@ -298,8 +298,7 @@ if ! id -nG "$USER" | grep -qw "audio"; then
         display "$YELLOW" "Please log out and log back in for the 'audio' group membership to take effect for real-time audio."
     else
         log ERROR "Failed to add user '$USER' to audio group."
-        # This is a critical step for real-time audio. Consider exiting if this is mandatory.
-        # For now, we'll continue but the user will be warned.
+        exit 1 # Exit if user cannot be added to audio group, as real-time audio won't work.
     fi
 else
     log INFO "User '$USER' is already in the 'audio' group."
