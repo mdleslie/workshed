@@ -244,19 +244,20 @@ display "$GREEN" "Setting up Microsoft fonts EULA and libdvd-pkg."
 # Ensure DEBIAN_FRONTEND is noninteractive for debconf-set-selections and apt install
 export DEBIAN_FRONTEND=noninteractive
 if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections && \
-   sudo apt -yq install libdvd-pkg; then
+   sudo apt -yq install ttf-mscorefonts-installer libdvd-pkg; then
     log INFO "Microsoft fonts EULA accepted and libdvd-pkg installed."
-    # The b-i_libdvdcss.sh script is usually run automatically by the package post-install.
-    # However, if it still prompts, ensuring DEBIAN_FRONTEND=noninteractive during apt install
-    # should prevent it. Explicitly calling it here is a fallback, but the main fix
-    # is the DEBIAN_FRONTEND setting for the apt command itself.
-    if sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh; then
-        log INFO "libdvdcss.sh script executed successfully."
+    # Explicitly reconfigure libdvd-pkg to ensure libdvdcss is built and installed non-interactively
+    display "$YELLOW" "Reconfiguring libdvd-pkg to ensure libdvdcss is built and installed non-interactively..."
+    if sudo dpkg-reconfigure libdvd-pkg; then
+        log INFO "libdvd-pkg reconfigured successfully, libdvdcss should be installed."
     else
-        log WARNING "libdvdcss.sh script failed to execute. DVD playback might be affected."
+        log ERROR "Failed to reconfigure libdvd-pkg. DVD playback might be affected."
+        # Decide if you want to exit here if DVD playback is critical.
+        # For now, we'll continue but log the error.
     fi
 else
     log ERROR "Failed to preconfigure Microsoft fonts or install libdvd-pkg."
+    exit 1 # This is a critical step, so exit if it fails.
 fi
 unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
 echo '########################################' | lolcat
@@ -268,6 +269,7 @@ display "$GREEN" "Configuring Jackd2 for real-time audio and adding user to audi
 # Set DEBIAN_FRONTEND for non-interactive installation
 export DEBIAN_FRONTEND=noninteractive
 
+# Verify jackd2 debconf settings (no change needed, already correct)
 if echo "jackd2 jackd2/install_type boolean true" | sudo debconf-set-selections && \
    echo "jackd2 jackd2/rt_allow boolean true" | sudo debconf-set-selections && \
    echo "jackd2 jackd2/priority string 99" | sudo debconf-set-selections; then
