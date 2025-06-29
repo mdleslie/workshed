@@ -63,7 +63,6 @@ deb_packages=(
     "lv2-dev"
     "nasm"
     "obs-studio"
-    "qjackctl"
 )
 
 # List of Flatpak applications to install
@@ -349,46 +348,46 @@ echo '########################################' | lolcat
 
 ## Preconfigure Jackd2
 
-log INFO "Preconfiguring Jackd2 with real-time priority for unattended install."
-display "$GREEN" "Configuring Jackd2 for real-time audio and adding user to audio group."
+#log INFO "Preconfiguring Jackd2 with real-time priority for unattended install."
+#display "$GREEN" "Configuring Jackd2 for real-time audio and adding user to audio group."
 
 # Set DEBIAN_FRONTEND for non-interactive installation
-export DEBIAN_FRONTEND=noninteractive
+#export DEBIAN_FRONTEND=noninteractive
 
 # Pre-set debconf selections for jackd2
-if echo "jackd2 jackd2/install_type boolean true" | sudo debconf-set-selections && \
-   echo "jackd2 jackd2/rt_allow boolean true" | sudo debconf-set-selections && \
-   echo "jackd2 jackd2/priority string 99" | sudo debconf-set-selections; then
-    log INFO "Jackd2 debconf settings preconfigured."
-else
-    log ERROR "Failed to preconfigure Jackd2 debconf settings. Installation might prompt for input."
-    # Continue, but note the potential for interruption.
-fi
+#if echo "jackd2 jackd2/install_type boolean true" | sudo debconf-set-selections && \
+#   echo "jackd2 jackd2/rt_allow boolean true" | sudo debconf-set-selections && \
+#   echo "jackd2 jackd2/priority string 99" | sudo debconf-set-selections; then
+#    log INFO "Jackd2 debconf settings preconfigured."
+#else
+#    log ERROR "Failed to preconfigure Jackd2 debconf settings. Installation might prompt for input."
+#    # Continue, but note the potential for interruption.
+#fi
 
-log INFO "Installing jackd2..."
+#log INFO "Installing jackd2..."
 # Explicitly use DEBIAN_FRONTEND=noninteractive for the apt install command
-if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jackd2; then
-    log INFO "Jackd2 installed successfully."
-else
-    log ERROR "Failed to install jackd2. Audio applications might be affected."
-    exit 1 # This is a critical step, so exit if it fails.
-fi
+#if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jackd2; then
+#    log INFO "Jackd2 installed successfully."
+#else
+#    log ERROR "Failed to install jackd2. Audio applications might be affected."
+#    exit 1 # This is a critical step, so exit if it fails.
+#fi
 
-unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
+#unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
 
 # Add the current user to the 'audio' group.
-if ! id -nG "$USER" | grep -qw "audio"; then
-    log INFO "Adding user '$USER' to the 'audio' group."
-    if sudo usermod -a -G audio "$USER"; then
-        log INFO "Successfully added user '$USER' to audio group."
-        display "$YELLOW" "Please log out and log back in for the 'audio' group membership to take effect for real-time audio."
-    else
-        log ERROR "Failed to add user '$USER' to audio group."
-        exit 1 # Exit if user cannot be added to audio group, as real-time audio won't work.
-    fi
-else
-    log INFO "User '$USER' is already in the 'audio' group."
-fi
+#if ! id -nG "$USER" | grep -qw "audio"; then
+#    log INFO "Adding user '$USER' to the 'audio' group."
+#    if sudo usermod -a -G audio "$USER"; then
+#        log INFO "Successfully added user '$USER' to audio group."
+#        display "$YELLOW" "Please log out and log back in for the 'audio' group membership to take effect for real-time audio."
+#    else
+#        log ERROR "Failed to add user '$USER' to audio group."
+#        exit 1 # Exit if user cannot be added to audio group, as real-time audio won't work.
+#    fi
+#else
+#    log INFO "User '$USER' is already in the 'audio' group."
+#fi
 echo '########################################' | lolcat
 
 ## Configure Pipewire (new section)
