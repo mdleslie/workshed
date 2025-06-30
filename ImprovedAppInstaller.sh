@@ -1,514 +1,713 @@
-#!/bin/bash
+# Pop OS/Ubuntu Setup Script - Maybe Slightly Improved Version
 
-# Pop OS/Ubuntu Setup Script - Merged and Complete Version
-# Author: workshed mdltruck556@gmail.com
-# Description: Automated setup script for fresh Pop OS.
+
+
+# Author: workshed
+
+
+# Description: Automated setup script for fresh Pop OS/Ubuntu Studio installations
+
+
+
 
 # Define the log file path
-log_file="/home/$USER/install_log.txt"
-# Define the update summary file path
-update_summary="/home/$USER/install_summary.txt"
 
-# Colors for terminal output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+log_file="/home/$USER/install_log.txt"
+
+
+
+# Function to log and display messages
+
+log_and_display() {
+
+  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+
+  message="$timestamp: $1"
+
+  echo "$message"
+
+  echo "$message" >> "$log_file"
+
+}
+
+
 
 # List of .deb packages to install
+
 deb_packages=(
-    "fortune-mod"
-    "cowsay"
-    "ubuntu-restricted-extras"
-    "ffmpeg"
-    "mpv"
-    "mediainfo"
-    "vlc"
-    "libssl-dev"
-    "libexpat1-dev"
-    "libgl1-mesa-dev"
-    "libgstreamer1.0-dev"
-    "libgstreamer-plugins-base1.0-dev"
-    "libgstreamer-plugins-bad1.0-dev"
-    "gstreamer1.0-plugins-bad"
-    "gstreamer1.0-qt5"
-    "gstreamer1.0-plugins-ugly"
-    "gstreamer1.0-plugins-good"
-    "gstreamer1.0-libav"
-    "libavcodec-extra"
-    "chromium-codecs-ffmpeg-extra"
-    "nfs-common"
-    "cifs-utils"
-    "gamemode"
-    "lutris"
-    "steam"
-    "cpu-x"
-    "python3"
-    "python3-pip"
-    "figlet"
-    "fonts-inter"
-    "mangohud"
-    "ncdu"
-    "pydf"
-    "ffmpegthumbnailer"
-    "bind9-dnsutils"
-    "inetutils-traceroute"
-    "whois"
-    "nmap"
-    "btop"
-    "cmake"
-    "libcairo2-dev"
-    "libx11-dev"
-    "lv2-dev"
-    "nasm"
-    "obs-studio"
+
+  "fortune-mod"
+
+  "cowsay"
+
+
+  "ubuntu-restricted-extras"
+
+  "ffmpeg"
+
+  "mpv"
+
+  "mediainfo"
+
+  "vlc"
+
+  "libssl-dev"
+
+  "libexpat1-dev"
+
+  "libgl1-mesa-dev"
+
+  "libgstreamer1.0-dev"
+
+  "libgstreamer-plugins-base1.0-dev" 
+
+  "libgstreamer-plugins-bad1.0-dev"  
+
+  "gstreamer1.0-plugins-bad"   
+
+  "gstreamer1.0-qt5"
+
+  "gstreamer1.0-plugins-ugly"
+
+  "gstreamer1.0-plugins-good"
+
+  "gstreamer1.0-libav"
+
+  "libavcodec-extra"
+
+  "chromium-codecs-ffmpeg-extra" 
+
+  "nfs-common"
+
+  "cifs-utils"
+
+  "gamemode"
+
+  "lutris"
+
+  "steam"
+
+  "cpu-x"
+
+  "python3"
+
+
+  "python3-pip"
+
+  "figlet"
+
+  "fonts-inter"
+
+  "mangohud"
+
+  "ncdu"
+
+
+  "pydf"  
+
+
+  "ffmpegthumbnailer"
+
+  "bind9-dnsutils"
+
+  "inetutils-traceroute"
+
+  "whois"
+
+  "nmap"
+
+  "btop"
+
+  "cmake"
+
+  "libcairo2-dev"
+
+  "libx11-dev"
+
+  "lv2-dev"
+
+  "nasm"
+
+
+
 )
+
+
 
 # List of Flatpak applications to install
+
 flatpak_apps=(
-    "net.cozic.joplin_desktop"
-    "com.synology.SynologyDrive"
-    "com.brave.Browser"
-    "org.kde.kdenlive"
-    "fr.handbrake.ghb"
-    "io.missioncenter.MissionCenter"
-    "org.telegram.desktop"
-    "com.bitwarden.desktop"
-    "io.github.aandrew_me.ytdn"
-    "org.localsend.localsend_app"
-    "io.github.shiftey.Desktop"
-    "com.github.tchx84.Flatseal"
-    "eu.betterbird.Betterbird"
-    "net.davidotek.pupgui2"
-    "com.vscodium.codium"
-    "com.github.qarmin.czkawka"
-    "org.darktable.Darktable"
-    "com.mattermost.Desktop"
-    "com.google.Chrome"
-    "io.github.flattool.Warehouse"
-    "fm.reaper.Reaper"
-    "org.guitarix.Guitarix"
-    "com.discordapp.Discord"
-    "org.kde.haruna"
-    "com.github.IsmaelMartinez.teams_for_linux"
-    "com.github.taiko2k.tauonmb"
-    "com.makemkv.MakeMKV"
-    "org.inkscape.Inkscape"
-    "ar.com.tuxguitar.TuxGuitar"
-    "com.rtosta.zapzap"
-    "us.zoom.Zoom"
-    "com.dropbox.Client"
-    "org.rncbc.qpwgraph"
+
+  "org.libreoffice.LibreOffice"
+
+  "net.cozic.joplin_desktop"
+
+  "com.synology.SynologyDrive"
+
+  "com.brave.Browser"
+
+  "org.kde.kdenlive"
+
+  "fr.handbrake.ghb"
+
+  "com.obsproject.Studio"
+
+  "io.missioncenter.MissionCenter"
+
+  "org.telegram.desktop"
+
+  "com.bitwarden.desktop"
+
+  "io.github.aandrew_me.ytdn"
+
+  "org.localsend.localsend_app"
+
+  "io.github.shiftey.Desktop"
+
+  "com.github.tchx84.Flatseal"
+
+  "eu.betterbird.Betterbird"
+
+  "net.davidotek.pupgui2"
+
+  "com.vscodium.codium"
+
+  "org.jdownloader.JDownloader"
+
+  "com.github.qarmin.czkawka"
+
+  "org.darktable.Darktable"
+
+  "com.mattermost.Desktop"
+
+  "com.google.Chrome"
+
+  "io.github.flattool.Warehouse"
+
+  "fm.reaper.Reaper"
+
+  "org.guitarix.Guitarix"
+
+  "com.discordapp.Discord"
+
+  "org.kde.haruna"
+
+  "com.github.IsmaelMartinez.teams_for_linux"
+
+  "com.github.taiko2k.tauonmb"
+
+  "com.makemkv.MakeMKV"
+
+  "org.inkscape.Inkscape"
+
+  "ar.com.tuxguitar.TuxGuitar"
+
+  "com.rtosta.zapzap"
+
+  "us.zoom.Zoom"
+
+  "com.dropbox.Client"
+
 )
 
+
+
 # Array to store the names of installed .deb packages and Flatpak applications
+
 installed_deb_packages=()
+
 installed_flatpak_apps=()
 
 
-# Check if lolcat is installed, install if not
+
+
+
+# Check if lolcat is installed
+
 if ! command -v lolcat &> /dev/null; then
-    echo -e "${YELLOW}lolcat not found, installing it now...${NC}"
-    sudo apt update > /dev/null 2>&1 # Ensure apt cache is updated for lolcat
-    sudo apt install lolcat -y
-    if ! command -v lolcat &> /dev/null; then
-        echo -e "${RED}Failed to install lolcat. Proceeding without colorful output.${NC}"
-    fi
+
+    log_and_display " lolcat is not installed. Installing lolcat."
+
+    sleep 5s
+
+    sudo apt update && sudo apt install -y lolcat
+
 fi
 
-# Function to log messages to file and optionally to syslog
+
+
+echo '########################################' | lolcat
+
+
+
+# Define log files
+
+log_file="/home/$USER/install_log.txt"
+
+update_summary="/home/$USER/install_summary.txt"
+
+
+
+# Colors
+
+RED='\033[0;31m'
+
+GREEN='\033[0;32m'
+
+YELLOW='\033[1;33m'
+
+BLUE='\033[0;34m'
+
+NC='\033[0m' # No Color
+
+
+
+# Function to log messages
+
 log() {
+
     local level=$1
+
     local message=$2
+
     local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+
     echo "[$timestamp] [$level] $message" | tee -a "$log_file"
-    # Using 'logger' requires rsyslog or systemd-journald to be running.
-    # It's generally fine, but keep in mind it logs to system-wide logs.
-    logger -p user."$level" "$message"
+
+    logger -p user.$level "$message"
+
 }
 
-# Function to display colorful messages and log them
+
+
+# Function to display colorful messages
+
 display() {
+
     local color=$1
+
     local message=$2
-    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
 
-    # Log to file first
-    echo "[$timestamp] [DISPLAY] $message" >> "$log_file"
+    echo -e "${color}$message${NC}" | tee -a "$log_file"
 
-    # Display with color, using lolcat if available and stdout is a terminal
-    if command -v lolcat &> /dev/null && [ -t 1 ]; then
-        echo -e "${color}$message${NC}" | lolcat
-    else
-        echo -e "${color}$message${NC}"
-    fi
+    echo -e "${color}$message${NC}" | lolcat
+
 }
 
-# Function to optionally pipe output to lolcat if stdout is a terminal
+
+
+# Function to check if the output is a terminal
+
 lol() {
-    if [ -t 1 ] && command -v lolcat &> /dev/null; then
-        "$@" | lolcat
-    else
-        "$@"
-    fi
+
+  if [ -t 1 ]; then
+
+    "$@" | lolcat
+
+  else
+
+    "$@"
+
+  fi
+
 }
 
-# Helper function for safe curl operations
-safe_curl() {
-    local url="$1"
-    local output="$2"
-    local description="${3:-file}"
 
-    log INFO "Attempting to download $description from $url to $output"
-    if curl -sL "$url" -o "$output"; then
-        if [[ -s "$output" ]]; then
-            log INFO "Successfully downloaded $description from $url"
-            return 0
-        else
-            log ERROR "Downloaded $description is empty from $url. Removing empty file."
-            rm -f "$output"
-            return 1
-        fi
-    else
-        log ERROR "Failed to download $description from $url (curl exit code: $?). Removing incomplete file."
-        rm -f "$output"
-            return 1
-    fi
-}
 
-# Error handling: Exit immediately if a command exits with a non-zero status.
+# Bind the function to the RETURN key
+
+bind 'RETURN: "\e[1~lol \e[4~\n"'
+
+
+
+# Error handling
+
 set -e
-# Trap to log errors during execution.
-trap 'log ERROR "An error occurred during script execution. Exit code: $?"' ERR
 
-# Variable to track script completion and operations performed
-script_completed="false"
-bashrc_backed_up="false"
-fstab_backed_up="false"
-sudo_keeper_pid="" # Initialize sudo_keeper_pid
+trap 'log ERROR "An error occurred. Exit code: $?"' ERR
 
-# Cleanup function to run on script exit (even on error)
+
+
+# Cleanup function
+
 cleanup() {
-    log INFO "Performing final cleanup..."
+
+    log INFO "Cleaning up..."
+
+
+
+    # Remove any temporary files
+
+    rm -f /tmp/install_script_*
+
+
 
     # Revert .bashrc if the script didn't complete successfully
-    if [[ "$bashrc_backed_up" == "true" ]] && [[ "$script_completed" != "true" ]] && [[ -f ~/.bashrc.bak ]]; then
+
+    if [ -f ~/.bashrc.bak ] && [ "$script_completed" != "true" ]; then
+
         mv ~/.bashrc.bak ~/.bashrc
-        log WARNING "Reverted .bashrc to original state due to incomplete script run."
+
+        log WARNING "Reverted .bashrc to original state."
+
     fi
 
-    # Kill sudo credential caching if running
-    if [[ -n "${sudo_keeper_pid:-}" ]]; then
-        kill "$sudo_keeper_pid" 2>/dev/null || true
-        log INFO "Sudo credential caching process stopped (PID: $sudo_keeper_pid)."
-    fi
+
 
     log INFO "Cleanup completed."
+
 }
 
-# Trap the EXIT signal to call the cleanup function
+
+
+# Trap for cleanup
+
 trap cleanup EXIT
 
-# Function to cache sudo credentials (keep sudo session alive)
+
+
+# Variable to track script completion
+
+script_completed="false"
+
+
+
+# Function to cache sudo credentials
+
 cache_sudo() {
-    log INFO "Requesting sudo password to cache credentials for the script duration."
-    if ! sudo -v; then # Request sudo password upfront
-        log ERROR "Failed to obtain sudo privileges. Exiting script."
-        exit 1
-    fi
-    # Keep sudo session alive in the background
+
+    sudo -v
+
     ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
-    # Store the PID of the background process for later killing
-    sudo_keeper_pid=$!
-    log INFO "Sudo credential caching started (PID: $sudo_keeper_pid). Sudo will be kept alive."
+
 }
 
-## Script Start
 
-log INFO "Starting Pop OS/Ubuntu Setup Script"
-display "$GREEN" "Let's go, it's showtime!"
-sleep 2
 
-lol figlet "Workshed"
+# Start of script installation message
+
+log INFO "Starting installation script"
+
+
+display $GREEN "Lets go, it's showtime!"
+
+
+sleep 5s
+
+display $GREEN "This script will automate setting up a clean OS install."
+
+sleep 2s
+
+display $BLUE "Don't Mix Danger, Handle with Care!"
+
+sleep 2s
+
+display $RED "Don't Mix Danger, Handle with Care!"
+
+sleep 2s
+
+display $GREEN "Don't Mix Danger, Handle with Care!"
+
+sleep 5s
+
+
+
+
+
 echo '########################################' | lolcat
-display "$GREEN" "This script will automate setting up a clean OS install."
-sleep 2
+
 echo '########################################' | lolcat
 
-display "$BLUE" "Don't Mix Danger, Handle with Care! This script makes significant system changes."
-sleep 3
 echo '########################################' | lolcat
 
-## User Authentication and Credential Management
 
-log INFO "Entering User Authentication and Credential Management section."
-display "$YELLOW" "Authenticating user and managing credentials."
 
-# Cache sudo credentials for the duration of the script
+# Cache sudo credentials
+
+log INFO "Caching sudo credentials"
+
 cache_sudo
 
-log INFO "Finished User Authentication and Credential Management section. Sudo active."
-echo '########################################' | lolcat
 
-## System Update and Upgrade
+
+# Update and upgrade system
 
 log INFO "Updating and upgrading system"
-display "$GREEN" "Preparing system before installing new applications."
-sleep 2
-if sudo apt update -y && sudo apt upgrade -y; then
-    log INFO "System updated and upgraded successfully."
-else
-    log ERROR "Failed to update or upgrade the system."
-    exit 1
-fi
+
+display $GREEN "Preparing system before installing new applications."
+
+sleep 2s
+
+sudo apt update
+
+sudo apt upgrade -y
+
+
+
 echo '########################################' | lolcat
 
 
-## Install Nala
+
+# Install Nala
 
 log INFO "Installing Nala"
-display "$GREEN" "Adding curl and installing Nala, as it's often preferred over apt."
-sleep 3
-if ! command -v curl &> /dev/null; then
-    log INFO "curl not found, installing curl."
-    if ! sudo apt install curl -y; then
-        log ERROR "Failed to install curl. Nala installation might fail."
-        exit 1
-    fi
-fi
 
-# Download and install Nala safely
-if safe_curl "https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh" "/tmp/install-nala.sh" "Nala installation script"; then
-    log INFO "Executing Nala installation script."
-    if sudo bash /tmp/install-nala.sh; then
-        log INFO "Nala installation script executed successfully."
-        rm -f /tmp/install-nala.sh
-        if sudo nala update; then
-            log INFO "Nala updated successfully."
-        else
-            log WARNING "Failed to update Nala after installation."
-        fi
-    else
-        log ERROR "Nala installation script failed to execute. Exiting."
-        rm -f /tmp/install-nala.sh
-        exit 1
-    fi
-else
-    log ERROR "Failed to download Nala installation script. Exiting."
-    exit 1
-fi
+display $GREEN "Adding curl and installing Nala. Because it is better than apt."
+
+sleep 2s
+
+sudo apt install curl -y
+
+curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
+
+sudo nala update
+
+
+
 echo '########################################' | lolcat
 
 
-## Install FastFetch
+
+# Remove LibreOffice 
+
+#This section is for Pop OS installs with old versions of Libreoffice.
+
+#Commenting out but leaving incase of future need.
+
+
+
+#log INFO "Removing LibreOffice"
+
+#display $GREEN "Removing the old packaged version of LibreOffice."
+
+#sleep 2s
+
+#sudo nala remove --purge -y "libreoffice*"
+
+#sudo nala clean 
+
+#sudo nala autoremove -y
+
+
+
+echo '########################################' | lolcat
+
+
+
+echo '########################################' | lolcat
+
+
+
+# Install FastFetch
 
 log INFO "Installing FastFetch"
-display "$GREEN" "Installing Fastfetch from the zhangsongcui repo."
-sleep 3
-if sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch && sudo nala update && sudo nala install fastfetch -y; then
-    log INFO "Fastfetch installed successfully."
-else
-    log ERROR "Failed to install Fastfetch."
-    exit 1
-fi
+
+display $GREEN "Installing Fastfetch from the zhangsongcui repo."
+
+sleep 2s
+
+sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+
+sudo nala update
+
+sudo nala install fastfetch -y
+
+
+
 echo '########################################' | lolcat
 
-## Preconfigure Microsoft Fonts and libdvd-pkg
 
-log INFO "Preconfiguring Microsoft fonts and libdvd-pkg for unattended install."
-display "$GREEN" "Setting up Microsoft fonts EULA and libdvd-pkg."
 
-# Pre-accept Microsoft fonts EULA
-if echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections; then
-    log INFO "Microsoft fonts EULA pre-accepted."
-else
-    log ERROR "Failed to pre-accept Microsoft fonts EULA."
-    exit 1
-fi
+# Preconfigure Microsoft fonts and libdvd-pkg
+
+log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
+
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 
 export DEBIAN_FRONTEND=noninteractive
-if sudo DEBIAN_FRONTEND=noninteractive apt -yq install ttf-mscorefonts-installer libdvd-pkg; then
-    log INFO "Microsoft fonts and libdvd-pkg installed."
 
-    # Execute the libdvdcss build script directly as requested by user
-    display "$YELLOW" "Running libdvd-pkg build script for libdvdcss directly..."
-    if sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh; then
-        log INFO "libdvdcss build script executed successfully. libdvdcss should be installed."
-    else
-        log ERROR "Failed to execute libdvdcss build script. DVD playback might be affected."
-        exit 1 # Exit if libdvdcss cannot be built, as it's critical for DVDs.
-    fi
-else
-    log ERROR "Failed to install Microsoft fonts or libdvd-pkg."
-    exit 1 # This is a critical step, so exit if it fails.
-fi
-unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
+sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
+
+sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
+
+unset DEBIAN_FRONTEND
+
+
+
 echo '########################################' | lolcat
 
-## Preconfigure Jackd2
-
-#log INFO "Preconfiguring Jackd2 with real-time priority for unattended install."
-#display "$GREEN" "Configuring Jackd2 for real-time audio and adding user to audio group."
-
-# Set DEBIAN_FRONTEND for non-interactive installation
-#export DEBIAN_FRONTEND=noninteractive
-
-# Pre-set debconf selections for jackd2
-#if echo "jackd2 jackd2/install_type boolean true" | sudo debconf-set-selections && \
-#   echo "jackd2 jackd2/rt_allow boolean true" | sudo debconf-set-selections && \
-#   echo "jackd2 jackd2/priority string 99" | sudo debconf-set-selections; then
-#    log INFO "Jackd2 debconf settings preconfigured."
-#else
-#    log ERROR "Failed to preconfigure Jackd2 debconf settings. Installation might prompt for input."
-#    # Continue, but note the potential for interruption.
-#fi
-
-#log INFO "Installing jackd2..."
-# Explicitly use DEBIAN_FRONTEND=noninteractive for the apt install command
-#if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jackd2; then
-#    log INFO "Jackd2 installed successfully."
-#else
-#    log ERROR "Failed to install jackd2. Audio applications might be affected."
-#    exit 1 # This is a critical step, so exit if it fails.
-#fi
-
-#unset DEBIAN_FRONTEND # Unset DEBIAN_FRONTEND after non-interactive operations
-
-# Add the current user to the 'audio' group.
-#if ! id -nG "$USER" | grep -qw "audio"; then
-#    log INFO "Adding user '$USER' to the 'audio' group."
-#    if sudo usermod -a -G audio "$USER"; then
-#        log INFO "Successfully added user '$USER' to audio group."
-#        display "$YELLOW" "Please log out and log back in for the 'audio' group membership to take effect for real-time audio."
-#    else
-#        log ERROR "Failed to add user '$USER' to audio group."
-#        exit 1 # Exit if user cannot be added to audio group, as real-time audio won't work.
-#    fi
-#else
-#    log INFO "User '$USER' is already in the 'audio' group."
-#fi
 echo '########################################' | lolcat
 
-## Configure Pipewire (new section)
-
-log INFO "Adding configuration for Pipewire"
-display "$GREEN" "Adding configuration for Pipewire. Setting sample rate and buffer size."
-
-# Create the pipewire config directory
-if mkdir -p ~/.config/pipewire/; then
-    log INFO "Created Pipewire config directory."
-else
-    log ERROR "Failed to create Pipewire config directory. Exiting."
-    exit 1
-fi
-
-config_path=~/.config/pipewire/pipewire.conf
-if safe_curl "https://raw.githubusercontent.com/mdleslie/workshed/workshed/pipewire.conf" "$config_path" "Pipewire config"; then
-    log INFO "Successfully downloaded Pipewire config to $config_path."
-else
-    log ERROR "Failed to download Pipewire config. Exiting."
-    exit 1
-fi
 echo '########################################' | lolcat
 
-## Install .deb Packages
+
+
+# Install .deb packages
 
 log INFO "Installing .deb packages"
-display "$GREEN" "Installing core .deb packages."
+
+display $GREEN "Installing .deb packages."
+
 for package in "${deb_packages[@]}"; do
-    # Using dpkg -s for more reliable check if package is installed
-    if dpkg -s "$package" &> /dev/null; then
+
+    if dpkg -l | grep -qw "$package"; then
+
         log INFO "$package is already installed, skipping."
+
     else
-        log INFO "Attempting to install $package"
+
+        log INFO "Installing $package"
+
         if sudo nala install -y "$package"; then
+
             installed_deb_packages+=("$package")
-            log INFO "Successfully installed $package"
+
         else
-            log ERROR "Failed to install $package. Skipping to next package."
-        # Do not exit here, allow other packages to attempt installation
+
+            log ERROR "Failed to install $package"
+
         fi
+
     fi
+
 done
+
+
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
 echo '########################################' | lolcat
 
 
-## Install Flatpak Applications
+
+# Install Flatpak applications
 
 log INFO "Installing Flatpak applications"
-display "$GREEN" "Installing Flatpak applications from Flathub."
 
-# Ensure Flatpak is installed
+display $GREEN "Installing Flatpak applications."
+
 if ! command -v flatpak &> /dev/null; then
-    log INFO "Flatpak not found, attempting to install Flatpak."
-    if ! sudo nala install -y flatpak; then
-        log ERROR "Failed to install Flatpak. Cannot install Flatpak applications."
-        exit 1 # Flatpak apps are a major part, exit if Flatpak itself fails
-    fi
+
+    log INFO "Flatpak not installed, installing Flatpak"
+
+    sudo nala install -y flatpak
+
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
 fi
 
-# Add Flathub remote if not already present
-if ! flatpak remotes | grep -q "flathub"; then
-    log INFO "Adding Flathub remote."
-    if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
-        log INFO "Successfully added Flathub remote."
-    else
-        log ERROR "Failed to add Flathub remote. Flatpak applications might not be installable."
-        # Continue, but Flatpak installations will likely fail
-    fi
-else
-    log INFO "Flathub remote already exists."
-fi
+
 
 for app in "${flatpak_apps[@]}"; do
-    # Check if flatpak info for the app exists, indicating it's installed
-    if flatpak info "$app" &> /dev/null; then
+
+    if flatpak list | grep -qw "$app"; then
+
         log INFO "$app is already installed, skipping."
+
     else
-        log INFO "Attempting to install Flatpak application: $app"
-        # Redirect flatpak output to log_file for details on failure
-        if flatpak install -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
+
+        log INFO "Installing $app"
+
+        if flatpak install -y --noninteractive flathub "$app" &>> "$log_file"; then
+
             installed_flatpak_apps+=("$app")
-            log INFO "Successfully installed $app"
+
+            # The success message is now logged via the redirection above.
+
         else
-            log ERROR "Failed to install Flatpak application: $app. Check $log_file for details. Skipping to next Flatpak app."
+
+            log ERROR "Failed to install $app"
+
         fi
+
     fi
+
 done
+
+
+
 echo '########################################' | lolcat
 
-## Generate Installation Report
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+
+
+# Generate installation report
 
 log INFO "Generating installation report"
-# Clear previous summary content
-> "$update_summary"
+
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
-    log INFO "No new programs were installed in this run."
-    echo "No new programs were installed in this run." >> "$update_summary"
+
+    log INFO "No new programs were installed"
+
 else
-    echo "--- Newly Installed Programs ---" >> "$update_summary"
-    if [ ${#installed_deb_packages[@]} -gt 0 ]; then
-        echo "" >> "$update_summary"
-        echo "Installed .deb packages:" >> "$update_summary"
-        printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
-    fi
-    if [ ${#installed_flatpak_apps[@]} -gt 0 ]; then
-        echo "" >> "$update_summary"
-        echo "Installed Flatpak applications:" >> "$update_summary"
-        printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
-    fi
+
+    echo "Installed .deb packages:" >> "$update_summary"
+
+    printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
+
+    echo "Installed Flatpak applications:" >> "$update_summary"
+
+    printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
+
 fi
 
-log INFO "Installation summary written to $update_summary"
+
+
 echo '########################################' | lolcat
 
-## Create Update Script
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+
+
+#For future use
+
+#For future use
+
+
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+
+
+# Create update script
 
 log INFO "Creating update script"
+
 display $GREEN "Creating and downloading the update.sh script."
+
+
+
 update_script="/usr/bin/update.sh"
+
 sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o "$update_script"
+
 if [[ $? -eq 0 && -s "$update_script" ]]; then
 
     sudo chmod +x "$update_script"
@@ -519,23 +718,36 @@ else
 
     log ERROR "Failed to download update.sh script or the downloaded file is empty"
 
-    sudo rm -f "$update_script"  # Clean up in case of a partial downloadMore actions
+    sudo rm -f "$update_script"  # Clean up in case of a partial download
 
     exit 1
 
 fi
+
+
+
 echo '########################################' | lolcat
 
-## Modify .bashrc File
+
+
+# Modify .bashrc file
 
 log INFO "Modifying .bashrc file"
-display "$GREEN" "Modifying .bashrc file to include useful aliases."
+
+display $GREEN "Modifying .bashrc file to include useful aliases."
+
+
 
 # Backup existing .bashrc
+
 cp ~/.bashrc ~/.bashrc.bak
 
-# Download and append aliases (URL encoded space for robustness)
+
+
+# Download and append aliases
+
 aliases=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%20aliases")
+
 if [[ $? -eq 0 && -n "$aliases" ]]; then
 
     echo -e "\n# Added aliases\n$aliases" >> ~/.bashrc
@@ -560,28 +772,42 @@ else
 
 fi
 
+
+
 log INFO "Successfully modified .bashrc"
 
 display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
 
+
+
 echo '########################################' | lolcat
 
-## Modify fstab File
+
+
+# Modify fstab file
 
 log INFO "Modifying fstab file"
 
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 
+
+
 # Create mount point
 
 sudo mkdir -p /mnt/Arkive
+
+
 
 # Backup existing fstab
 
 sudo cp /etc/fstab /etc/fstab.bak
 
+
+
 # Download and append NFS mount entry
+
 fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")
+
 if [[ $? -eq 0 && -n "$fstab_entry" ]]; then  # Check curl exit code AND file content
 
     echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
@@ -606,21 +832,42 @@ else
 
 fi
 
+
+
 # Test section, might be able to add this section again with new Pop OS release #
-# Validate fstab - Disabled as per previous discussion, but left for context if needed later
+
+# Validate fstab
+
 #if ! sudo mount -a; then
+
 #    log ERROR "Failed to mount all entries in fstab. Please check /etc/fstab for errors."
+
 #    exit 1
+
 #fi
+
+
+
 #log INFO "Successfully modified fstab and verified mounts"
+
+
+
+
 
 echo '########################################' | lolcat
 
-## Add Band Maid Logo for Fastfetch
+echo '########################################' | lolcat
+
+
+
+# Add Band Maid logo for fastfetch
 
 log INFO "Adding Band Maid logo for fastfetch"
+
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
+
 mkdir -p ~/.local/share/fastfetch/logos
+
 curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 
 if [[ $? -eq 0 && -s ~/.local/share/fastfetch/logos/maid ]]; then  # Check exit code AND file size
@@ -634,38 +881,80 @@ else
     exit 1
 
 fi
+
+
+
 echo '########################################' | lolcat
 
-## Final System Cleanup
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+
+
+# Cleanup
 
 log INFO "Performing final cleanup"
-display "$GREEN" "Running final system cleanup."
-if sudo nala autoremove -y && sudo nala clean; then
-    log INFO "Final nala autoremove and clean completed."
-else
-    log WARNING "Final nala autoremove or clean encountered issues."
-fi
+
+sudo nala autoremove -y
+
+sudo nala clean
+
+
+
 echo '########################################' | lolcat
 
 
-## Script Completion
 
-script_completed="true" # Mark script as completed for cleanup function
-log INFO "Installation script completed successfully."
-display "$BLUE" "Finishing up now. Shop smart, shop S-Mart."
+# Script completion
 
-lol figlet "Workshed" # Keep this animated figlet at the very end
+script_completed="true"
+
+log INFO "Installation script completed successfully"
+
+display $BLUE "Finishing up now. Shop smart, shop S-Mart."
+
+
+
 echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+display $RED "Don't mix danger, handle with care!"
+
+
+
+figlet Workshed | lolcat -a -d 3
+
+
 
 log INFO "Installation summary saved to $update_summary"
-display "$GREEN" "Installation summary saved to $update_summary."
+
+display $GREEN "Installation summary saved to $update_summary"
+
+
+
+
 
 echo '########################################' | lolcat
-echo '########################################' | lolcat
+
 echo '########################################' | lolcat
 
-display "$RED" "Don't mix danger, handle with care!"
-display "$GREEN" "Po."
-display "$BLUE" "Groovy."
+echo '########################################' | lolcat
 
-exit 0
+echo '########################################' | lolcat
+
+echo '########################################' | lolcat
+
+echo '########################################' | lolcatMore actions
+0 commit commentsComments
