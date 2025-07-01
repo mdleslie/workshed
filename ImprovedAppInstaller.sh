@@ -207,12 +207,6 @@ log INFO "Starting installation script"
 display $GREEN "Lets go, it's showtime!"
 sleep 5s
 display $GREEN "This script will automate setting up a clean OS install."
-sleep 2s
-display $BLUE "Don't Mix Danger, Handle with Care!"
-sleep 2s
-display $RED "Don't Mix Danger, Handle with Care!"
-sleep 2s
-display $GREEN "Don't Mix Danger, Handle with Care!"
 sleep 5s
 
 echo '########################################' | lolcat
@@ -287,9 +281,6 @@ done
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
 
 # Install Flatpak applications
 log INFO "Installing Flatpak applications"
@@ -316,317 +307,156 @@ done
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
 
 # Generate installation report
 
 log INFO "Generating installation report"
-
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
-
     log INFO "No new programs were installed"
-
 else
-
     echo "Installed .deb packages:" >> "$update_summary"
-
     printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
-
     echo "Installed Flatpak applications:" >> "$update_summary"
-
     printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
-
 fi
 
-
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
-
 
 #For future use
-
 #For future use
 
-
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
-
 
 # Create update script
 
 log INFO "Creating update script"
-
 display $GREEN "Creating and downloading the update.sh script."
-
-
-
 update_script="/usr/bin/update.sh"
-
 sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o "$update_script"
-
 if [[ $? -eq 0 && -s "$update_script" ]]; then
-
     sudo chmod +x "$update_script"
-
     log INFO "Successfully downloaded and set up update.sh script"
-
 else
-
     log ERROR "Failed to download update.sh script or the downloaded file is empty"
-
     sudo rm -f "$update_script"  # Clean up in case of a partial download
-
     exit 1
-
 fi
 
-
-
 echo '########################################' | lolcat
-
-
 
 # Modify .bashrc file
 
 log INFO "Modifying .bashrc file"
-
 display $GREEN "Modifying .bashrc file to include useful aliases."
 
-
-
 # Backup existing .bashrc
-
 cp ~/.bashrc ~/.bashrc.bak
 
-
-
 # Download and append aliases
-
 aliases=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%20aliases")
-
 if [[ $? -eq 0 && -n "$aliases" ]]; then
-
     echo -e "\n# Added aliases\n$aliases" >> ~/.bashrc
-
     if [[ $? -eq 0 ]]; then
-
         log INFO "Successfully added aliases to .bashrc"
-
     else
-
         log ERROR "Failed to modify .bashrc file"
-
         exit 1
-
     fi
-
 else
-
     log ERROR "Failed to download bash.rc aliases"
-
     exit 1
-
 fi
 
-
-
 log INFO "Successfully modified .bashrc"
-
 display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
-
-
 
 echo '########################################' | lolcat
 
-
-
 # Modify fstab file
-
 log INFO "Modifying fstab file"
-
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 
-
-
 # Create mount point
-
 sudo mkdir -p /mnt/Arkive
 
-
-
 # Backup existing fstab
-
 sudo cp /etc/fstab /etc/fstab.bak
-
-
 
 # Download and append NFS mount entry
 
 fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")
-
 if [[ $? -eq 0 && -n "$fstab_entry" ]]; then  # Check curl exit code AND file content
-
     echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
-
     if [[ $? -eq 0 ]]; then
-
         log INFO "Successfully added NFS mount entry to fstab"
-
     else
-
         log ERROR "Failed to modify fstab file (writing to /etc/fstab)."
-
         exit 1
-
     fi
-
 else
-
     log ERROR "Failed to download NFS mount fstab entry. Curl exited with code $?"
-
     exit 1
-
 fi
-
-
 
 # Test section, might be able to add this section again with new Pop OS release #
 
 # Validate fstab
 
 #if ! sudo mount -a; then
-
 #    log ERROR "Failed to mount all entries in fstab. Please check /etc/fstab for errors."
-
 #    exit 1
-
 #fi
-
-
 
 #log INFO "Successfully modified fstab and verified mounts"
 
-
-
-
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
-
 
 # Add Band Maid logo for fastfetch
 
 log INFO "Adding Band Maid logo for fastfetch"
-
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
-
 mkdir -p ~/.local/share/fastfetch/logos
-
 curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
-
 if [[ $? -eq 0 && -s ~/.local/share/fastfetch/logos/maid ]]; then  # Check exit code AND file size
-
     log INFO "Successfully downloaded Band Maid logo"
-
 else
-
     log ERROR "Failed to download Band Maid logo. Curl exited with code $?"
-
     exit 1
-
 fi
 
-
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
-
 
 # Cleanup
-
 log INFO "Performing final cleanup"
-
 sudo nala autoremove -y
-
 sudo nala clean
 
-
-
 echo '########################################' | lolcat
-
-
 
 # Script completion
-
 script_completed="true"
-
 log INFO "Installation script completed successfully"
-
 display $BLUE "Finishing up now. Shop smart, shop S-Mart."
 
-
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
 echo '########################################' | lolcat
 
 display $RED "Don't mix danger, handle with care!"
 
-
-
 figlet Workshed | lolcat -a -d 3
-
-
 
 log INFO "Installation summary saved to $update_summary"
 
 display $GREEN "Installation summary saved to $update_summary"
 
-
-
-
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
 echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
-echo '########################################' | lolcat
-
-echo '########################################' | lolcatMore actions
-0 commit commentsComments
