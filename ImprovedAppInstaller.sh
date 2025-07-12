@@ -67,7 +67,6 @@ deb_packages=(
 # List of Flatpak applications to install
 
 flatpak_apps=(
-  "org.libreoffice.LibreOffice"
   "net.cozic.joplin_desktop"
   "com.synology.SynologyDrive"
   "com.brave.Browser"
