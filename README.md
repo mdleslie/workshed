@@ -2,11 +2,9 @@
 
 ImprovedAppInstaller.sh is a bash script I created as an educational exercise to learn more scripting. 
 
-It will install all the deb and flatpak apps I typically use on my computer. I wrote and tested it with Pop OS, but it should work with any Ubuntu based script. I just have not tested the sections that sets up flatpaks (already set up in Pop OS and Linux Mint). 
+It will install all the deb and flatpak apps I typically use on my computer. I wrote and tested it with Pop OS, but it should work with any Ubuntu based script. 
 
 The deb and flatpak applications are listed in array at the top of the script. This should make for easy customization of what applications can be installed.
-
-Checks to see if Gnome is the desktop environment, and if so installs some nautilus utilities.
 
 It installs nala and then uses nala to install deb packages.
 
