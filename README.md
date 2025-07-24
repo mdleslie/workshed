@@ -8,13 +8,11 @@ The deb and flatpak applications are listed in array at the top of the script. T
 
 It installs nala and then uses nala to install deb packages.
 
-The script will add repos for MakeMKV and Fastfetch, and install those applications as well.
+The script will add a repo for Fastfetch, and Fastfetch with modified ascii art work as well.
 
 The script will first check if an application is already installed and skip it if it is.
 
 The script will modify your bashrc file with aliases I commonly use. It will also create a script to update deb and flatpak applications.
-
-It will customize the ascii art used by Fastfetch.
 
 This was made for my use and I may be an idiot.
 
