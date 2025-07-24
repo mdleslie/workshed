@@ -58,8 +58,6 @@ deb_packages=(
   "whois"
   "nmap"
   "btop"
-  "mkvtoolnix"
-  "mkvtoolnix-gui"
   "caja-dropbox"
 )
 
