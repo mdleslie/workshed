@@ -95,7 +95,6 @@ flatpak_apps=(
   "org.kde.haruna"
   "com.github.IsmaelMartinez.teams_for_linux"
   "com.github.taiko2k.tauonmb"
-  "com.makemkv.MakeMKV"
   "org.inkscape.Inkscape"
   "ar.com.tuxguitar.TuxGuitar"
   "com.rtosta.zapzap"
@@ -221,7 +220,7 @@ cache_sudo
 
 log INFO "Updating and upgrading system"
 display $GREEN "Preparing system before installing new applications."
-sleep 2s
+sleep 5s
 sudo apt update
 sudo apt upgrade -y
 
@@ -231,7 +230,7 @@ echo '########################################' | lolcat
 
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
-sleep 2s
+sleep 5s
 sudo apt install curl -y
 curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
@@ -242,7 +241,7 @@ echo '########################################' | lolcat
 # Install FastFetch
 log INFO "Installing FastFetch"
 display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-sleep 2s
+sleep 5s
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 sudo nala update
 sudo nala install fastfetch -y
@@ -418,7 +417,7 @@ echo '########################################' | lolcat
 # Add Band Maid logo for fastfetch
 
 log INFO "Adding Band Maid logo for fastfetch"
-display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo."
+display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
 mkdir -p ~/.local/share/fastfetch/logos
 curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 if [[ $? -eq 0 && -s ~/.local/share/fastfetch/logos/maid ]]; then  # Check exit code AND file size
@@ -449,6 +448,7 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 display $RED "Don't mix danger, handle with care!"
+sleep 5s
 
 figlet Workshed | lolcat -a -d 3
 
