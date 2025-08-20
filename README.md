@@ -14,7 +14,7 @@ The script will first check if an application is already installed and skip it i
 
 The script will modify your bashrc file with aliases I commonly use. It will also create a script to update deb and flatpak applications.
 
-This was made for my use and I may be an idiot.
+This was made for my use and I may be an idiot. I am an idiot.
 
 The script can be run via a curl command.
 
