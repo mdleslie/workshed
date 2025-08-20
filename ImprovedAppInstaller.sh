@@ -100,6 +100,7 @@ flatpak_apps=(
   "com.rtosta.zapzap"
   "us.zoom.Zoom"
   "com.dropbox.Client"
+  "md.obsidian.Obsidian"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
