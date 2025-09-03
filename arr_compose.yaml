@@ -1,10 +1,10 @@
 ---
-version: "3.8"
-
 services:
-  ############################
-  # RADARR - For Movies
-  ############################
+
+############################
+# RADARR
+############################
+
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -12,15 +12,17 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Phoenix # Set your timezone
+      - TZ=Etc/UTC
     volumes:
-      - /media/arr/config/radarr:/config
-      - /media/arr:/data # Unified data volume for media and downloads
+      - /media/arr/radarr/config:/config
+      - /media/arr/Movies:/movies 
+      - /media/arr/qbittorrent/downloads:/downloads 
     restart: unless-stopped
+    
+############################
+# SONARR
+############################
 
-  ############################
-  # SONARR - For TV Shows
-  ############################
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
@@ -28,15 +30,17 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Phoenix # Set your timezone
+      - TZ=Etc/UTC
     volumes:
-      - /media/arr/config/sonarr:/config
-      - /media/arr:/data # Unified data volume
+      - /media/arr/sonarr/config:/config
+      - /media/arr/Shows:/tv
+      - /media/arr/qbittorrent/downloads:/downloads #optional
     restart: unless-stopped
+    
+############################
+# PROWLARR
+############################
 
-  ############################
-  # PROWLARR - For Indexers
-  ############################
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
@@ -44,14 +48,15 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Phoenix # Set your timezone
+      - TZ=Etc/UTC
     volumes:
-      - /media/arr/config/prowlarr:/config
+      - /media/arr/prowlarr/config:/config
     restart: unless-stopped
 
-  ############################
-  # BAZARR - For Subtitles
-  ############################
+############################
+# BAZARR
+############################
+
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
@@ -59,15 +64,17 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Phoenix # Set your timezone
+      - TZ=Etc/UTC
     volumes:
-      - /media/arr/config/bazarr:/config
-      - /media/arr:/data # Unified data volume
+      - /media/arr/bazarr/config:/config
+      - /media/arr/Movies:/movies #optional
+      - /media/arr/Shows:/tv #optional
     restart: unless-stopped
+    
+############################
+# LIDARR
+############################
 
-  ############################
-  # LIDARR - For Music
-  ############################
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
@@ -75,15 +82,17 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Phoenix # Set your timezone
+      - TZ=Etc/UTC
     volumes:
-      - /media/arr/config/lidarr:/config
-      - /media/arr:/data # Unified data volume
+      - /media/arr/lidarr/config:/config
+      - /media/arr/Music:/music #optional
+      - /media/arr/qbittorrent/downloads:/downloads #optional
     restart: unless-stopped
+    
+############################
+# QBITTORRENT		
+############################
 
-  ############################
-  # QBITTORRENT - For Downloads
-  ############################
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
@@ -91,36 +100,39 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Phoenix # Set your timezone
+      - TZ=Etc/UTC
       - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
     volumes:
-      - /media/arr/config/qbittorrent:/config
-      - /media/arr:/data # Unified data volume
+      - /media/arr/qbittorrent/config:/config
+      - /media/arr/qbittorrent/downloads:/downloads #optional
     restart: unless-stopped
+    
+############################
+# GLUETUN
+############################
 
-  ############################
-  # GLUETUN - VPN Client
-  ############################
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
     ports:
+      - 9696:9696 #prowlarr
       - 7878:7878 #radarr
       - 8989:8989 #sonarr
-      - 9696:9696 #prowlarr
       - 6767:6767 #bazarr
       - 8686:8686 #lidarr
       - 8080:8080 #qbittorrent
-      - 6881:6881
-      - 6881:6881/udp
+      - 6881:6881 #qbittorrent
+      - 6881:6881/udp #qbittorrent
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
     environment:
       - VPN_SERVICE_PROVIDER=nordvpn
-      - VPN_TYPE=openvpn
-      - OPENVPN_USER= # <your vpn user>
-      - OPENVPN_PASSWORD= # <your vpn password>
+      - VPN_TYPE=openvpn # or wireguard
+      - OPENVPN_USER=<your vpn user>
+      - OPENVPN_PASSWORD=<your vpn password>
       - SERVER_COUNTRIES=Netherlands
-    restart: unless-stopped
+      
+############################
