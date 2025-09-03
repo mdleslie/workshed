@@ -137,6 +137,6 @@ services:
       - OPENVPN_USER=<your vpn user>
       - OPENVPN_PASSWORD=<your vpn password>
       - SERVER_COUNTRIES=Netherlands
-restart: unless-stopped
+  restart: unless-stopped
       
 ############################
