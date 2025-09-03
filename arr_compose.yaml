@@ -15,7 +15,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Phoenix
     volumes:
       - /media/arr/radarr/config:/config
       - /media/arr/Movies:/movies 
@@ -33,7 +33,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Phoenix
     volumes:
       - /media/arr/sonarr/config:/config
       - /media/arr/Shows:/tv
@@ -51,7 +51,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Phoenix
     volumes:
       - /media/arr/prowlarr/config:/config
     restart: unless-stopped
@@ -67,7 +67,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Phoenix
     volumes:
       - /media/arr/bazarr/config:/config
       - /media/arr/Movies:/movies 
@@ -85,7 +85,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Phoenix
     volumes:
       - /media/arr/lidarr/config:/config
       - /media/arr/Music:/music 
@@ -103,7 +103,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Phoenix
       - WEBUI_PORT=8080
       - TORRENTING_PORT=6881
     volumes:
