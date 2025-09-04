@@ -1,13 +1,10 @@
 ---
-
 version: '3.8'
 
 services:
-
-############################
-# RADARR
-############################
-
+  ############################
+  # RADARR
+  ############################
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -17,15 +14,13 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/radarr/config:/config
-      - /media/arr/Movies:/movies 
-      - /media/arr/qbittorrent/downloads:/downloads 
+      - /media/arr/config/radarr:/config
+      - /media/arr:/data # Unified volume for instant moves
     restart: unless-stopped
-    
-############################
-# SONARR
-############################
 
+  ############################
+  # SONARR
+  ############################
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
@@ -35,15 +30,13 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/sonarr/config:/config
-      - /media/arr/Shows:/tv
-      - /media/arr/qbittorrent/downloads:/downloads
+      - /media/arr/config/sonarr:/config
+      - /media/arr:/data # Unified volume for instant moves
     restart: unless-stopped
-    
-############################
-# PROWLARR
-############################
 
+  ############################
+  # PROWLARR
+  ############################
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
@@ -53,13 +46,12 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/prowlarr/config:/config
+      - /media/arr/config/prowlarr:/config
     restart: unless-stopped
 
-############################
-# BAZARR
-############################
-
+  ############################
+  # BAZARR
+  ############################
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
@@ -69,15 +61,13 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/bazarr/config:/config
-      - /media/arr/Movies:/movies 
-      - /media/arr/Shows:/tv 
+      - /media/arr/config/bazarr:/config
+      - /media/arr:/data # Unified volume so it can see media
     restart: unless-stopped
-    
-############################
-# LIDARR
-############################
 
+  ############################
+  # LIDARR
+  ############################
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
@@ -87,15 +77,13 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/lidarr/config:/config
-      - /media/arr/Music:/music 
-      - /media/arr/qbittorrent/downloads:/downloads 
+      - /media/arr/config/lidarr:/config
+      - /media/arr:/data # Unified volume for instant moves
     restart: unless-stopped
-    
-############################
-# QBITTORRENT		
-############################
 
+  ############################
+  # QBITTORRENT
+  ############################
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
@@ -105,16 +93,14 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
       - WEBUI_PORT=8080
-      - TORRENTING_PORT=6881
     volumes:
-      - /media/arr/qbittorrent/config:/config
-      - /media/arr/qbittorrent/downloads:/downloads
+      - /media/arr/config/qbittorrent:/config
+      - /media/arr:/data # Unified volume for instant moves
     restart: unless-stopped
-    
-############################
-# GLUETUN
-############################
 
+  ############################
+  # GLUETUN
+  ############################
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
@@ -134,9 +120,10 @@ services:
     environment:
       - VPN_SERVICE_PROVIDER=nordvpn
       - VPN_TYPE=openvpn # or wireguard
-      - OPENVPN_USER=<your vpn user>
-      - OPENVPN_PASSWORD=<your vpn password>
-      - SERVER_COUNTRIES=Netherlands
-  restart: unless-stopped
-      
-############################
+      - OPENVPN_USER=user
+      - OPENVPN_PASSWORD=password
+      - SERVER_COUNTRIES=Netherlands,Japan
+    restart: unless-stopped
+
+
+
