@@ -1,10 +1,10 @@
 ---
-version: '3.8'
-
 services:
-  ############################
-  # RADARR
-  ############################
+
+############################
+# RADARR
+############################
+
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -14,14 +14,15 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/active/radarr/config:/config`
-      - /media/arr/Movies:/movies 
-      - /media/arr/active/qbittorrent/downloads:/downloads 
+      - /media/arr/radarr/config:/config
+      - /media/arr/radarr/movies:/movies 
+      - /media/arr/qbittorrent/downloads:/downloads 
     restart: unless-stopped
+    
+############################
+# SONARR
+############################
 
-  ############################
-  # SONARR
-  ############################
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
@@ -31,14 +32,15 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/active/sonarr/config:/config
-      - /media/arr/Shows:/tv 
-      - /media/arr/active/qbittorrent/downloads:/downloads
+      - /media/arr/sonarr/config:/config
+      - /media/arr/sonarr/tvseries:/tv 
+      - /media/arr/qbittorrent/downloads:/downloads 
     restart: unless-stopped
+    
+############################
+# PROWLARR
+############################
 
-  ############################
-  # PROWLARR
-  ############################
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
@@ -48,12 +50,13 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/active/prowlarr/config:/config
+      - /media/arr/prowlarr/config:/config
     restart: unless-stopped
 
-  ############################
-  # BAZARR
-  ############################
+############################
+# BAZARR
+############################
+
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
@@ -63,14 +66,15 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/active/bazarr/config:/config
-      - /media/arr/Movies:/movies 
-      - /media/arr/active/Shows:/tv
+      - /media/arr/bazarr/config:/config
+      - /media/arr/radarr/movies:/movies 
+      - /media/arr/sonarr/tvseries:/tv 
     restart: unless-stopped
+    
+############################
+# LIDARR
+############################
 
-  ############################
-  # LIDARR
-  ############################
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
@@ -80,14 +84,15 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
     volumes:
-      - /media/arr/active/lidarr/config:/config
-      - /media/arr/Music:/music #optional
-      - /media/arr/active/qbittorrent/downloads:/downloads #optional
+      - /media/arr/lidarr/config:/config
+      - /media/arr/lidarr/music:/music 
+      - /media/arr/qbittorrent/downloads:/downloads
     restart: unless-stopped
+    
+############################
+# QBITTORRENT		
+############################
 
-  ############################
-  # QBITTORRENT
-  ############################
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
@@ -97,15 +102,38 @@ services:
       - PGID=1000
       - TZ=America/Phoenix
       - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
     volumes:
-      - /media/arr/active/qbittorrent/config:/config
-      - /media/arr/active/qbittorrent/downloads:/downloads
-       - /media/arr/active/qbittorrent/Monitored:/monitored
+      - /media/arr/qbittorrent/config:/config
+      - /media/arr/qbittorrent/downloads:/downloads 
     restart: unless-stopped
+    
+############################
+# JELLYFIN	
+############################
 
-  ############################
-  # GLUETUN
-  ############################
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Phoenix
+    volumes:
+      - /media/arr/jellyfin/config:/config
+      - /media/arr/sonarr/tvseries:/data/tvshows
+      - /media/arr/radarr/movies:/data/movies
+    ports:
+      - 8096:8096
+      - 8920:8920 
+      - 7359:7359/udp 
+      - 1900:1900/udp 
+    restart: unless-stopped
+        
+############################
+# GLUETUN
+############################
+
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
@@ -128,7 +156,7 @@ services:
       - OPENVPN_USER=user
       - OPENVPN_PASSWORD=password
       - SERVER_COUNTRIES=Netherlands
-    restart: unless-stopped
+      
 
 
 
