@@ -64,7 +64,7 @@ services:
       - TZ=America/Phoenix
     volumes:
       - /media/arr/active/bazarr/config:/config
-      - /media/arr/active/Movies:/movies 
+      - /media/arr/Movies:/movies 
       - /media/arr/active/Shows:/tv
     restart: unless-stopped
 
