@@ -127,15 +127,3 @@ services:
       - FIREWALL_OUTBOUND_SUBNETS=172.17.0.0/16,192.168.1.0/24
     restart: unless-stopped
 
-  ############################
-  # FLARESOLVERR (seems to be dead)
-  ############################
-  #flaresolverr:
-  #  image: ghcr.io/flaresolverr/flaresolverr:latest
-  #  container_name: flaresolverr
-  #  environment:
-  #    - LOG_LEVEL=info
-  #    - TZ=${TZ}
-  #  ports:
-  #    - "8191:8191"
-  #  restart: unless-stopped
