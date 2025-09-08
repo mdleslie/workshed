@@ -4,4 +4,7 @@
 ####################################################################################################
 
 #nfs mount command  
-192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs nouser,rsize=8192,wsize=8192,atime,auto,rw,dev,exec,suid 0 0
+192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,intr 0 0
+
+#nfs mount for arr directory
+#192.168.1.150:/volume1/Arkive_Share/Media /media/arr nfs defaults,_netdev,noatime,vers=3,hard,intr 0 0
