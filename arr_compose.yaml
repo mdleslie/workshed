@@ -128,14 +128,14 @@ services:
     restart: unless-stopped
 
   ############################
-  # FLARESOLVERR (NEW)
+  # FLARESOLVERR (seems to be dead)
   ############################
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    environment:
-      - LOG_LEVEL=info
-      - TZ=${TZ}
-    ports:
-      - "8191:8191"
-    restart: unless-stopped
+  #flaresolverr:
+  #  image: ghcr.io/flaresolverr/flaresolverr:latest
+  #  container_name: flaresolverr
+  #  environment:
+  #    - LOG_LEVEL=info
+  #    - TZ=${TZ}
+  #  ports:
+  #    - "8191:8191"
+  #  restart: unless-stopped

@@ -1,0 +1,3 @@
+secret_config.json
+logs/
+*.env
