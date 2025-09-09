@@ -122,18 +122,18 @@ services:
       - OPENVPN_USER=${OPENVPN_USER}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-      - FIREWALL_OUTBOUND_SUBNETS=172.17.0.0/16,192.168.1.0/24
+      - FIREWALL_OUTBOUND_SUBNETS=172.17.0.0/16,192.18.1.0/24
     restart: unless-stopped
 
   ############################
-  # QBIT-MANAGE
+  # QBIT_MANAGE (Torrent Automator)
   ############################
-  qbit-manage:
-    image: bobokun/qbit-manage:latest
-    container_name: qbit-manage
+  qbit_manage:
+    image: ghcr.io/stuffanthings/qbit_manage:develop
+    container_name: qbit_manage
     network_mode: "service:gluetun"
     volumes:
-      - ${HOST_DATA_PATH}/config/qbit-manage:/config
+      - ${HOST_DATA_PATH}/config/qbit_manage:/config
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
