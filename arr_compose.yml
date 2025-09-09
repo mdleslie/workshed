@@ -14,7 +14,7 @@ services:
       - TZ=${TZ}
     volumes:
       - ${HOST_DATA_PATH}/config/radarr:/config
-      - ${HOST_DATA_PATH}:/data # Unified volume for media and downloads
+      - ${HOST_DATA_PATH}:/data
     restart: unless-stopped
 
   ############################
@@ -30,7 +30,7 @@ services:
       - TZ=${TZ}
     volumes:
       - ${HOST_DATA_PATH}/config/sonarr:/config
-      - ${HOST_DATA_PATH}:/data # Unified volume for media and downloads
+      - ${HOST_DATA_PATH}:/data
     restart: unless-stopped
 
   ############################
@@ -61,7 +61,7 @@ services:
       - TZ=${TZ}
     volumes:
       - ${HOST_DATA_PATH}/config/bazarr:/config
-      - ${HOST_DATA_PATH}:/data # Unified volume so it can see media files
+      - ${HOST_DATA_PATH}:/data
     restart: unless-stopped
 
   ############################
@@ -77,7 +77,7 @@ services:
       - TZ=${TZ}
     volumes:
       - ${HOST_DATA_PATH}/config/lidarr:/config
-      - ${HOST_DATA_PATH}:/data # Unified volume for media and downloads
+      - ${HOST_DATA_PATH}:/data
     restart: unless-stopped
 
   ############################
@@ -104,14 +104,14 @@ services:
     image: qmcgaw/gluetun
     container_name: gluetun
     ports:
-      - 9696:9696 #prowlarr
-      - 7878:7878 #radarr
-      - 8989:8989 #sonarr
-      - 6767:6767 #bazarr
-      - 8686:8686 #lidarr
-      - 8080:8080 #qbittorrent
-      - 6881:6881 #qbittorrent
-      - 6881:6881/udp #qbittorrent
+      - "9696:9696" #prowlarr
+      - "7878:7878" #radarr
+      - "8989:8989" #sonarr
+      - "6767:6767" #bazarr
+      - "8686:8686" #lidarr
+      - "8080:8080" #qbittorrent
+      - "6881:6881" #qbittorrent
+      - "6881:6881/udp" #qbittorrent
     cap_add:
       - NET_ADMIN
     devices:
@@ -122,87 +122,89 @@ services:
       - OPENVPN_USER=${OPENVPN_USER}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-      # The line below is the fix. It allows containers in the VPN bubble
-      # to communicate with other containers on the Docker network.
       - FIREWALL_OUTBOUND_SUBNETS=172.17.0.0/16,192.168.1.0/24
     restart: unless-stopped
-  
+
   ############################
   # QBIT-MANAGE
   ############################
-qbit-manage:
-  image: ghcr.io/buroa/qbit-manage:latest
-  container_name: qbit-manage
-  network_mode: "service:gluetun"
-  volumes:
-    - ${HOST_DATA_PATH}/config/qbit-manage:/config
-  environment:
-    - PUID=${PUID}
-    - PGID=${PGID}
-    - TZ=${TZ}
-  restart: unless-stopped
+  qbit-manage:
+    image: ghcr.io/hotio/qbit-manage:latest
+    container_name: qbit-manage
+    network_mode: "service:gluetun"
+    volumes:
+      - ${HOST_DATA_PATH}/config/qbit-manage:/config
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    restart: unless-stopped
 
   ############################
   # CLOUDFLARED
   ############################
-cloudflared:
-  image: cloudflare/cloudflared:latest
-  container_name: cloudflared
-  command: proxy-dns
-  restart: unless-stopped
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: proxy-dns
+    restart: unless-stopped
 
   ############################
-  # OVERSEER
+  # OVERSEERR
   ############################
-  image: lscr.io/linuxserver/overseerr:latest
-  container_name: overseerr
-  environment:
-    - PUID=${PUID}
-    - PGID=${PGID}
-    - TZ=${TZ}
-  volumes:
-    - ${HOST_DATA_PATH}/config/overseerr:/config
-  ports:
-    - "5055:5055"
-  restart: unless-stopped
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${HOST_DATA_PATH}/config/overseerr:/config
+    ports:
+      - "5055:5055"
+    restart: unless-stopped
 
   ############################
   # HOMARR
   ############################
-  image: ghcr.io/ajnart/homarr:latest
-  container_name: homarr
-  volumes:
-    - ${HOST_DATA_PATH}/config/homarr/configs:/app/data/configs
-    - ${HOST_DATA_PATH}/config/homarr/icons:/app/public/icons
-    - /var/run/docker.sock:/var/run/docker.sock:ro
-  ports:
-    - "7575:7575"
-  restart: unless-stopped
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    volumes:
+      - ${HOST_DATA_PATH}/config/homarr/configs:/app/data/configs
+      - ${HOST_DATA_PATH}/config/homarr/icons:/app/public/icons
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "7575:7575"
+    restart: unless-stopped
 
   ############################
   # SABNZBD
   ############################
-  image: lscr.io/linuxserver/sabnzbd:latest
-  container_name: sabnzbd
-  network_mode: "service:gluetun" # Keep downloads secure
-  environment:
-    - PUID=${PUID}
-    - PGID=${PGID}
-    - TZ=${TZ}
-  volumes:
-    - ${HOST_DATA_PATH}/config/sabnzbd:/config
-    - ${HOST_DATA_PATH}/qbittorrent/downloads:/downloads # Share the same downloads folder
-  restart: unless-stopped
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${HOST_DATA_PATH}/config/sabnzbd:/config
+      - ${HOST_DATA_PATH}/qbittorrent/downloads:/downloads
+    restart: unless-stopped
 
   ############################
   # UPTIME-KUMA
   ############################
-  image: louislam/uptime-kuma:1
-  container_name: uptime-kuma
-  volumes:
-    - ${HOST_DATA_PATH}/config/uptime-kuma:/app/data
-  ports:
-    - "3001:3001"
-  restart: unless-stopped
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - ${HOST_DATA_PATH}/config/uptime-kuma:/app/data
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
 
-  ############################
+############################
