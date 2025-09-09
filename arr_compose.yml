@@ -126,4 +126,83 @@ services:
       # to communicate with other containers on the Docker network.
       - FIREWALL_OUTBOUND_SUBNETS=172.17.0.0/16,192.168.1.0/24
     restart: unless-stopped
+  
+  ############################
+  # QBIT-MANAGE
+  ############################
+qbit-manage:
+  image: ghcr.io/buroa/qbit-manage:latest
+  container_name: qbit-manage
+  network_mode: "service:gluetun"
+  volumes:
+    - ${HOST_DATA_PATH}/config/qbit-manage:/config
+  environment:
+    - PUID=${PUID}
+    - PGID=${PGID}
+    - TZ=${TZ}
+  restart: unless-stopped
 
+  ############################
+  # CLOUDFLARED
+  ############################
+cloudflared:
+  image: cloudflare/cloudflared:latest
+  container_name: cloudflared
+  command: proxy-dns
+  restart: unless-stopped
+
+  ############################
+  # OVERSEER
+  ############################
+  image: lscr.io/linuxserver/overseerr:latest
+  container_name: overseerr
+  environment:
+    - PUID=${PUID}
+    - PGID=${PGID}
+    - TZ=${TZ}
+  volumes:
+    - ${HOST_DATA_PATH}/config/overseerr:/config
+  ports:
+    - "5055:5055"
+  restart: unless-stopped
+
+  ############################
+  # HOMARR
+  ############################
+  image: ghcr.io/ajnart/homarr:latest
+  container_name: homarr
+  volumes:
+    - ${HOST_DATA_PATH}/config/homarr/configs:/app/data/configs
+    - ${HOST_DATA_PATH}/config/homarr/icons:/app/public/icons
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+  ports:
+    - "7575:7575"
+  restart: unless-stopped
+
+  ############################
+  # SABNZBD
+  ############################
+  image: lscr.io/linuxserver/sabnzbd:latest
+  container_name: sabnzbd
+  network_mode: "service:gluetun" # Keep downloads secure
+  environment:
+    - PUID=${PUID}
+    - PGID=${PGID}
+    - TZ=${TZ}
+  volumes:
+    - ${HOST_DATA_PATH}/config/sabnzbd:/config
+    - ${HOST_DATA_PATH}/qbittorrent/downloads:/downloads # Share the same downloads folder
+  restart: unless-stopped
+
+  ############################
+  # UPTIME-KUMA
+  ############################
+  image: louislam/uptime-kuma:1
+  container_name: uptime-kuma
+  volumes:
+    - ${HOST_DATA_PATH}/config/uptime-kuma:/app/data
+  ports:
+    - "3001:3001"
+  restart: unless-stopped
+
+  ############################
