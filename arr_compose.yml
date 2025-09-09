@@ -129,7 +129,7 @@ services:
   # QBIT-MANAGE
   ############################
   qbit-manage:
-    image: ghcr.io/hotio/qbit-manage:latest
+    image: bobokun/qbit-manage:latest
     container_name: qbit-manage
     network_mode: "service:gluetun"
     volumes:
