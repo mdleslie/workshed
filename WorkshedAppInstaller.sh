@@ -98,6 +98,7 @@ flatpak_apps=(
   "us.zoom.Zoom"
   "com.dropbox.Client"
   "md.obsidian.Obsidian"
+  "com.github.unrud.VideoDownloader"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications

@@ -7,6 +7,7 @@ services:
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     environment:
       - PUID=${PUID}
@@ -23,6 +24,7 @@ services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     environment:
       - PUID=${PUID}
@@ -39,6 +41,7 @@ services:
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     environment:
       - PUID=${PUID}
@@ -54,6 +57,7 @@ services:
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     environment:
       - PUID=${PUID}
@@ -70,6 +74,7 @@ services:
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     environment:
       - PUID=${PUID}
@@ -86,6 +91,7 @@ services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     environment:
       - PUID=${PUID}
@@ -101,36 +107,39 @@ services:
   # GLUETUN (VPN)
   ############################
   gluetun:
-    image: qmcgaw/gluetun
-    container_name: gluetun
-    ports:
-      - "9696:9696" #prowlarr
-      - "7878:7878" #radarr
-      - "8989:8989" #sonarr
-      - "6767:6767" #bazarr
-      - "8686:8686" #lidarr
-      - "8080:8080" #qbittorrent
-      - "6881:6881" #qbittorrent
-      - "6881:6881/udp" #qbittorrent
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    environment:
-      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
-      - VPN_TYPE=${VPN_TYPE}
-      - OPENVPN_USER=${OPENVPN_USER}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
-      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-      - FIREWALL_OUTBOUND_SUBNETS=172.17.0.0/16,192.18.1.0/24
-    restart: unless-stopped
+     image: qmcgaw/gluetun
+     container_name: gluetun
+
+     ports:
+       - "9696:9696" #prowlarr
+       - "7878:7878" #radarr
+       - "8989:8989" #sonarr
+       - "6767:6767" #bazarr
+       - "8686:8686" #lidarr
+       - "8080:8080" #qbittorrent
+       - "8082:8082" #sabnzbd
+       - "6881:6881" #qbittorrent
+       - "6881:6881/udp" #qbittorrent
+     cap_add:
+       - NET_ADMIN
+     devices:
+       - /dev/net/tun:/dev/net/tun
+     environment:
+       - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+       - VPN_TYPE=${VPN_TYPE}
+       - OPENVPN_USER=${OPENVPN_USER}
+       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+       - FIREWALL_OUTBOUND_SUBNETS=172.17.0.0/16,192.168.1.0/24
+     restart: unless-stopped
 
   ############################
-  # QBIT_MANAGE (Torrent Automator)
+  # QBIT_MANAGE
   ############################
   qbit_manage:
-    image: ghcr.io/stuffanthings/qbit_manage:develop
+    image: ghcr.io/stuffanthings/qbit_manage:latest
     container_name: qbit_manage
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     volumes:
       - ${HOST_DATA_PATH}/config/qbit_manage:/config
@@ -139,45 +148,11 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-    restart: unless-stopped
-
-  ############################
-  # CLOUDFLARED
-  ############################
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared
-    command: proxy-dns
-    restart: unless-stopped
-
-  ############################
-  # OVERSEERR
-  ############################
-  overseerr:
-    image: lscr.io/linuxserver/overseerr:latest
-    container_name: overseerr
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${HOST_DATA_PATH}/config/overseerr:/config
-    ports:
-      - "5055:5055"
-    restart: unless-stopped
-
-  ############################
-  # HOMARR
-  ############################
-  homarr:
-    image: ghcr.io/ajnart/homarr:latest
-    container_name: homarr
-    volumes:
-      - ${HOST_DATA_PATH}/config/homarr/configs:/app/data/configs
-      - ${HOST_DATA_PATH}/config/homarr/icons:/app/public/icons
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    ports:
-      - "7575:7575"
+      - QBT_HOST=127.0.0.1
+      - QBT_PORT=8080
+      - QBT_USER=david
+      - QBT_PASS=Green556
+      - QBT_DRY_RUN=true    
     restart: unless-stopped
 
   ############################
@@ -186,26 +161,16 @@ services:
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
     container_name: sabnzbd
+    user: "${PUID}:${PGID}"
     network_mode: "service:gluetun"
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - PORT=8082
     volumes:
       - ${HOST_DATA_PATH}/config/sabnzbd:/config
       - ${HOST_DATA_PATH}/qbittorrent/downloads:/downloads
     restart: unless-stopped
-
-  ############################
-  # UPTIME-KUMA
-  ############################
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    container_name: uptime-kuma
-    volumes:
-      - ${HOST_DATA_PATH}/config/uptime-kuma:/app/data
-    ports:
-      - "3001:3001"
-    restart: unless-stopped
-
-############################
+    
+########copilot changes ###########
