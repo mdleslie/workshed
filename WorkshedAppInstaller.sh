@@ -377,8 +377,10 @@ echo '########################################' | lolcat
 log INFO "Modifying fstab file"
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 
-# Create mount point
+# Create mount points
 sudo mkdir -p /mnt/Arkive
+sudo mkdir -p /mnt/Merlin
+sudo mkdir -p /mnt/Unraid
 
 # Backup existing fstab
 sudo cp /etc/fstab /etc/fstab.bak

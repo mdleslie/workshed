@@ -134,6 +134,7 @@ services:
     network_mode: "service:gluetun"
     volumes:
       - ${HOST_DATA_PATH}/config/qbit_manage:/config
+      - ${HOST_DATA_PATH}:/data
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
