@@ -62,12 +62,12 @@ deb_packages=(
   "libx11-dev"
   "lv2-dev"
   "nasm"
+  "fastfetch"
 )
 
 # List of Flatpak applications to install
 
 flatpak_apps=(
-  "net.cozic.joplin_desktop"
   "com.synology.SynologyDrive"
   "com.brave.Browser"
   "org.kde.kdenlive"
@@ -90,7 +90,6 @@ flatpak_apps=(
   "fm.reaper.Reaper"
   "org.guitarix.Guitarix"
   "com.discordapp.Discord"
-  "org.kde.haruna"
   "com.github.IsmaelMartinez.teams_for_linux"
   "com.github.taiko2k.tauonmb"
   "org.inkscape.Inkscape"
@@ -238,12 +237,13 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Install FastFetch
-log INFO "Installing FastFetch"
-display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-sleep 5s
-sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-sudo nala update
-sudo nala install fastfetch -y
+# This section should not be needed anymore, as fastfetch should be in the ubuntu repos as of 24.10. Will test.
+#log INFO "Installing FastFetch"
+#display $GREEN "Installing Fastfetch from the zhangsongcui repo."
+#sleep 5s
+#sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+#sudo nala update
+#sudo nala install fastfetch -y
 
 echo '########################################' | lolcat
 
@@ -332,6 +332,7 @@ echo '########################################' | lolcat
 
 log INFO "Creating update script"
 display $GREEN "Creating and downloading the update.sh script."
+sleep 5s
 update_script="/usr/bin/update.sh"
 sudo curl -sL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh -o "$update_script"
 if [[ $? -eq 0 && -s "$update_script" ]]; then
@@ -344,12 +345,14 @@ else
 fi
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Modify .bashrc file
 
 log INFO "Modifying .bashrc file"
 display $GREEN "Modifying .bashrc file to include useful aliases."
-
+sleep 5s
 # Backup existing .bashrc
 cp ~/.bashrc ~/.bashrc.bak
 
@@ -372,10 +375,13 @@ log INFO "Successfully modified .bashrc"
 display $GREEN "To apply changes, run 'source ~/.bashrc' or start a new terminal session."
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Modify fstab file
 log INFO "Modifying fstab file"
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
+sleep 5s
 
 # Create mount points
 sudo mkdir -p /mnt/Arkive
@@ -402,7 +408,6 @@ else
 fi
 
 # Test section, might be able to add this section again with new Pop OS release #
-
 # Validate fstab
 
 #if ! sudo mount -a; then
@@ -414,11 +419,13 @@ fi
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Add Band Maid logo for fastfetch
 
 log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
+sleep 5s
 mkdir -p ~/.local/share/fastfetch/logos
 curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o ~/.local/share/fastfetch/logos/maid
 if [[ $? -eq 0 && -s ~/.local/share/fastfetch/logos/maid ]]; then  # Check exit code AND file size
@@ -437,6 +444,8 @@ log INFO "Performing final cleanup"
 sudo nala autoremove -y
 sudo nala clean
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Script completion
