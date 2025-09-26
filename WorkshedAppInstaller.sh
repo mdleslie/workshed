@@ -99,6 +99,9 @@ flatpak_apps=(
   "com.dropbox.Client"
   "md.obsidian.Obsidian"
   "com.github.unrud.VideoDownloader"
+  "app.zen_browser.zen"
+  "org.rncbc.qpwgraph"
+  "it.mijorus.gearlever"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
