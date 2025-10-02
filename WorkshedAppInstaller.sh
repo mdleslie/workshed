@@ -443,6 +443,63 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
+# --- Changing PUID and PGID for NFS mounting of Arkive nas. ---
+# Note: Variables should be defined once at the top of the script
+USER_NAME="david" # The user whose IDs are being changed
+NEW_PUID="1026"
+NEW_PGID="100"
+# ------------------------------
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+log INFO "Starting PUID/PGID change for user ${USER_NAME}."
+display $GREEN "Changing PUID/PGID for user ${USER_NAME}."
+sleep 2s
+
+# 1. Change the Primary Group ID (PGID)
+log INFO "Attempting to change PGID for group ${USER_NAME} to ${NEW_PGID}."
+if sudo groupmod -g ${NEW_PGID} ${USER_NAME}; then
+    log INFO "Group ID (PGID) successfully changed to ${NEW_PGID}."
+else
+    log ERROR "Failed to change PGID for group ${USER_NAME} to ${NEW_PGID}."
+    # Optionally exit or continue with a warning
+fi
+
+# 2. Change the User ID (PUID)
+log INFO "Attempting to change PUID for user ${USER_NAME} to ${NEW_PUID}."
+# The -g flag ensures the primary group is updated with the new PGID
+# The -m and -d flags ensure the home directory and path are correctly handled
+if sudo usermod -u ${NEW_PUID} -g ${USER_NAME} -m -d /home/${USER_NAME} ${USER_NAME}; then
+    log INFO "User ID (PUID) successfully changed to ${NEW_PUID}."
+else
+    log ERROR "Failed to change PUID for user ${USER_NAME} to ${NEW_PUID}."
+    # Optionally exit or continue with a warning
+fi
+
+# 3. Fix File Ownership
+# This is a crucial step to ensure the user owns all their files again.
+# We're using the user's new PUID to find their files.
+log INFO "Starting file ownership update. This may take a moment."
+display $YELLOW "Updating file ownership. Please wait..."
+
+# Check the old PUID before it was changed for maximum compatibility/safety
+# For simplicity, we can rely on the fact that 'usermod' updates the user in the system
+# We check based on the new user name, which has the new PUID.
+if sudo find / -uid $(id -u ${USER_NAME}) -print0 | sudo xargs -0 chown ${USER_NAME}:${USER_NAME}; then
+    log INFO "File ownership update complete."
+else
+    log ERROR "File ownership update FAILED. Manual review of file permissions is required."
+fi
+
+display $GREEN "PUID/PGID and file ownership update section finished."
+sleep 2s
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
 # Cleanup
 log INFO "Performing final cleanup"
 sudo nala autoremove -y
