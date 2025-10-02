@@ -1,22 +1,96 @@
+#!/bin/bash
+
 # Pop OS/Ubuntu Setup Script - Cleaning up my mess version
 # well, trying to, anyway
 # Author: workshed
 # Description: Automated setup script for fresh Pop OS/Ubuntu installations
-# Define the log file path
 
-log_file="/home/$USER/install_log.txt"
+# --- Configuration Variables ---
 
-# Function to log and display messages
+# Determine the target user (the user who executed the script/sudo)
+TARGET_USER="${SUDO_USER:-$USER}"
 
-log_and_display() {
-  timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-  message="$timestamp: $1"
-  echo "$message"
-  echo "$message" >> "$log_file"
+# Define log file paths based on the target user
+log_file="/home/$TARGET_USER/install_log.txt"
+update_summary="/home/$TARGET_USER/install_summary.txt"
+
+# PUID/PGID Variables for NFS/Docker compatibility
+USER_NAME="david"
+NEW_PUID="1026"
+NEW_PGID="100"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# --- Core Functions ---
+
+# Function to log messages (uses tee and logger for system logs)
+log() {
+    local level=$1
+    local message=$2
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "[$timestamp] [$level] $message" | tee -a "$log_file"
+    logger -p user.$level "$message"
 }
 
-# List of .deb packages to install
+# Function to display colorful messages in the terminal and log
+display() {
+    local color=$1
+    local message=$2
+    echo -e "${color}$message${NC}" | tee -a "$log_file"
+    echo -e "${color}$message${NC}" | lolcat
+}
 
+# Function to check if the output is a terminal for lolcat
+lol() {
+  if [ -t 1 ]; then
+    "$@" | lolcat
+  else
+    "$@"
+  fi
+}
+
+# Function to cache sudo credentials
+cache_sudo() {
+    sudo -v
+    ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
+}
+
+# Cleanup function
+cleanup() {
+    log INFO "Cleaning up..."
+    # Remove any temporary files
+    rm -f /tmp/install_script_*
+    # Revert .bashrc if the script didn't complete successfully
+    if [ -f ~/.bashrc.bak ] && [ "$script_completed" != "true" ]; then
+        mv ~/.bashrc.bak ~/.bashrc
+        log WARNING "Reverted .bashrc to original state."
+    fi
+    log INFO "Cleanup completed."
+}
+
+# --- Error Handling & Traps ---
+
+# Error handling: exit immediately if a command exits with a non-zero status
+set -e
+trap 'log ERROR "An error occurred. Exit code: $?"' ERR
+
+# Trap for cleanup: runs cleanup on exit (successful or not)
+trap cleanup EXIT
+
+# Variable to track script completion
+script_completed="false"
+
+# Bind the function to the RETURN key (Optional)
+bind 'RETURN: "\e[1~lol \e[4~\n"'
+
+# --- Package Lists ---
+
+# List of .deb packages to install
 deb_packages=(
   "fortune-mod"
   "cowsay"
@@ -66,7 +140,6 @@ deb_packages=(
 )
 
 # List of Flatpak applications to install
-
 flatpak_apps=(
   "com.synology.SynologyDrive"
   "com.brave.Browser"
@@ -105,103 +178,19 @@ flatpak_apps=(
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
-
 installed_deb_packages=()
-
 installed_flatpak_apps=()
 
-# Check if lolcat is installed
+# --- Script Start ---
 
+# Check and install lolcat
 if ! command -v lolcat &> /dev/null; then
-    log_and_display " lolcat is not installed. Installing lolcat."
+    log INFO "lolcat is not installed. Installing lolcat."
     sleep 5s
     sudo apt update && sudo apt install -y lolcat
 fi
 
 echo '########################################' | lolcat
-
-# Define log files
-
-log_file="/home/$USER/install_log.txt"
-update_summary="/home/$USER/install_summary.txt"
-
-# Colors
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to log messages
-
-log() {
-    local level=$1
-    local message=$2
-    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-    echo "[$timestamp] [$level] $message" | tee -a "$log_file"
-    logger -p user.$level "$message"
-}
-
-# Function to display colorful messages
-
-display() {
-    local color=$1
-    local message=$2
-    echo -e "${color}$message${NC}" | tee -a "$log_file"
-    echo -e "${color}$message${NC}" | lolcat
-}
-
-# Function to check if the output is a terminal
-
-lol() {
-  if [ -t 1 ]; then
-    "$@" | lolcat
-  else
-    "$@"
-  fi
-}
-
-# Bind the function to the RETURN key
-
-bind 'RETURN: "\e[1~lol \e[4~\n"'
-
-# Error handling
-
-set -e
-trap 'log ERROR "An error occurred. Exit code: $?"' ERR
-
-# Cleanup function
-
-cleanup() {
-
-    log INFO "Cleaning up..."
-    # Remove any temporary files
-    rm -f /tmp/install_script_*
-    # Revert .bashrc if the script didn't complete successfully
-    if [ -f ~/.bashrc.bak ] && [ "$script_completed" != "true" ]; then
-        mv ~/.bashrc.bak ~/.bashrc
-        log WARNING "Reverted .bashrc to original state."
-    fi
-    log INFO "Cleanup completed."
-}
-
-# Trap for cleanup
-
-trap cleanup EXIT
-
-# Variable to track script completion
-
-script_completed="false"
-
-# Function to cache sudo credentials
-
-cache_sudo() {
-    sudo -v
-    ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
-}
-
-# Start of script installation message
 
 log INFO "Starting installation script"
 display $GREEN "Lets go, it's showtime!"
@@ -214,12 +203,10 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Cache sudo credentials
-
 log INFO "Caching sudo credentials"
 cache_sudo
 
 # Update and upgrade system
-
 log INFO "Updating and upgrading system"
 display $GREEN "Preparing system before installing new applications."
 sleep 5s
@@ -229,7 +216,6 @@ sudo apt upgrade -y
 echo '########################################' | lolcat
 
 # Install Nala
-
 log INFO "Installing Nala"
 display $GREEN "Adding curl and installing Nala. Because it is better than apt."
 sleep 5s
@@ -238,17 +224,6 @@ curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
 echo '########################################' | lolcat
-echo '########################################' | lolcat
-
-# Install FastFetch
-# This section should not be needed anymore, as fastfetch should be in the ubuntu repos as of 24.10. Will test.
-#log INFO "Installing FastFetch"
-#display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-#sleep 5s
-#sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-#sudo nala update
-#sudo nala install fastfetch -y
-
 echo '########################################' | lolcat
 
 # Preconfigure Microsoft fonts and libdvd-pkg
@@ -296,11 +271,13 @@ for app in "${flatpak_apps[@]}"; do
         log INFO "$app is already installed, skipping."
     else
         log INFO "Installing $app"
-        if flatpak install -y --noninteractive flathub "$app" &>> "$log_file"; then
+        # Use command substitution to capture output for logging
+        FLATPAK_OUTPUT=$(flatpak install -y --noninteractive flathub "$app" 2>&1)
+        if [ $? -eq 0 ]; then
+            log INFO "$app successfully installed. Details: $FLATPAK_OUTPUT"
             installed_flatpak_apps+=("$app")
-            # The success message is now logged via the redirection above.
         else
-            log ERROR "Failed to install $app"
+            log ERROR "Failed to install $app. Output: $FLATPAK_OUTPUT"
         fi
     fi
 done
@@ -310,7 +287,6 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Generate installation report
-
 log INFO "Generating installation report"
 if [ ${#installed_deb_packages[@]} -eq 0 ] && [ ${#installed_flatpak_apps[@]} -eq 0 ]; then
     log INFO "No new programs were installed"
@@ -325,15 +301,7 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-#For future use
-#For future use
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-
 # Create update script
-
 log INFO "Creating update script"
 display $GREEN "Creating and downloading the update.sh script."
 sleep 5s
@@ -353,7 +321,6 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Modify .bashrc file
-
 log INFO "Modifying .bashrc file"
 display $GREEN "Modifying .bashrc file to include useful aliases."
 sleep 5s
@@ -396,7 +363,6 @@ sudo mkdir -p /mnt/Unraid
 sudo cp /etc/fstab /etc/fstab.bak
 
 # Download and append NFS mount entry
-
 fstab_entry=$(curl -sL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab")
 if [[ $? -eq 0 && -n "$fstab_entry" ]]; then  # Check curl exit code AND file content
     echo "$fstab_entry" | sudo tee -a /etc/fstab > /dev/null
@@ -426,7 +392,6 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Add Band Maid logo for fastfetch
-
 log INFO "Adding Band Maid logo for fastfetch"
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
 sleep 5s
@@ -444,16 +409,6 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # --- Changing PUID and PGID for NFS mounting of Arkive nas. ---
-# Note: Variables should be defined once at the top of the script
-USER_NAME="david" # The user whose IDs are being changed
-NEW_PUID="1026"
-NEW_PGID="100"
-# ------------------------------
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-
 log INFO "Starting PUID/PGID change for user ${USER_NAME}."
 display $GREEN "Changing PUID/PGID for user ${USER_NAME}."
 sleep 2s
@@ -464,7 +419,8 @@ if sudo groupmod -g ${NEW_PGID} ${USER_NAME}; then
     log INFO "Group ID (PGID) successfully changed to ${NEW_PGID}."
 else
     log ERROR "Failed to change PGID for group ${USER_NAME} to ${NEW_PGID}."
-    # Optionally exit or continue with a warning
+    # We exit here because this is critical for the intended user setup
+    exit 1
 fi
 
 # 2. Change the User ID (PUID)
@@ -475,22 +431,18 @@ if sudo usermod -u ${NEW_PUID} -g ${USER_NAME} -m -d /home/${USER_NAME} ${USER_N
     log INFO "User ID (PUID) successfully changed to ${NEW_PUID}."
 else
     log ERROR "Failed to change PUID for user ${USER_NAME} to ${NEW_PUID}."
-    # Optionally exit or continue with a warning
+    exit 1
 fi
 
 # 3. Fix File Ownership
-# This is a crucial step to ensure the user owns all their files again.
-# We're using the user's new PUID to find their files.
 log INFO "Starting file ownership update. This may take a moment."
 display $YELLOW "Updating file ownership. Please wait..."
 
-# Check the old PUID before it was changed for maximum compatibility/safety
-# For simplicity, we can rely on the fact that 'usermod' updates the user in the system
-# We check based on the new user name, which has the new PUID.
+# Find all files owned by the user's NEW PUID and change their ownership to the user/group name
 if sudo find / -uid $(id -u ${USER_NAME}) -print0 | sudo xargs -0 chown ${USER_NAME}:${USER_NAME}; then
     log INFO "File ownership update complete."
 else
-    log ERROR "File ownership update FAILED. Manual review of file permissions is required."
+    log WARNING "File ownership update MAY have FAILED. Check log for details. Script continues."
 fi
 
 display $GREEN "PUID/PGID and file ownership update section finished."
@@ -518,7 +470,7 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-display $RED "Don't mix danger, handle with care!"
+display $RED "Don't forget to log out and back in (or reboot) for the PUID/PGID changes to take full effect!"
 sleep 5s
 
 figlet Workshed | lolcat -a -d 3
