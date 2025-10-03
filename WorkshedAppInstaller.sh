@@ -411,78 +411,96 @@ echo '########################################' | lolcat
 # START OF CRITICAL PUID SCHEDULING BLOCK (UID ONLY)
 # We are changing the UID only ($TARGET_PUID: 1026) to match the Synology NAS.
 
+#########################################################
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-log INFO "Starting PUID scheduling for user ${TARGET_USER}. (Skipping PGID change to avoid local conflicts.)"
+log INFO "Starting PUID change via Systemd scheduling for user ${TARGET_USER}."
 display $RED "WARNING: PUID changes must happen after a REBOOT."
 display $GREEN "Scheduling PUID change for user ${TARGET_USER} to ${TARGET_PUID}."
 sleep 2s
 
-# Variables used in this block (defined globally at the top)
-TEMP_CHOWN_SCRIPT="/tmp/chown_fix_${TARGET_USER}.sh"
-CRON_JOB_ENTRY="@reboot ${TEMP_CHOWN_SCRIPT}"
+# Filenames
+SYSTEMD_SERVICE="workshed-puid-fix.service"
+SYSTEMD_TARGET="/etc/systemd/system/${SYSTEMD_SERVICE}"
+CHOWN_SCRIPT_PATH="/opt/workshed-chown-fix.sh"
 
-
-# 1. Schedule the User ID (PUID) Change - CRITICAL STEP
-log INFO "Scheduling PUID change for user ${TARGET_USER} to ${TARGET_PUID}."
-if sudo usermod -u ${TARGET_PUID} ${TARGET_USER}; then
-    log INFO "PUID change successfully scheduled for next reboot."
-else
-    log ERROR "Failed to schedule PUID change. Stopping script."
-    exit 1
-fi
-
-# 2. Create the robust, self-cleaning script for file ownership and cleanup
-# This script is created and executed by 'root' (via sudo crontab -e)
-sudo tee ${TEMP_CHOWN_SCRIPT} > /dev/null << EOF_CHOWN_SCRIPT
+# 1. Write the one-time Chown script
+# This script is executed by the Systemd service (run as root).
+sudo tee ${CHOWN_SCRIPT_PATH} > /dev/null << EOF_CHOWN_SCRIPT
 #!/bin/bash
-# --- Post-reboot PUID Fix Script (UID ONLY) ---
-# This script runs ONCE after PUID change is applied by the system.
+# ----------------------------------------------------
+# PUID/PGID Fix Script - Executed Once by Systemd
+# ----------------------------------------------------
 
-echo "[\$(date +'%Y-%m-%d %H:%M:%S')] PUID fix script started for ${TARGET_USER}." | logger
+# 1. Perform the final PUID change (if not yet applied)
+# We run usermod here, ensuring it happens before the chown
+/usr/sbin/usermod -u ${TARGET_PUID} ${TARGET_USER} || true
+/usr/bin/echo "[\$(date +'%Y-%m-%d %H:%M:%S')] PUID applied/confirmed for ${TARGET_USER}." | /usr/bin/logger
 
-# 1. Fix file ownership
-# Find files owned by the user's OLD ID and chown them to the user/group name
-find / -uid \$(id -u ${TARGET_USER}) -print0 2>/dev/null | xargs -0 chown ${TARGET_USER}:${TARGET_USER} 2>/dev/null
+# 2. Fix file ownership (CRITICAL STEP)
+/usr/bin/find / -uid \$(/usr/bin/id -u ${TARGET_USER}) -print0 2>/dev/null | /usr/bin/xargs -0 /usr/bin/chown ${TARGET_USER}:${TARGET_USER} 2>/dev/null
 
-echo "[\$(date +'%Y-%m-%d %H:%M:%S')] File ownership fix completed." | logger
+/usr/bin/echo "[\$(date +'%Y-%m-%d %H:%M:%S')] File ownership fix completed." | /usr/bin/logger
 
-# 2. Clean up the one-time cron entry
-(crontab -l 2>/dev/null | grep -v '${TEMP_CHOWN_SCRIPT}') | crontab -
+# 3. Disable and delete the service for one-time execution cleanup
+/usr/bin/systemctl disable ${SYSTEMD_SERVICE}
+/usr/bin/rm -f ${SYSTEMD_TARGET}
+/usr/bin/rm -f ${CHOWN_SCRIPT_PATH}
+/usr/bin/echo "[\$(date +'%Y-%m-%d %H:%M:%S')] Systemd PUID fix service self-deleted." | /usr/bin/logger
 
-# 3. Delete the script itself
-rm -f ${TEMP_CHOWN_SCRIPT}
+exit 0
 EOF_CHOWN_SCRIPT
 
-sudo chmod +x ${TEMP_CHOWN_SCRIPT}
+sudo chmod +x ${CHOWN_SCRIPT_PATH}
+log INFO "One-time chown script created at ${CHOWN_SCRIPT_PATH}."
 
-# 3. Schedule the script to run once at boot via crontab @reboot
-log INFO "Scheduling file ownership fix for @reboot."
-(sudo crontab -l 2>/dev/null; echo "${CRON_JOB_ENTRY}") | sudo crontab -
 
-log INFO "File ownership fix script created and scheduled for @reboot. It will self-delete."
+# 2. Create the Systemd One-Shot Service
+sudo tee ${SYSTEMD_TARGET} > /dev/null << EOF_SYSTEMD
+[Unit]
+Description=Workshed PUID Change and File Ownership Fix
+After=network-online.target multi-user.target
+RequiresMountsFor=/home
 
-display $GREEN "PUID scheduling finished."
+[Service]
+Type=oneshot
+ExecStart=${CHOWN_SCRIPT_PATH}
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
+EOF_SYSTEMD
+
+# 3. Enable and start the service (it will run on the next boot)
+sudo systemctl daemon-reload
+sudo systemctl enable ${SYSTEMD_SERVICE}
+log INFO "Systemd service ${SYSTEMD_SERVICE} enabled and ready to run on reboot."
+
+display $GREEN "PUID change scheduled via Systemd."
 display $RED "CRITICAL: A REBOOT IS REQUIRED to apply PUID changes."
-display $BLUE "The script has completed its setup tasks and will initiate a REBOOT now."
 sleep 5s
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+##########################################################
+# END OF CRITICAL PUID SCHEDULING BLOCK
 
+# Cleanup
 display $GREEN "Starting Cleanup."
 sleep 2s
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+
+# Final Cleanup and Shutdown Sequence
+log INFO "Starting Final Cleanup and Shutdown Sequence."
+display $GREEN "Starting Final Cleanup and Shutdown Sequence."
+sleep 2s
 
 # Cleanup
 log INFO "Performing final cleanup"
@@ -498,11 +516,10 @@ script_completed="true"
 log INFO "Installation script completed successfully"
 display $BLUE "Finishing up now. Shop smart, shop S-Mart."
 
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+# Temporarily disable 'set -e' to ensure the final shutdown commands run
+set +e
 
-display $GREEN "Wrapping up script. Computer will reboot for the PUID/PGID changes to take full effect!"
+display $GREEN "Computer will reboot for the PUID changes to take full effect, po."
 sleep 10s
 
 log INFO "Installation summary saved to $update_summary"
@@ -510,12 +527,8 @@ log INFO "Installation summary saved to $update_summary"
 display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
 
-display $GREEN "I've heard it both ways."
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-
 figlet Workshed | lolcat -a -d 3
 
-sudo reboot
+# Force an exit before the reboot command to ensure the shell doesn't hang
+# and then execute the reboot as a separate, guaranteed command.
+sudo reboot & exit 0
