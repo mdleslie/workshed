@@ -15,7 +15,7 @@ The script will first check if an application is already installed and skip it i
 
 The script will modify your bashrc file with aliases I commonly use. It will also create a script to update deb and flatpak applications.
 
-Testing changes to PUID of logged in user to make NFS mounting of NAS better. (avoid file permission issues)
+Testing changes to PUID of logged in user to make NFS mounting of NAS better. (avoid file permission issues).  This should be handled by adding a variable near the top of the script. Edit variable and arrays as needed.
 
 This was made for my use and I may be an idiot but others are free to try it.
 
