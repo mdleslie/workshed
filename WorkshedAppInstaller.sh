@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pop OS/Ubuntu Setup Script - Cleaning up my mess version
+# Pop OS/Ubuntu Setup Script - addressing NFS mount file permissions version
 # well, trying to, anyway
 # Author: workshed
 # Description: Automated setup script for fresh Pop OS/Ubuntu installations
@@ -72,7 +72,7 @@ cleanup() {
     log INFO "Cleanup completed."
 }
 
-# --- Error Handling & Traps ---
+# Error Handling & Traps
 
 # Error handling: exit immediately if a command exits with a non-zero status
 set -e
@@ -87,7 +87,7 @@ script_completed="false"
 # Bind the function to the RETURN key (Optional)
 bind 'RETURN: "\e[1~lol \e[4~\n"'
 
-# --- Package Lists ---
+# Package Arrays
 
 # List of .deb packages to install
 deb_packages=(
@@ -180,7 +180,9 @@ flatpak_apps=(
 installed_deb_packages=()
 installed_flatpak_apps=()
 
-# --- Script Start ---
+####################
+### Script Start ###
+####################
 
 # Check and install lolcat
 if ! command -v lolcat &> /dev/null; then
@@ -190,10 +192,12 @@ if ! command -v lolcat &> /dev/null; then
 fi
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 log INFO "Starting installation script"
 display $GREEN "Lets go, it's showtime!"
-sleep 5s
+sleep 7s
 display $GREEN "This script will automate setting up a clean OS install."
 sleep 5s
 
@@ -213,6 +217,8 @@ sudo apt update
 sudo apt upgrade -y
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Install Nala
 log INFO "Installing Nala"
@@ -224,9 +230,11 @@ sudo nala update
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # Preconfigure Microsoft fonts and libdvd-pkg
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
+display $GREEN "Installing Microsoft fonts and libdvd."
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 export DEBIAN_FRONTEND=noninteractive
 sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
@@ -408,7 +416,6 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # Changing PUID and PGID for NFS mounting of Arkive nas. Thanks Gemini.
-# START OF CRITICAL PUID SCHEDULING BLOCK (UID ONLY)
 # We are changing the UID only ($TARGET_PUID: 1026) to match the Synology NAS.
 
 #########################################################
