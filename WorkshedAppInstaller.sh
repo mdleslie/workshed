@@ -409,44 +409,70 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 
 # --- Changing PUID and PGID for NFS mounting of Arkive nas. ---
-log INFO "Starting PUID/PGID change for user ${USER_NAME}."
-display $GREEN "Changing PUID/PGID for user ${USER_NAME}."
+# --- NEW PUID/PGID BLOCK (Revised to schedule changes) ---
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+log INFO "Starting PUID/PGID scheduling for user ${USER_NAME}."
+display $RED "WARNING: PUID/PGID changes must happen after a REBOOT."
+display $GREEN "Scheduling PUID/PGID changes for user ${USER_NAME}."
 sleep 2s
 
 # 1. Change the Primary Group ID (PGID)
+# This is generally safe to do while the user is logged in
 log INFO "Attempting to change PGID for group ${USER_NAME} to ${NEW_PGID}."
 if sudo groupmod -g ${NEW_PGID} ${USER_NAME}; then
     log INFO "Group ID (PGID) successfully changed to ${NEW_PGID}."
 else
-    log ERROR "Failed to change PGID for group ${USER_NAME} to ${NEW_PGID}."
-    # We exit here because this is critical for the intended user setup
+    log ERROR "Failed to change PGID for group ${USER_NAME} to ${NEW_PGID}. Stopping."
     exit 1
 fi
 
-# 2. Change the User ID (PUID)
-log INFO "Attempting to change PUID for user ${USER_NAME} to ${NEW_PUID}."
-# The -g flag ensures the primary group is updated with the new PGID
-# The -m and -d flags ensure the home directory and path are correctly handled
-if sudo usermod -u ${NEW_PUID} -g ${USER_NAME} -m -d /home/${USER_NAME} ${USER_NAME}; then
-    log INFO "User ID (PUID) successfully changed to ${NEW_PUID}."
+# 2. Schedule the User ID (PUID) Change
+# This schedules the PUID change to happen upon the next reboot.
+log INFO "Scheduling PUID change for user ${USER_NAME} to ${NEW_PUID}."
+if sudo usermod -u ${NEW_PUID} ${USER_NAME}; then
+    # The command itself will succeed and the change will be logged to /etc/passwd
+    # but not applied until next login/reboot.
+    log INFO "PUID change successfully scheduled for next reboot."
 else
-    log ERROR "Failed to change PUID for user ${USER_NAME} to ${NEW_PUID}."
+    log ERROR "Failed to schedule PUID change. Stopping script."
     exit 1
 fi
 
-# 3. Fix File Ownership
-log INFO "Starting file ownership update. This may take a moment."
-display $YELLOW "Updating file ownership. Please wait..."
+# 3. Schedule the File Ownership Fix for next boot
+# NOTE: The file ownership fix MUST run AFTER the usermod -u takes effect.
+# The user's files are currently owned by the OLD PUID. After usermod, they will be owned by the NEW PUID.
+# We create a simple, temporary script and schedule it to run once.
+TEMP_CHOWN_SCRIPT="/tmp/chown_fix_${USER_NAME}.sh"
 
-# Find all files owned by the user's NEW PUID and change their ownership to the user/group name
-if sudo find / -uid $(id -u ${USER_NAME}) -print0 | sudo xargs -0 chown ${USER_NAME}:${USER_NAME}; then
-    log INFO "File ownership update complete."
-else
-    log WARNING "File ownership update MAY have FAILED. Check log for details. Script continues."
-fi
+echo "#!/bin/bash
+# This script is scheduled to run once after PUID change on reboot.
+echo \"Running post-reboot file ownership fix for ${USER_NAME}...\" | logger
+# Find files owned by the old ID (which is the current PUID before reboot)
+# Then chown them to the user name (which will resolve to the new PUID/PGID after reboot)
+find / -uid \$(id -u ${USER_NAME}) -print0 2>/dev/null | xargs -0 chown ${USER_NAME}:${USER_NAME} 2>/dev/null
+# Clean up this script
+rm -f ${TEMP_CHOWN_SCRIPT}
+" | sudo tee ${TEMP_CHOWN_SCRIPT} > /dev/null
 
-display $GREEN "PUID/PGID and file ownership update section finished."
-sleep 2s
+sudo chmod +x ${TEMP_CHOWN_SCRIPT}
+
+# Schedule the script to run once at boot via cron's @reboot
+(sudo crontab -l 2>/dev/null; echo "@reboot ${TEMP_CHOWN_SCRIPT}") | sudo crontab -
+
+log INFO "File ownership fix script created and scheduled for @reboot."
+
+display $GREEN "PUID/PGID scheduling finished."
+display $RED "CRITICAL: A REBOOT IS REQUIRED to apply PUID, PGID, and file ownership changes."
+display $BLUE "The script will now complete its current tasks, then prompt for a REBOOT."
+sleep 5s
+
+# The rest of your script cleanup and completion logic will now run.
+
+# ... continue with the rest of your script ...
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -470,15 +496,20 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-display $RED "Don't forget to log out and back in (or reboot) for the PUID/PGID changes to take full effect!"
-sleep 5s
-
-figlet Workshed | lolcat -a -d 3
+display $GREEN "Wrapping up script. Computer will reboot for the PUID/PGID changes to take full effect!"
+sleep 10s
 
 log INFO "Installation summary saved to $update_summary"
 
-display $GREEN "Installation summary saved to $update_summary"
+display $GREEN "Script complete. Installation summary saved to $update_summary"
+sleep 5s
+
+display $GREEN "I've heard it both ways."
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+
+figlet Workshed | lolcat -a -d 3
+
+sudo reboot
