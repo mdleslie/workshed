@@ -5,7 +5,7 @@
 # Author: workshed
 # Description: Automated setup script for fresh Pop OS/Ubuntu installations
 
-# --- Configuration Variables ---
+# Configuration Variables
 
 # Determine the target user (the user who executed the script/sudo)
 TARGET_USER="${SUDO_USER:-$USER}"
@@ -15,9 +15,8 @@ log_file="/home/$TARGET_USER/install_log.txt"
 update_summary="/home/$TARGET_USER/install_summary.txt"
 
 # PUID/PGID Variables for NFS/Docker compatibility
-USER_NAME="david"
-NEW_PUID="1026"
-NEW_PGID="100"
+TARGET_PUID="1026"  # Change this to match user id on NFS mounted NAS. Use id command to check.
+TARGET_PGID="1000"  # Keeping this for reference, only changing PUID for now.
 
 # Colors
 RED='\033[0;31m'
@@ -408,71 +407,78 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- Changing PUID and PGID for NFS mounting of Arkive nas. ---
-# --- NEW PUID/PGID BLOCK (Revised to schedule changes) ---
+# Changing PUID and PGID for NFS mounting of Arkive nas. Thanks Gemini.
+# START OF CRITICAL PUID SCHEDULING BLOCK (UID ONLY)
+# We are changing the UID only ($TARGET_PUID: 1026) to match the Synology NAS.
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-log INFO "Starting PUID/PGID scheduling for user ${USER_NAME}."
-display $RED "WARNING: PUID/PGID changes must happen after a REBOOT."
-display $GREEN "Scheduling PUID/PGID changes for user ${USER_NAME}."
+log INFO "Starting PUID scheduling for user ${TARGET_USER}. (Skipping PGID change to avoid local conflicts.)"
+display $RED "WARNING: PUID changes must happen after a REBOOT."
+display $GREEN "Scheduling PUID change for user ${TARGET_USER} to ${TARGET_PUID}."
 sleep 2s
 
-# 1. Change the Primary Group ID (PGID)
-# This is generally safe to do while the user is logged in
-log INFO "Attempting to change PGID for group ${USER_NAME} to ${NEW_PGID}."
-if sudo groupmod -g ${NEW_PGID} ${USER_NAME}; then
-    log INFO "Group ID (PGID) successfully changed to ${NEW_PGID}."
-else
-    log ERROR "Failed to change PGID for group ${USER_NAME} to ${NEW_PGID}. Stopping."
-    exit 1
-fi
+# Variables used in this block (defined globally at the top)
+TEMP_CHOWN_SCRIPT="/tmp/chown_fix_${TARGET_USER}.sh"
+CRON_JOB_ENTRY="@reboot ${TEMP_CHOWN_SCRIPT}"
 
-# 2. Schedule the User ID (PUID) Change
-# This schedules the PUID change to happen upon the next reboot.
-log INFO "Scheduling PUID change for user ${USER_NAME} to ${NEW_PUID}."
-if sudo usermod -u ${NEW_PUID} ${USER_NAME}; then
-    # The command itself will succeed and the change will be logged to /etc/passwd
-    # but not applied until next login/reboot.
+
+# 1. Schedule the User ID (PUID) Change - CRITICAL STEP
+log INFO "Scheduling PUID change for user ${TARGET_USER} to ${TARGET_PUID}."
+if sudo usermod -u ${TARGET_PUID} ${TARGET_USER}; then
     log INFO "PUID change successfully scheduled for next reboot."
 else
     log ERROR "Failed to schedule PUID change. Stopping script."
     exit 1
 fi
 
-# 3. Schedule the File Ownership Fix for next boot
-# NOTE: The file ownership fix MUST run AFTER the usermod -u takes effect.
-# The user's files are currently owned by the OLD PUID. After usermod, they will be owned by the NEW PUID.
-# We create a simple, temporary script and schedule it to run once.
-TEMP_CHOWN_SCRIPT="/tmp/chown_fix_${USER_NAME}.sh"
+# 2. Create the robust, self-cleaning script for file ownership and cleanup
+# This script is created and executed by 'root' (via sudo crontab -e)
+sudo tee ${TEMP_CHOWN_SCRIPT} > /dev/null << EOF_CHOWN_SCRIPT
+#!/bin/bash
+# --- Post-reboot PUID Fix Script (UID ONLY) ---
+# This script runs ONCE after PUID change is applied by the system.
 
-echo "#!/bin/bash
-# This script is scheduled to run once after PUID change on reboot.
-echo \"Running post-reboot file ownership fix for ${USER_NAME}...\" | logger
-# Find files owned by the old ID (which is the current PUID before reboot)
-# Then chown them to the user name (which will resolve to the new PUID/PGID after reboot)
-find / -uid \$(id -u ${USER_NAME}) -print0 2>/dev/null | xargs -0 chown ${USER_NAME}:${USER_NAME} 2>/dev/null
-# Clean up this script
+echo "[\$(date +'%Y-%m-%d %H:%M:%S')] PUID fix script started for ${TARGET_USER}." | logger
+
+# 1. Fix file ownership
+# Find files owned by the user's OLD ID and chown them to the user/group name
+find / -uid \$(id -u ${TARGET_USER}) -print0 2>/dev/null | xargs -0 chown ${TARGET_USER}:${TARGET_USER} 2>/dev/null
+
+echo "[\$(date +'%Y-%m-%d %H:%M:%S')] File ownership fix completed." | logger
+
+# 2. Clean up the one-time cron entry
+(crontab -l 2>/dev/null | grep -v '${TEMP_CHOWN_SCRIPT}') | crontab -
+
+# 3. Delete the script itself
 rm -f ${TEMP_CHOWN_SCRIPT}
-" | sudo tee ${TEMP_CHOWN_SCRIPT} > /dev/null
+EOF_CHOWN_SCRIPT
 
 sudo chmod +x ${TEMP_CHOWN_SCRIPT}
 
-# Schedule the script to run once at boot via cron's @reboot
-(sudo crontab -l 2>/dev/null; echo "@reboot ${TEMP_CHOWN_SCRIPT}") | sudo crontab -
+# 3. Schedule the script to run once at boot via crontab @reboot
+log INFO "Scheduling file ownership fix for @reboot."
+(sudo crontab -l 2>/dev/null; echo "${CRON_JOB_ENTRY}") | sudo crontab -
 
-log INFO "File ownership fix script created and scheduled for @reboot."
+log INFO "File ownership fix script created and scheduled for @reboot. It will self-delete."
 
-display $GREEN "PUID/PGID scheduling finished."
-display $RED "CRITICAL: A REBOOT IS REQUIRED to apply PUID, PGID, and file ownership changes."
-display $BLUE "The script will now complete its current tasks, then prompt for a REBOOT."
+display $GREEN "PUID scheduling finished."
+display $RED "CRITICAL: A REBOOT IS REQUIRED to apply PUID changes."
+display $BLUE "The script has completed its setup tasks and will initiate a REBOOT now."
 sleep 5s
 
-# The rest of your script cleanup and completion logic will now run.
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
-# ... continue with the rest of your script ...
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+display $GREEN "Starting Cleanup."
+sleep 2s
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat

@@ -15,15 +15,17 @@ The script will first check if an application is already installed and skip it i
 
 The script will modify your bashrc file with aliases I commonly use. It will also create a script to update deb and flatpak applications.
 
+Testing changes to PUID of logged in user to make NFS mounting of NAS better. (avoid file permission issues)
+
 This was made for my use and I may be an idiot but others are free to try it.
 
 The script can be run via a curl command.
 
 
-Curl command to run App download script:
+### Curl command to run App download script:
 
-
-` curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh | bash `
+```bash
+curl -s [https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh](https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh) | bash
 
 ###Groovy.
 
