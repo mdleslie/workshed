@@ -24,8 +24,10 @@ The script can be run via a curl command.
 
 ### Curl command to run App download script:
 
-```bash
-curl -s [https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh](https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh) | bash
+
+`curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh | bash`
+
+### Groovy.
 
 ###Groovy.
 
