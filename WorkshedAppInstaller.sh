@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pop OS/Ubuntu Setup Script - addressing NFS mount file permissions version
+# Pop OS/Ubuntu Setup Script - added fastfetch repo back in.
 # well, trying to, anyway
 # Author: workshed
 # Description: Automated setup script for fresh Pop OS/Ubuntu installations
@@ -25,7 +25,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# --- Core Functions ---
+# Core Functions 
 
 # Function to log messages (uses tee and logger for system logs)
 log() {
