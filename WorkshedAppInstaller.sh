@@ -156,7 +156,6 @@ flatpak_apps=(
   "net.davidotek.pupgui2"
   "com.vscodium.codium"
   "org.darktable.Darktable"
-  "com.mattermost.Desktop"
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
   "fm.reaper.Reaper"
