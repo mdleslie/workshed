@@ -5,6 +5,7 @@
 # Author: workshed
 # Description: Automated setup script for fresh Pop OS/Ubuntu installations
 
+##############################
 # Configuration Variables
 
 # Determine the target user (the user who executed the script/sudo)
@@ -25,6 +26,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+##################################
 # Core Functions 
 
 # Function to log messages (uses tee and logger for system logs)
@@ -72,6 +74,7 @@ cleanup() {
     log INFO "Cleanup completed."
 }
 
+###############################################
 # Error Handling & Traps
 
 # Error handling: exit immediately if a command exits with a non-zero status
@@ -87,6 +90,7 @@ script_completed="false"
 # Bind the function to the RETURN key (Optional)
 bind 'RETURN: "\e[1~lol \e[4~\n"'
 
+#################################################
 # Package Arrays
 
 # List of .deb packages to install
