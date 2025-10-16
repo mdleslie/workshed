@@ -140,6 +140,12 @@ deb_packages=(
   "lv2-dev"
   "nasm"
   "fastfetch"
+  "rar"
+  "unrar"
+  "p7zip-full"
+  "p7zip-rar"
+  "tree"
+  "wget"
 )
 
 # List of Flatpak applications to install
