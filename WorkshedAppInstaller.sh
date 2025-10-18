@@ -463,16 +463,22 @@ sudo tee ${CHOWN_SCRIPT_PATH} > /dev/null << EOF_CHOWN_SCRIPT
 # ----------------------------------------------------
 
 # 1. Perform the final PUID change (if not yet applied)
-# We run usermod here, ensuring it happens before the chown
 /usr/sbin/usermod -u ${TARGET_PUID} ${TARGET_USER} || true
 /usr/bin/echo "[\$(date +'%Y-%m-%d %H:%M:%S')] PUID applied/confirmed for ${TARGET_USER}." | /usr/bin/logger
 
 # 2. Fix file ownership (CRITICAL STEP)
+# This finds files owned by the old UID and assigns them to the new user.
 /usr/bin/find / -uid \$(/usr/bin/id -u ${TARGET_USER}) -print0 2>/dev/null | /usr/bin/xargs -0 /usr/bin/chown ${TARGET_USER}:${TARGET_USER} 2>/dev/null
 
 /usr/bin/echo "[\$(date +'%Y-%m-%d %H:%M:%S')] File ownership fix completed." | /usr/bin/logger
 
-# 3. Disable and delete the service for one-time execution cleanup
+# 3. Flatpak Repair (CRITICAL FOR YOUR ISSUE)
+# Fixes permissions and internal database entries for all user Flatpak installs.
+# We use runuser to execute the command as the target user.
+/usr/bin/runuser -l ${TARGET_USER} -c '/usr/bin/flatpak repair --user'
+/usr/bin/echo "[\$(date +'%Y-%m-%d %H:%M:%S')] Flatpak repair completed for ${TARGET_USER}." | /usr/bin/logger
+
+# 4. Disable and delete the service for one-time execution cleanup
 /usr/bin/systemctl disable ${SYSTEMD_SERVICE}
 /usr/bin/rm -f ${SYSTEMD_TARGET}
 /usr/bin/rm -f ${CHOWN_SCRIPT_PATH}
