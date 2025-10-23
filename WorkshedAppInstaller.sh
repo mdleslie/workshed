@@ -436,6 +436,16 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
+# Install yt-dlp
+# TEST this section needs to be tested as part of the script.
+log INFO "Installing yt dlp"
+display $GREEN "Installing yt dlp."
+python3 -m pip install -U "yt-dlp[default]"
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
 # Changing PUID and PGID for NFS mounting of Arkive nas. Thanks Gemini.
 # We are changing the UID only ($TARGET_PUID: 1026) to match the Synology NAS.
 
