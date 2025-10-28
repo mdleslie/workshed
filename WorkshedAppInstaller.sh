@@ -169,7 +169,6 @@ flatpak_apps=(
   "org.darktable.Darktable"
   "com.google.Chrome"
   "io.github.flattool.Warehouse"
-  "fm.reaper.Reaper"
   "org.guitarix.Guitarix"
   "com.discordapp.Discord"
   "com.github.IsmaelMartinez.teams_for_linux"
@@ -366,6 +365,110 @@ echo "--- Ratatouille Installation Complete ---"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+
+# --- START REAPER NATIVE INSTALL BLOCK ---
+
+# Step 1: Install Native Linux Reaper
+REAPER_VERSION="684" # Last known version for direct link as of current knowledge
+REAPER_URL="https://www.reaper.fm/files/6.x/reaper${REAPER_VERSION}_linux_x86_64.tar.xz" 
+INSTALL_DIR="/opt/REAPER"
+
+log INFO "Downloading and installing native Reaper from official site."
+display $GREEN "Installing native Reaper to $INSTALL_DIR"
+sleep 2s
+
+wget -q --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
+
+if [ $? -ne 0 ]; then
+    log ERROR "Failed to download Reaper from $REAPER_URL"
+    exit 1
+fi
+
+mkdir -p /tmp/reaper_temp
+tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
+
+# Run the installer script:
+# --install-dir: specifies where the main files go
+# --install-symlink: creates a symlink in /usr/local/bin so you can run 'reaper' from the terminal
+sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1 | log INFO
+
+if [ -f "$INSTALL_DIR/reaper" ]; then
+    log INFO "Reaper native installation successful."
+else
+    log ERROR "Reaper native installation failed. Check installer script output."
+    exit 1
+fi
+
+rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
+log INFO "Cleaned up temporary Reaper files."
+echo "--- Native Reaper Installation Complete ---"
+
+# --- END REAPER NATIVE INSTALL BLOCK ---
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+# --- START YABRIDGE INSTALL BLOCK ---
+
+# Dependencies needed for yabridge host to run Windows plugins
+log INFO "Installing Wine dependencies (essential for yabridge)."
+display $GREEN "Installing Wine Stable."
+sudo nala install -y wine-stable
+
+# Define yabridge installation variables
+YABRIDGE_VERSION="5.0.4" # UPDATE this version number if newer versions are released
+YABRIDGE_DIR="/opt/yabridge-$YABRIDGE_VERSION"
+YABRIDGE_URL="https://github.com/robbert-vdh/yabridge/releases/download/$YABRIDGE_VERSION/yabridge-$YABRIDGE_VERSION.tar.gz"
+
+log INFO "Downloading and unpacking yabridge version $YABRIDGE_VERSION"
+display $GREEN "Setting up yabridge VST Bridge."
+
+# 1. Download and unpack yabridge
+sudo mkdir -p "$YABRIDGE_DIR"
+wget -q --show-progress -O /tmp/yabridge.tar.gz "$YABRIDGE_URL" 2>&1 | log INFO
+sudo tar -xf /tmp/yabridge.tar.gz -C /opt/ 2>&1 | log INFO
+sudo rm /tmp/yabridge.tar.gz
+log INFO "Yabridge binaries unpacked to /opt/."
+
+# 2. Add yabridge to the system's PATH
+log INFO "Creating symlinks for yabridge and yabridgectl in /usr/local/bin."
+sudo ln -sf "$YABRIDGE_DIR/yabridge" /usr/local/bin/yabridge
+sudo ln -sf "$YABRIDGE_DIR/yabridgectl" /usr/local/bin/yabridgectl
+
+# 3. Create standard VST Directories (if they don't exist yet)
+VST2_PATH="/home/$TARGET_USER/.vst"
+VST3_PATH="/home/$TARGET_USER/.vst3"
+mkdir -p "$VST2_PATH"
+mkdir -p "$VST3_PATH"
+log INFO "VST plugin directories created: $VST2_PATH and $VST3_PATH"
+
+# 4. Set Windows VST plugin paths
+# NOTE: Update these paths to where your actual Windows VST files are stored (e.g., on your NFS/NAS mounts).
+# Example paths for a Wine prefix or shared drive:
+WIN_VST_PATH="/mnt/Unraid/WindowsVST/VSTPlugins" 
+WIN_VST3_PATH="/mnt/Unraid/WindowsVST/VST3"       
+log INFO "Windows VST paths configured for yabridge: $WIN_VST_PATH and $WIN_VST3_PATH"
+
+# 5. Execute yabridgectl to link and sync directories (runs as the target user)
+log INFO "Executing yabridgectl sync as user $TARGET_USER."
+display $BLUE "Linking and scanning VST directories with yabridge."
+
+# We use runuser to ensure the command runs as the non-root user and accesses their home directory.
+# First, remove any existing paths to avoid duplicates/errors
+runuser -l $TARGET_USER -c 'yabridgectl clear' 2>&1 | log INFO
+
+# Add new VST directories
+runuser -l $TARGET_USER -c "yabridgectl add '$WIN_VST_PATH'" 2>&1 | log INFO
+runuser -l $TARGET_USER -c "yabridgectl add '$WIN_VST3_PATH'" 2>&1 | log INFO
+
+# Final synchronization step
+runuser -l $TARGET_USER -c 'yabridgectl sync' 2>&1 | log INFO
+
+log INFO "yabridge installation and sync completed."
+echo "--- yabridge Installation Complete ---"
+
+# --- END YABRIDGE INSTALL BLOCK ---
 
 # Modify .bashrc file
 log INFO "Modifying .bashrc file"
