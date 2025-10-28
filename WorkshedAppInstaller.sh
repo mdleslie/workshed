@@ -146,6 +146,7 @@ deb_packages=(
   "p7zip-rar"
   "tree"
   "wget"
+  "libsndfile1-dev"
 )
 
 # List of Flatpak applications to install
@@ -343,6 +344,24 @@ else
     sudo rm -f "$update_script"  # Clean up in case of a partial download
     exit 1
 fi
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+# Install Ratatouille LV2 Plugin
+log INFO "Installing Ratatouille LV2 Plugin"
+display $GREEN "Installing Ratatouille LV2 Plugin."
+sleep 2s
+git clone https://github.com/brummer10//Ratatouille.lv2.git
+cd Ratatouille.lv2
+git submodule update --init --recursive
+make lv2
+make install # Installs to ~/.lv2
+# Optional: Uncomment the next line to install system-wide
+# sudo make install # Installs to /usr/lib/lv2
+cd ..
+echo "--- Ratatouille Installation Complete ---"
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
