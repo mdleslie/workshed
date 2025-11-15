@@ -99,8 +99,7 @@ sleep $SLEEP
 
 log_and_display INFO "Upgrading apt packages"
 sleep $SLEEP
-sudo nala upgrade -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
-sudo apt full-upgrade -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+sudo nala full-upgrade -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
 sleep $SLEEP
 
