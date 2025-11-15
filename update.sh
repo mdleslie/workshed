@@ -37,7 +37,7 @@ log_and_display INFO "Starting update script"
 # Check if lolcat is installed
 if ! command -v lolcat &> /dev/null; then
     log_and_display WARNING "lolcat is not installed. Installing lolcat."
-    sudo apt update && sudo apt install -y lolcat
+    sudo apt install -y lolcat
 fi
 
 # Check if nala is installed
