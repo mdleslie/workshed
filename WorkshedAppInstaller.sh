@@ -228,6 +228,7 @@ sudo apt upgrade -y
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+display $GREEN "Gus, don't be William Zabka from Back to School."
 
 # Install Nala
 log INFO "Installing Nala"
@@ -240,6 +241,8 @@ sudo nala update
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+display $GREEN "I've heard it both ways."
+
 
 # Preconfigure Microsoft fonts and libdvd-pkg
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
@@ -253,6 +256,7 @@ unset DEBIAN_FRONTEND
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+display $GREEN "Are you a fan of delicious flavor?"
 
 # Install FastFetch
 log INFO "Installing FastFetch"
@@ -557,6 +561,8 @@ fi
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+display $GREEN "IS THAT MAURICIO IN THERE, GUS?! IS THAT MAURICIO IN THERE?!"
+sleep 5s
 
 # Install yt-dlp
 # TEST this section needs to be tested as part of the script.
