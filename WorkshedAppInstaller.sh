@@ -118,7 +118,6 @@ deb_packages=(
   "nfs-common"
   "cifs-utils"
   "gamemode"
-  "lutris"
   "steam"
   "cpu-x"
   "python3"
@@ -183,6 +182,7 @@ flatpak_apps=(
   "app.zen_browser.zen"
   "org.rncbc.qpwgraph"
   "it.mijorus.gearlever"
+  "io.github.Faugus.faugus-launcher"
 )
 
 # Array to store the names of installed .deb packages and Flatpak applications
