@@ -98,6 +98,7 @@ deb_packages=(
   "fortune-mod"
   "cowsay"
   "ubuntu-restricted-extras"
+  "fuse3"
   "ffmpeg"
   "mpv"
   "mediainfo"
