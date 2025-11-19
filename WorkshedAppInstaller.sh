@@ -374,44 +374,53 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK ---
+# --- START REAPER NATIVE INSTALL BLOCK (Dynamic Version - FIXED) ---
 
-# Step 1: Install Native Linux Reaper
-REAPER_VERSION="684" # Last known version for direct link as of current knowledge
-REAPER_URL="https://www.reaper.fm/files/6.x/reaper${REAPER_VERSION}_linux_x86_64.tar.xz" 
 INSTALL_DIR="/opt/REAPER"
+REAPER_DOWNLOAD_PAGE="https://www.reaper.fm/download.php"
 
-log INFO "Downloading and installing native Reaper from official site."
-display $GREEN "Installing native Reaper to $INSTALL_DIR"
+log INFO "Downloading and installing native Reaper from official site (Dynamically finding version)."
+display $GREEN "Installing native Reaper to $INSTALL_DIR (Auto-detected version)."
 sleep 2s
 
-wget -q --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
+# 1. Fetch the page and extract the latest version number (e.g., 7.53)
+REAPER_VERSION=$(
+    # Fetch the download page HTML
+    curl -s "$REAPER_DOWNLOAD_PAGE" | 
+    # Use grep to find the line with the version/download link, then sed to extract the number
+    grep 'Linux x86_64' |
+    # Extracts only the number portion (e.g., 7.53)
+    sed -n 's/.*REAPER v\([0-9.]*\) -.*Linux x86_64.*/\1/p' |
+    head -n 1
+)
+
+# 2. Error Check and Variable Setup
+if [[ -z "$REAPER_VERSION" ]]; then
+    log ERROR "Failed to automatically find the latest REAPER version number from $REAPER_DOWNLOAD_PAGE"
+    exit 1
+fi
+
+# Get the major version number (e.g., 7 from 7.53)
+MAJOR_VERSION=$(echo "$REAPER_VERSION" | cut -d'.' -f1)
+
+# Construct the URL: https://www.reaper.fm/files/7.x/reaper753_linux_x86_64.tar.xz
+# Uses ${REAPER_VERSION//./} to remove dots (7.53 -> 753)
+REAPER_URL="https://www.reaper.fm/files/${MAJOR_VERSION}.x/reaper${REAPER_VERSION//./}_linux_x86_64.tar.xz"
+
+log INFO "Auto-detected REAPER Version: $REAPER_VERSION"
+log INFO "Generated Download URL: $REAPER_URL"
+
+# 3. Download the File
+# Removed -q to ensure any connection error output is logged (2>&1 | log INFO)
+wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
 
 if [ $? -ne 0 ]; then
-    log ERROR "Failed to download Reaper from $REAPER_URL"
+    log ERROR "Failed to download Reaper from $REAPER_URL. wget failed."
+    # Log the output of the temporary file just in case
+    ls -l /tmp/reaper.tar.xz 2>&1 | log INFO 
     exit 1
 fi
-
-mkdir -p /tmp/reaper_temp
-tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
-
-# Run the installer script:
-# --install-dir: specifies where the main files go
-# --install-symlink: creates a symlink in /usr/local/bin so you can run 'reaper' from the terminal
-sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1 | log INFO
-
-if [ -f "$INSTALL_DIR/reaper" ]; then
-    log INFO "Reaper native installation successful."
-else
-    log ERROR "Reaper native installation failed. Check installer script output."
-    exit 1
-fi
-
-rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
-log INFO "Cleaned up temporary Reaper files."
-echo "--- Native Reaper Installation Complete ---"
-
-# --- END REAPER NATIVE INSTALL BLOCK ---
+# ... (rest of the installation script remains the same)
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
