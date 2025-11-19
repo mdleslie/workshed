@@ -375,37 +375,69 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (FINAL DEBUGGING VERSION) ---
+# --- START REAPER NATIVE INSTALL BLOCK (FINAL WORKING VERSION) ---
 
-# ... (Steps 1-4 for URL, Download, and Tar remain identical) ...
+INSTALL_DIR="/opt/REAPER"
+# Using a known, recent version to start the search.
+REAPER_VERSION_PLACEHOLDER="753" 
+REAPER_URL_START="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION_PLACEHOLDER}_linux_x86_64.tar.xz"
 
-# 5. Execute the installer script and CAPTURE its output (THE CRITICAL DEBUGGING STEP)
-log INFO "Executing installer script..."
+log INFO "Downloading and installing native Reaper (Extracting final download URL from redirect headers)."
+display $GREEN "Installing native Reaper to $INSTALL_DIR (Auto-detected final link)."
+sleep 2s
 
-# >>> CRITICAL: Temporarily disable 'set -e' to ensure log INFO runs on failure <<<
-set +e 
+# 1. Get the final redirected URL (Header Parsing Dynamic Method)
+FINAL_REAPER_URL=$(
+    curl -s -I -L "$REAPER_URL_START" 2>&1 | 
+    grep -i 'Location:' | 
+    awk '{print $NF}' |
+    head -n 1
+)
 
-INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1)
-INSTALLER_STATUS=$?
-
-# Re-enable 'set -e'
-set -e 
-
-# Log the captured output (THIS LINE IS NOW GUARANTEED TO RUN)
-log INFO "Installer Script Output: $INSTALLER_OUTPUT" 
-
-if [ $INSTALLER_STATUS -ne 0 ]; then
-    log ERROR "Installer script failed with exit code $INSTALLER_STATUS. Check 'Installer Script Output' above."
-    # Since 'set -e' is back on, we rely on the error trapping to exit.
+if [[ -z "$FINAL_REAPER_URL" || "$FINAL_REAPER_URL" == *download.php ]]; then
+    log ERROR "Failed to determine final REAPER download URL via redirect headers."
     exit 1
 fi
 
-# 6. Final check for executable existence
+log INFO "Final Download URL successfully determined: $FINAL_REAPER_URL"
+REAPER_URL="$FINAL_REAPER_URL"
+mkdir -p /tmp/reaper_temp
+
+# 2. Download the file
+wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
+DOWNLOAD_STATUS=$?
+
+if [ $DOWNLOAD_STATUS -ne 0 ]; then
+    log ERROR "Failed to download Reaper from $REAPER_URL. wget exit code: $DOWNLOAD_STATUS"
+    exit 1
+fi
+
+# 3. Extract the file
+tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
+
+# 4. SET EXECUTE PERMISSION (THE FIX)
+sudo chmod +x /tmp/reaper_temp/install-reaper.sh
+log INFO "Set execute permission on install-reaper.sh"
+
+# 5. Execute the installer script
+log INFO "Executing installer script..."
+set +e # Temporarily disable set -e for robust execution
+INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1)
+INSTALLER_STATUS=$?
+set -e # Re-enable set -e
+
+log INFO "Installer Script Output: $INSTALLER_OUTPUT" 
+
+if [ $INSTALLER_STATUS -ne 0 ]; then
+    log ERROR "Installer script failed with exit code $INSTALLER_STATUS. See above output for details."
+    exit 1
+fi
+
+# 6. Final check
 if [ -f "$INSTALL_DIR/reaper" ]; then
     log INFO "Reaper native installation successful."
 else
     log ERROR "Reaper native installation failed: Executable file not found at $INSTALL_DIR/reaper."
-    log ERROR "Contents of installation directory $INSTALL_DIR: $(ls -la "$INSTALL_DIR" 2>/dev/null)"
     exit 1
 fi
 
@@ -413,7 +445,7 @@ rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
 log INFO "Cleaned up temporary Reaper files."
 echo "--- Native Reaper Installation Complete ---"
 
-# --- END REAPER NATIVE INSTALL BLOCK (Header Parsing Dynamic Version - FINAL) ---
+# --- END REAPER NATIVE INSTALL BLOCK (FINAL WORKING VERSION) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
