@@ -375,13 +375,14 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (FINAL CURL/USER-AGENT FIX) ---
+# --- START REAPER NATIVE INSTALL BLOCK (FINAL WORKING VERSION) ---
 
 INSTALL_DIR="/opt/REAPER"
+# Using a known, recent version to start the search. Update if 7.x fails (e.g., change 7.x to 8.x).
 REAPER_VERSION_PLACEHOLDER="753" 
 REAPER_URL_START="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION_PLACEHOLDER}_linux_x86_64.tar.xz"
 
-log INFO "Downloading and installing native Reaper (Final attempt using curl with User-Agent)."
+log INFO "Downloading and installing native Reaper (Final attempt with clean URL extraction)."
 display $GREEN "Installing native Reaper to $INSTALL_DIR (Auto-detected final link)."
 sleep 2s
 
@@ -390,9 +391,11 @@ FINAL_REAPER_URL=$(
     curl -s -I -L "$REAPER_URL_START" 2>&1 | 
     grep -i 'Location:' | 
     awk '{print $NF}' |
+    tr -d '[:space:]' |  # <--- CRITICAL FIX: Removes ALL whitespace, fixing CURL Exit Code 3
     head -n 1
 )
 
+# 2. Error Check on URL determination
 if [[ -z "$FINAL_REAPER_URL" || "$FINAL_REAPER_URL" == *download.php ]]; then
     log ERROR "Failed to determine final REAPER download URL via redirect headers."
     exit 1
@@ -402,9 +405,9 @@ log INFO "Final Download URL successfully determined: $FINAL_REAPER_URL"
 REAPER_URL="$FINAL_REAPER_URL"
 mkdir -p /tmp/reaper_temp
 
-# 2. Download the file using curl with User-Agent (THE FINAL DOWNLOAD FIX)
+# 3. Download the file using curl with User-Agent
 log INFO "Downloading $REAPER_URL using curl..."
-# -L: Follow redirects; -o: output file; -A: User-Agent header
+# -L: Follow redirects; --fail: fail silently on HTTP errors; -A: User-Agent header
 CURL_OUTPUT=$(curl -L --fail -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36" -o /tmp/reaper.tar.xz "$REAPER_URL" 2>&1)
 DOWNLOAD_STATUS=$?
 
@@ -415,7 +418,7 @@ if [ $DOWNLOAD_STATUS -ne 0 ]; then
     exit 1
 fi
 
-# 3. Extract the file
+# 4. Extract the file
 log INFO "Extracting package..."
 tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 
 TAR_STATUS=$?
@@ -425,11 +428,11 @@ if [ $TAR_STATUS -ne 0 ]; then
     exit 1
 fi
 
-# 4. SET EXECUTE PERMISSION (The discovered fix)
+# 5. SET EXECUTE PERMISSION (The discovered fix for 'command not found')
 sudo chmod +x /tmp/reaper_temp/install-reaper.sh
 log INFO "Set execute permission on install-reaper.sh"
 
-# 5. Execute the installer script (With logging)
+# 6. Execute the installer script (With logging)
 log INFO "Executing installer script..."
 set +e # Temporarily disable set -e for robust execution
 INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1)
@@ -443,7 +446,7 @@ if [ $INSTALLER_STATUS -ne 0 ]; then
     exit 1
 fi
 
-# 6. Final check
+# 7. Final check
 if [ -f "$INSTALL_DIR/reaper" ]; then
     log INFO "Reaper native installation successful."
 else
@@ -455,7 +458,7 @@ rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
 log INFO "Cleaned up temporary Reaper files."
 echo "--- Native Reaper Installation Complete ---"
 
-# --- END REAPER NATIVE INSTALL BLOCK (FINAL CURL/USER-AGENT FIX) ---
+# --- END REAPER NATIVE INSTALL BLOCK (FINAL WORKING VERSION) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
