@@ -106,7 +106,7 @@ deb_packages=(
   "mpv"
   "mediainfo"
   "vlc"
-  "libssl3"
+  "fastfetch"
   "libssl-dev"
   "libexpat1-dev"
   "libgl1-mesa-dev"
@@ -143,7 +143,6 @@ deb_packages=(
   "libx11-dev"
   "lv2-dev"
   "nasm"
-  "fastfetch"
   "rar"
   "unrar"
   "p7zip-full"
@@ -237,10 +236,10 @@ display $GREEN "Gus, don't be William Zabka from Back to School."
 
 # Install Nala
 log INFO "Installing Nala"
-display $GREEN "Adding curl and installing Nala. Because it is better than apt."
+display $GREEN "Installing Nala. Because it is better than apt."
 sleep 5s
-sudo apt install curl -y
-curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
+sudo apt install nala -y
+#curl https://gitlab.com/volian/volian-archive/-/raw/main/install-nala.sh | bash
 sudo nala update
 
 echo '########################################' | lolcat
@@ -264,16 +263,12 @@ echo '########################################' | lolcat
 display $GREEN "Are you a fan of delicious flavor?"
 
 # Install FastFetch
-log INFO "Installing FastFetch"
-display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-sleep 5s
-sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-sudo nala update
-sudo nala install fastfetch -y
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+#log INFO "Installing FastFetch"
+#display $GREEN "Installing Fastfetch from the zhangsongcui repo."
+#sleep 5s
+#sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+#sudo nala update
+#sudo nala install fastfetch -y
 
 # Install .deb packages
 log INFO "Installing .deb packages"
@@ -751,4 +746,4 @@ figlet Workshed | lolcat -a -d 3
 
 # Force an exit before the reboot command to ensure the shell doesn't hang
 # and then execute the reboot as a separate, guaranteed command.
-sudo reboot & exit 0
+sudo reboot now
