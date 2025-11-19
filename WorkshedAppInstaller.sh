@@ -374,53 +374,70 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (Dynamic Version - FIXED) ---
+# --- START REAPER NATIVE INSTALL BLOCK (Most Future-Proof Dynamic Version) ---
 
 INSTALL_DIR="/opt/REAPER"
 REAPER_DOWNLOAD_PAGE="https://www.reaper.fm/download.php"
 
-log INFO "Downloading and installing native Reaper from official site (Dynamically finding version)."
-display $GREEN "Installing native Reaper to $INSTALL_DIR (Auto-detected version)."
+log INFO "Downloading and installing native Reaper from official site (Dynamically finding latest version and path)."
+display $GREEN "Installing native Reaper to $INSTALL_DIR (Path independent version)."
 sleep 2s
 
-# 1. Fetch the page and extract the latest version number (e.g., 7.53)
-REAPER_VERSION=$(
+# 1. Fetch the page and extract the full relative download path for the Linux x86_64 .tar.xz file.
+# This extracts the entire file path relative to https://www.reaper.fm/
+REAPER_RELATIVE_PATH=$(
     # Fetch the download page HTML
     curl -s "$REAPER_DOWNLOAD_PAGE" | 
-    # Use grep to find the line with the version/download link, then sed to extract the number
-    grep 'Linux x86_64' |
-    # Extracts only the number portion (e.g., 7.53)
-    sed -n 's/.*REAPER v\([0-9.]*\) -.*Linux x86_64.*/\1/p' |
+    # Filter for the Linux x86_64 download link that contains the full path/filename
+    grep -o 'files/[0-9]\.x/reaper[0-9]*_linux_x86_64.tar.xz' |
+    # Get the first (latest) result
     head -n 1
 )
 
 # 2. Error Check and Variable Setup
-if [[ -z "$REAPER_VERSION" ]]; then
-    log ERROR "Failed to automatically find the latest REAPER version number from $REAPER_DOWNLOAD_PAGE"
+if [[ -z "$REAPER_RELATIVE_PATH" ]]; then
+    log ERROR "Failed to automatically find the REAPER download path on $REAPER_DOWNLOAD_PAGE."
     exit 1
 fi
 
-# Get the major version number (e.g., 7 from 7.53)
-MAJOR_VERSION=$(echo "$REAPER_VERSION" | cut -d'.' -f1)
+# Construct the full download URL
+REAPER_URL="https://www.reaper.fm/$REAPER_RELATIVE_PATH"
 
-# Construct the URL: https://www.reaper.fm/files/7.x/reaper753_linux_x86_64.tar.xz
-# Uses ${REAPER_VERSION//./} to remove dots (7.53 -> 753)
-REAPER_URL="https://www.reaper.fm/files/${MAJOR_VERSION}.x/reaper${REAPER_VERSION//./}_linux_x86_64.tar.xz"
+# Extract just the version number for logging (optional, but good for verification)
+REAPER_VERSION=$(echo "$REAPER_RELATIVE_PATH" | grep -o 'reaper[0-9]*' | sed 's/reaper//')
+# Convert the number back to a dotted version (e.g., 753 -> 7.53). This is complex and unnecessary for the download, but good for logs.
+# For simplicity, we'll log the version string as found in the URL.
 
-log INFO "Auto-detected REAPER Version: $REAPER_VERSION"
+log INFO "Auto-detected REAPER Path: $REAPER_RELATIVE_PATH"
 log INFO "Generated Download URL: $REAPER_URL"
 
 # 3. Download the File
-# Removed -q to ensure any connection error output is logged (2>&1 | log INFO)
 wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
 
 if [ $? -ne 0 ]; then
     log ERROR "Failed to download Reaper from $REAPER_URL. wget failed."
-    # Log the output of the temporary file just in case
     ls -l /tmp/reaper.tar.xz 2>&1 | log INFO 
     exit 1
 fi
-# ... (rest of the installation script remains the same)
+
+mkdir -p /tmp/reaper_temp
+tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
+
+# 4. Run the installer script:
+sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1 | log INFO
+
+if [ -f "$INSTALL_DIR/reaper" ]; then
+    log INFO "Reaper native installation successful."
+else
+    log ERROR "Reaper native installation failed. Check installer script output."
+    exit 1
+fi
+
+rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
+log INFO "Cleaned up temporary Reaper files."
+echo "--- Native Reaper Installation Complete ---"
+
+# --- END REAPER NATIVE INSTALL BLOCK (Most Future-Proof Dynamic Version) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
