@@ -106,6 +106,7 @@ deb_packages=(
   "mpv"
   "mediainfo"
   "vlc"
+  "libssl3"
   "libssl-dev"
   "libexpat1-dev"
   "libgl1-mesa-dev"
@@ -374,40 +375,74 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (Manual Version - MOST RELIABLE) ---
+# --- START REAPER NATIVE INSTALL BLOCK (Header Parsing Dynamic Version) ---
 
-# CRITICAL: UPDATE THIS VERSION NUMBER WHEN REAPER RELEASES A NEW MAJOR/MINOR VERSION
-REAPER_VERSION_NUMERIC="753" # Represents REAPER 7.53 (Check reaper.fm/download.php for the latest)
 INSTALL_DIR="/opt/REAPER"
+REAPER_VERSION_PLACEHOLDER="753" # Use a known, recent version to start the search
+REAPER_URL_START="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION_PLACEHOLDER}_linux_x86_64.tar.xz"
 
-log INFO "Downloading and installing native Reaper (Manual Version: ${REAPER_VERSION_NUMERIC})"
-display $GREEN "Installing native Reaper to $INSTALL_DIR"
+log INFO "Downloading and installing native Reaper (Extracting final download URL from redirect headers)."
+display $GREEN "Installing native Reaper to $INSTALL_DIR (Auto-detected final link)."
 sleep 2s
 
-# Derive MAJOR_VERSION and URL from the manual numeric input
-MAJOR_VERSION=${REAPER_VERSION_NUMERIC:0:1}
-REAPER_URL="https://www.reaper.fm/files/${MAJOR_VERSION}.x/reaper${REAPER_VERSION_NUMERIC}_linux_x86_64.tar.xz"
+# 1. Get the final redirected URL (the stable dlcf.reaper.fm link)
+# -s: Silent
+# -I: Head-only request (fetches headers)
+# -L: Follows redirects
+# grep 'Location:' extracts the redirect URL line
+# awk prints the last field (the actual URL)
+FINAL_REAPER_URL=$(
+    curl -s -I -L "$REAPER_URL_START" 2>&1 | 
+    grep -i 'Location:' | 
+    awk '{print $NF}' |
+    head -n 1
+)
 
-log INFO "Generated Download URL: $REAPER_URL"
-
-# 1. Download the file
-wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
-
-if [ $? -ne 0 ]; then
-    log ERROR "Failed to download Reaper from $REAPER_URL. Please verify the REAPER_VERSION_NUMERIC variable is correct."
+# 2. Error Check and Variable Setup
+if [[ -z "$FINAL_REAPER_URL" || "$FINAL_REAPER_URL" == *download.php ]]; then
+    log ERROR "Failed to determine final REAPER download URL via redirect headers. The initial URL may be outdated."
+    log WARNING "You may need to manually update the version in the script's placeholder."
     exit 1
 fi
 
+log INFO "Final Download URL successfully determined: $FINAL_REAPER_URL"
+
+# The final URL should be used directly for the download
+REAPER_URL="$FINAL_REAPER_URL"
+# The filename is always reaper.tar.xz for the temp download
+
+# Define temporary extraction directory
 mkdir -p /tmp/reaper_temp
+
+# 3. Download the file
+wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
+DOWNLOAD_STATUS=$?
+
+if [ $DOWNLOAD_STATUS -ne 0 ]; then
+    log ERROR "Failed to download Reaper from $REAPER_URL. wget exit code: $DOWNLOAD_STATUS"
+    exit 1
+fi
+
+# 4. Extract the file
 tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
 
-# 2. Run the installer script:
-sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1 | log INFO
+# 5. Execute the installer script (Must be run as root to write to /opt)
+log INFO "Executing installer script..."
+INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1)
+INSTALLER_STATUS=$?
+log INFO "Installer Script Output: $INSTALLER_OUTPUT"
 
+if [ $INSTALLER_STATUS -ne 0 ]; then
+    log ERROR "Installer script failed with exit code $INSTALLER_STATUS."
+    exit 1
+fi
+
+# 6. Final check
 if [ -f "$INSTALL_DIR/reaper" ]; then
     log INFO "Reaper native installation successful."
 else
-    log ERROR "Reaper native installation failed. Check installer script output."
+    log ERROR "Reaper native installation failed: Executable file not found at $INSTALL_DIR/reaper."
+    log ERROR "Contents of installation directory $INSTALL_DIR: $(ls -la "$INSTALL_DIR" 2>/dev/null)"
     exit 1
 fi
 
@@ -415,7 +450,7 @@ rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
 log INFO "Cleaned up temporary Reaper files."
 echo "--- Native Reaper Installation Complete ---"
 
-# --- END REAPER NATIVE INSTALL BLOCK (Manual Version - MOST RELIABLE) ---
+# --- END REAPER NATIVE INSTALL BLOCK (Header Parsing Dynamic Version) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
