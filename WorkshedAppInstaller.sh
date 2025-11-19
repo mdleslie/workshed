@@ -375,10 +375,11 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (Header Parsing Dynamic Version) ---
+# --- START REAPER NATIVE INSTALL BLOCK (Header Parsing Dynamic Version - FINAL) ---
 
 INSTALL_DIR="/opt/REAPER"
-REAPER_VERSION_PLACEHOLDER="753" # Use a known, recent version to start the search
+# Using a known, recent version to start the search. Update if 7.x fails (e.g., change 7.x to 8.x).
+REAPER_VERSION_PLACEHOLDER="753" 
 REAPER_URL_START="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION_PLACEHOLDER}_linux_x86_64.tar.xz"
 
 log INFO "Downloading and installing native Reaper (Extracting final download URL from redirect headers)."
@@ -386,11 +387,6 @@ display $GREEN "Installing native Reaper to $INSTALL_DIR (Auto-detected final li
 sleep 2s
 
 # 1. Get the final redirected URL (the stable dlcf.reaper.fm link)
-# -s: Silent
-# -I: Head-only request (fetches headers)
-# -L: Follows redirects
-# grep 'Location:' extracts the redirect URL line
-# awk prints the last field (the actual URL)
 FINAL_REAPER_URL=$(
     curl -s -I -L "$REAPER_URL_START" 2>&1 | 
     grep -i 'Location:' | 
@@ -398,18 +394,15 @@ FINAL_REAPER_URL=$(
     head -n 1
 )
 
-# 2. Error Check and Variable Setup
+# 2. Error Check on URL determination
 if [[ -z "$FINAL_REAPER_URL" || "$FINAL_REAPER_URL" == *download.php ]]; then
-    log ERROR "Failed to determine final REAPER download URL via redirect headers. The initial URL may be outdated."
-    log WARNING "You may need to manually update the version in the script's placeholder."
+    log ERROR "Failed to determine final REAPER download URL via redirect headers."
+    log WARNING "Manual update of the REAPER_URL_START version may be required."
     exit 1
 fi
 
 log INFO "Final Download URL successfully determined: $FINAL_REAPER_URL"
-
-# The final URL should be used directly for the download
 REAPER_URL="$FINAL_REAPER_URL"
-# The filename is always reaper.tar.xz for the temp download
 
 # Define temporary extraction directory
 mkdir -p /tmp/reaper_temp
@@ -426,18 +419,22 @@ fi
 # 4. Extract the file
 tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
 
-# 5. Execute the installer script (Must be run as root to write to /opt)
+# 5. Execute the installer script and CAPTURE its output (THE CRITICAL DEBUGGING STEP)
 log INFO "Executing installer script..."
 INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1)
 INSTALLER_STATUS=$?
-log INFO "Installer Script Output: $INSTALLER_OUTPUT"
+
+# Log the captured output so we can see the exact error message from the installer
+log INFO "Installer Script Output: $INSTALLER_OUTPUT" 
 
 if [ $INSTALLER_STATUS -ne 0 ]; then
-    log ERROR "Installer script failed with exit code $INSTALLER_STATUS."
+    log ERROR "Installer script failed with exit code $INSTALLER_STATUS. See above output for details."
+    # We no longer exit here to let the final check run, but 'set -e' will catch it.
+    # We exit here for safety since we captured the output.
     exit 1
 fi
 
-# 6. Final check
+# 6. Final check for executable existence
 if [ -f "$INSTALL_DIR/reaper" ]; then
     log INFO "Reaper native installation successful."
 else
@@ -450,7 +447,7 @@ rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
 log INFO "Cleaned up temporary Reaper files."
 echo "--- Native Reaper Installation Complete ---"
 
-# --- END REAPER NATIVE INSTALL BLOCK (Header Parsing Dynamic Version) ---
+# --- END REAPER NATIVE INSTALL BLOCK (Header Parsing Dynamic Version - FINAL) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
