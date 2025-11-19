@@ -374,57 +374,34 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (Final Robust Version) ---
+# --- START REAPER NATIVE INSTALL BLOCK (Manual Version - MOST RELIABLE) ---
 
+# CRITICAL: UPDATE THIS VERSION NUMBER WHEN REAPER RELEASES A NEW MAJOR/MINOR VERSION
+REAPER_VERSION_NUMERIC="753" # Represents REAPER 7.53 (Check reaper.fm/download.php for the latest)
 INSTALL_DIR="/opt/REAPER"
-REAPER_DOWNLOAD_PAGE="https://www.reaper.fm/download.php"
 
-log INFO "Downloading and installing native Reaper from official site (Highly robust path detection)."
-display $GREEN "Installing native Reaper to $INSTALL_DIR (Final robust version)."
+log INFO "Downloading and installing native Reaper (Manual Version: ${REAPER_VERSION_NUMERIC})"
+display $GREEN "Installing native Reaper to $INSTALL_DIR"
 sleep 2s
 
-# 1. Fetch the page and extract the full relative download path.
-# This searches for the link that contains both "Linux x86_64" and ".tar.xz".
-REAPER_RELATIVE_PATH=$(
-    # Fetch the download page HTML
-    curl -s "$REAPER_DOWNLOAD_PAGE" | 
-    # Find the line containing the Linux x86_64 tar.xz file link
-    grep 'Linux x86_64.*\.tar\.xz' |
-    # Use sed to extract the value of the href attribute (the path)
-    # This finds the string href="[PATH]" and extracts just the [PATH]
-    sed -n 's/.*href="\([^"]*\).*/\1/p' |
-    # Get the first result (the latest one)
-    head -n 1
-)
+# Derive MAJOR_VERSION and URL from the manual numeric input
+MAJOR_VERSION=${REAPER_VERSION_NUMERIC:0:1}
+REAPER_URL="https://www.reaper.fm/files/${MAJOR_VERSION}.x/reaper${REAPER_VERSION_NUMERIC}_linux_x86_64.tar.xz"
 
-# 2. Error Check and Variable Setup
-if [[ -z "$REAPER_RELATIVE_PATH" ]]; then
-    log ERROR "Failed to automatically find the REAPER download path on $REAPER_DOWNLOAD_PAGE. Check HTML structure."
-    exit 1
-fi
-
-# The path extracted by sed is already the relative path (e.g., files/7.x/reaper753_linux_x86_64.tar.xz)
-REAPER_URL="https://www.reaper.fm/$REAPER_RELATIVE_PATH"
-
-log INFO "Auto-detected REAPER Path: $REAPER_RELATIVE_PATH"
 log INFO "Generated Download URL: $REAPER_URL"
 
-# 3. Download the File
-# We use curl to download and capture the output to log
-CURL_OUTPUT=$(curl -L --progress-bar "$REAPER_URL" -o /tmp/reaper.tar.xz 2>&1)
-CURL_STATUS=$?
-log INFO "Curl Output: $CURL_OUTPUT"
+# 1. Download the file
+wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
 
-if [ $CURL_STATUS -ne 0 ]; then
-    log ERROR "Failed to download Reaper from $REAPER_URL. Curl Exit Code: $CURL_STATUS"
-    ls -l /tmp/reaper.tar.xz 2>&1 | log INFO
+if [ $? -ne 0 ]; then
+    log ERROR "Failed to download Reaper from $REAPER_URL. Please verify the REAPER_VERSION_NUMERIC variable is correct."
     exit 1
 fi
 
 mkdir -p /tmp/reaper_temp
 tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
 
-# 4. Run the installer script:
+# 2. Run the installer script:
 sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1 | log INFO
 
 if [ -f "$INSTALL_DIR/reaper" ]; then
@@ -438,7 +415,7 @@ rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
 log INFO "Cleaned up temporary Reaper files."
 echo "--- Native Reaper Installation Complete ---"
 
-# --- END REAPER NATIVE INSTALL BLOCK (Final Robust Version) ---
+# --- END REAPER NATIVE INSTALL BLOCK (Manual Version - MOST RELIABLE) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
