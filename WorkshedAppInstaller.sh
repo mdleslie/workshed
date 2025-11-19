@@ -375,13 +375,13 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (FINAL NON-PIPED DEBUGGING VERSION) ---
+# --- START REAPER NATIVE INSTALL BLOCK (FINAL CURL/USER-AGENT FIX) ---
 
 INSTALL_DIR="/opt/REAPER"
 REAPER_VERSION_PLACEHOLDER="753" 
 REAPER_URL_START="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION_PLACEHOLDER}_linux_x86_64.tar.xz"
 
-log INFO "Downloading and installing native Reaper (Extracting final download URL from redirect headers)."
+log INFO "Downloading and installing native Reaper (Final attempt using curl with User-Agent)."
 display $GREEN "Installing native Reaper to $INSTALL_DIR (Auto-detected final link)."
 sleep 2s
 
@@ -402,23 +402,26 @@ log INFO "Final Download URL successfully determined: $FINAL_REAPER_URL"
 REAPER_URL="$FINAL_REAPER_URL"
 mkdir -p /tmp/reaper_temp
 
-# 2. Download the file (NO PIPE)
-log INFO "Downloading $REAPER_URL..."
-wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 
+# 2. Download the file using curl with User-Agent (THE FINAL DOWNLOAD FIX)
+log INFO "Downloading $REAPER_URL using curl..."
+# -L: Follow redirects; -o: output file; -A: User-Agent header
+CURL_OUTPUT=$(curl -L --fail -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36" -o /tmp/reaper.tar.xz "$REAPER_URL" 2>&1)
 DOWNLOAD_STATUS=$?
 
+log INFO "Curl Output: $CURL_OUTPUT"
+
 if [ $DOWNLOAD_STATUS -ne 0 ]; then
-    log ERROR "Failed to download Reaper from $REAPER_URL. wget exit code: $DOWNLOAD_STATUS"
+    log ERROR "Failed to download Reaper. Curl exit code: $DOWNLOAD_STATUS. Check Curl Output above."
     exit 1
 fi
 
-# 3. Extract the file (NO PIPE)
+# 3. Extract the file
 log INFO "Extracting package..."
 tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 
 TAR_STATUS=$?
 
 if [ $TAR_STATUS -ne 0 ]; then
-    log ERROR "Failed to extract package. tar exit code: $TAR_STATUS. Check if /tmp/reaper.tar.xz exists."
+    log ERROR "Failed to extract package. tar exit code: $TAR_STATUS."
     exit 1
 fi
 
@@ -452,7 +455,7 @@ rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
 log INFO "Cleaned up temporary Reaper files."
 echo "--- Native Reaper Installation Complete ---"
 
-# --- END REAPER NATIVE INSTALL BLOCK (FINAL NON-PIPED DEBUGGING VERSION) ---
+# --- END REAPER NATIVE INSTALL BLOCK (FINAL CURL/USER-AGENT FIX) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
