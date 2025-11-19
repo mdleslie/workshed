@@ -401,7 +401,6 @@ if [ $INSTALLER_STATUS -ne 0 ]; then
 fi
 
 # 6. Final check for executable existence
-# ... (rest of the script remains identical) ...
 if [ -f "$INSTALL_DIR/reaper" ]; then
     log INFO "Reaper native installation successful."
 else
