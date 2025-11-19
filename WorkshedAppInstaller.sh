@@ -375,10 +375,9 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (FINAL WORKING VERSION) ---
+# --- START REAPER NATIVE INSTALL BLOCK (FINAL NON-PIPED DEBUGGING VERSION) ---
 
 INSTALL_DIR="/opt/REAPER"
-# Using a known, recent version to start the search.
 REAPER_VERSION_PLACEHOLDER="753" 
 REAPER_URL_START="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION_PLACEHOLDER}_linux_x86_64.tar.xz"
 
@@ -403,8 +402,9 @@ log INFO "Final Download URL successfully determined: $FINAL_REAPER_URL"
 REAPER_URL="$FINAL_REAPER_URL"
 mkdir -p /tmp/reaper_temp
 
-# 2. Download the file
-wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 2>&1 | log INFO
+# 2. Download the file (NO PIPE)
+log INFO "Downloading $REAPER_URL..."
+wget --show-progress "$REAPER_URL" -O /tmp/reaper.tar.xz 
 DOWNLOAD_STATUS=$?
 
 if [ $DOWNLOAD_STATUS -ne 0 ]; then
@@ -412,14 +412,21 @@ if [ $DOWNLOAD_STATUS -ne 0 ]; then
     exit 1
 fi
 
-# 3. Extract the file
-tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 2>&1 | log INFO
+# 3. Extract the file (NO PIPE)
+log INFO "Extracting package..."
+tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1 
+TAR_STATUS=$?
 
-# 4. SET EXECUTE PERMISSION (THE FIX)
+if [ $TAR_STATUS -ne 0 ]; then
+    log ERROR "Failed to extract package. tar exit code: $TAR_STATUS. Check if /tmp/reaper.tar.xz exists."
+    exit 1
+fi
+
+# 4. SET EXECUTE PERMISSION (The discovered fix)
 sudo chmod +x /tmp/reaper_temp/install-reaper.sh
 log INFO "Set execute permission on install-reaper.sh"
 
-# 5. Execute the installer script
+# 5. Execute the installer script (With logging)
 log INFO "Executing installer script..."
 set +e # Temporarily disable set -e for robust execution
 INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh --install-dir="$INSTALL_DIR" --install-symlink /usr/local/bin 2>&1)
@@ -429,7 +436,7 @@ set -e # Re-enable set -e
 log INFO "Installer Script Output: $INSTALLER_OUTPUT" 
 
 if [ $INSTALLER_STATUS -ne 0 ]; then
-    log ERROR "Installer script failed with exit code $INSTALLER_STATUS. See above output for details."
+    log ERROR "Installer script failed with exit code $INSTALLER_STATUS. Check 'Installer Script Output' above."
     exit 1
 fi
 
@@ -445,7 +452,7 @@ rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
 log INFO "Cleaned up temporary Reaper files."
 echo "--- Native Reaper Installation Complete ---"
 
-# --- END REAPER NATIVE INSTALL BLOCK (FINAL WORKING VERSION) ---
+# --- END REAPER NATIVE INSTALL BLOCK (FINAL NON-PIPED DEBUGGING VERSION) ---
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
