@@ -458,6 +458,7 @@ log INFO "Temporary REAPER files cleaned up."
 
 echo "=== Native REAPER Installation Complete ==="
 # --- END REAPER NATIVE INSTALL BLOCK (FIXED VERSION) ---
+
 sleep 5s
 
 echo '########################################' | lolcat
