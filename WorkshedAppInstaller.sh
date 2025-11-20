@@ -373,11 +373,13 @@ echo '########################################' | lolcat
 # --- START REAPER NATIVE INSTALL BLOCK ---
 # Note: REAPER is needed for native yabridge/VST support (Flatpak version won't work with yabridge)
 
-# Temporarily disable exit-on-error for this section
-set +e
-
 INSTALL_DIR="/opt/REAPER"
 REAPER_INSTALLED=false
+
+# Update this version number when new REAPER releases come out
+# Check https://www.reaper.fm/download.php for latest version
+REAPER_VERSION="753"  # Update this to latest version (e.g., 754, 760, etc.)
+REAPER_URL="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION}_linux_x86_64.tar.xz"
 
 log INFO "Preparing to install native REAPER (required for yabridge support)"
 display $GREEN "Installing native REAPER to $INSTALL_DIR"
@@ -389,209 +391,113 @@ if [ -f "$INSTALL_DIR/reaper" ] && [ -x "$INSTALL_DIR/reaper" ]; then
     REAPER_INSTALLED=true
 fi
 
-# If not installed, look for downloaded installer
+# If not installed, try to download and install
 if [ "$REAPER_INSTALLED" = false ]; then
-    # Check for manually downloaded REAPER installer in common locations
-    REAPER_TARBALL=$(find ~/Downloads ~/Desktop /tmp /home/$TARGET_USER/Downloads -maxdepth 1 \
-        -name "reaper*linux*.tar.xz" 2>/dev/null | sort -r | head -1)
+    log INFO "Downloading REAPER version ${REAPER_VERSION} from ${REAPER_URL}"
+    display $BLUE "Downloading REAPER..."
     
-    if [ -n "$REAPER_TARBALL" ]; then
-        log INFO "Found REAPER installer: $REAPER_TARBALL"
-        display $BLUE "Found REAPER installer, proceeding with installation..."
+    TEMP_DIR="/tmp/reaper_install_$$"
+    mkdir -p "$TEMP_DIR"
+    
+    # Download REAPER
+    if wget --tries=3 --timeout=30 "$REAPER_URL" -O "$TEMP_DIR/reaper.tar.xz" 2>&1 | tee -a "$log_file"; then
+        log INFO "Download successful, extracting..."
         
-        TEMP_DIR="/tmp/reaper_install_$$"
-        mkdir -p "$TEMP_DIR"
-        
-        # Extract the archive
-        log INFO "Extracting REAPER..."
-        if tar -xf "$REAPER_TARBALL" -C "$TEMP_DIR"; then
-            cd "$TEMP_DIR" || exit 1
-            
-            # Find the install script or REAPER directory
-            INSTALL_SCRIPT=$(find . -name "install-reaper.sh" -type f | head -1)
-            
-            if [ -n "$INSTALL_SCRIPT" ]; then
-                log INFO "Running official REAPER installer..."
-                chmod +x "$INSTALL_SCRIPT"
-                
-                # Run installer with flags for non-interactive installation
-                if sudo "$INSTALL_SCRIPT" --install "$INSTALL_DIR" --integrate-desktop --usr-local-bin-symlink; then
-                    REAPER_INSTALLED=true
-                    log INFO "REAPER installed successfully via official installer!"
-                    display $GREEN "REAPER installed successfully!"
+        # Verify it's actually a valid archive
+        if file "$TEMP_DIR/reaper.tar.xz" | grep -q "XZ compressed"; then
+            # Extract the archive
+            if tar -xf "$TEMP_DIR/reaper.tar.xz" -C "$TEMP_DIR" 2>&1 | tee -a "$log_file"; then
+                # Change to temp directory
+                if cd "$TEMP_DIR"; then
+                    
+                    # Find the REAPER directory (skip the interactive installer script)
+                    REAPER_DIR=$(find . -maxdepth 2 -type d \( -name "reaper_linux_*" -o -name "REAPER" \) | head -1)
+                    
+                    if [ -n "$REAPER_DIR" ]; then
+                        log INFO "Performing manual REAPER installation from $REAPER_DIR"
+                        display $BLUE "Installing REAPER..."
+                        
+                        # Copy files
+                        sudo mkdir -p "$INSTALL_DIR"
+                        if sudo cp -R "$REAPER_DIR"/* "$INSTALL_DIR/" 2>&1 | tee -a "$log_file"; then
+                            
+                            # Set permissions
+                            sudo chmod +x "$INSTALL_DIR/reaper"
+                            [ -f "$INSTALL_DIR/reamr" ] && sudo chmod +x "$INSTALL_DIR/reamr"
+                            
+                            # Create symlinks
+                            sudo ln -sf "$INSTALL_DIR/reaper" /usr/local/bin/reaper
+                            [ -f "$INSTALL_DIR/reamr" ] && sudo ln -sf "$INSTALL_DIR/reamr" /usr/local/bin/reamr
+                            
+                            REAPER_INSTALLED=true
+                            log INFO "REAPER installation completed successfully!"
+                            display $GREEN "REAPER installed successfully!"
+                        else
+                            log ERROR "Failed to copy REAPER files to $INSTALL_DIR"
+                        fi
+                    else
+                        log ERROR "Could not find REAPER directory in extracted archive"
+                        display $RED "Extraction succeeded but REAPER directory not found"
+                    fi
+                    
+                    # Return to previous directory
+                    cd - > /dev/null
                 else
-                    log WARNING "Official installer encountered issues, trying manual method..."
+                    log ERROR "Failed to change to temp directory"
                 fi
+            else
+                log ERROR "Failed to extract REAPER archive"
+                display $RED "Archive extraction failed"
             fi
-            
-            # Fallback to manual installation if installer script failed or wasn't found
-            if [ "$REAPER_INSTALLED" = false ]; then
-                REAPER_DIR=$(find . -maxdepth 2 -type d -name "reaper_linux_*" -o -name "REAPER" | head -1)
-                
-                if [ -n "$REAPER_DIR" ]; then
-                    log INFO "Performing manual REAPER installation from $REAPER_DIR"
-                    
-                    # Copy files
-                    sudo mkdir -p "$INSTALL_DIR"
-                    sudo cp -R "$REAPER_DIR"/* "$INSTALL_DIR/"
-                    
-                    # Set permissions
-                    sudo chmod +x "$INSTALL_DIR/reaper"
-                    [ -f "$INSTALL_DIR/reamr" ] && sudo chmod +x "$INSTALL_DIR/reamr"
-                    
-                    # Create symlinks
-                    sudo ln -sf "$INSTALL_DIR/reaper" /usr/local/bin/reaper
-                    [ -f "$INSTALL_DIR/reamr" ] && sudo ln -sf "$INSTALL_DIR/reamr" /usr/local/bin/reamr
-                    
-                    REAPER_INSTALLED=true
-                    log INFO "REAPER manual installation completed!"
-                    display $GREEN "REAPER installed successfully!"
-                fi
-            fi
-            
-            cd - > /dev/null || true
         else
-            log ERROR "Failed to extract REAPER archive"
+            log ERROR "Downloaded file is not a valid XZ archive"
+            display $RED "Download failed - file appears corrupted"
         fi
-        
-        # Cleanup
-        rm -rf "$TEMP_DIR"
+    else
+        log ERROR "Failed to download REAPER from $REAPER_URL"
+        display $RED "Download failed - this may mean:"
+        display $YELLOW "  1. The version number ($REAPER_VERSION) is outdated"
+        display $YELLOW "  2. Network connectivity issues"
+        display $YELLOW "  3. REAPER changed their download structure"
     fi
+    
+    # Cleanup temp directory
+    rm -rf "$TEMP_DIR"
 fi
 
-# If still not installed, provide instructions and offer to download
+# If installation failed, provide fallback instructions
 if [ "$REAPER_INSTALLED" = false ]; then
     echo ""
     echo '########################################' | lolcat
     display $YELLOW "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    display $RED "⚠️  REAPER INSTALLATION REQUIRED"
+    display $RED "⚠️  REAPER INSTALLATION FAILED"
     display $YELLOW "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     display $YELLOW ""
-    display $YELLOW "REAPER needs to be downloaded manually (website blocks automated downloads)."
     display $YELLOW "Native REAPER is REQUIRED for yabridge Windows VST support!"
     display $YELLOW ""
-    display $GREEN  "📥 DOWNLOAD INSTRUCTIONS:"
+    display $GREEN  "📥 MANUAL INSTALLATION OPTIONS:"
     display $YELLOW ""
-    display $YELLOW "1. Open browser: https://www.reaper.fm/download.php"
-    display $YELLOW "2. Click the LINUX download button (green, penguin icon)"
-    display $YELLOW "3. Save to ~/Downloads/"
-    display $YELLOW "4. Press ENTER to continue installation"
+    display $YELLOW "Option 1: Update version number in script"
+    display $YELLOW "  - Edit this script and update REAPER_VERSION variable"
+    display $YELLOW "  - Check https://www.reaper.fm/download.php for latest version"
+    display $YELLOW "  - Current version in script: $REAPER_VERSION"
+    display $YELLOW ""
+    display $YELLOW "Option 2: Manual download and install"
+    display $YELLOW "  1. Visit: https://www.reaper.fm/download.php"
+    display $YELLOW "  2. Download Linux version to ~/Downloads/"
+    display $YELLOW "  3. Run:"
+    display $YELLOW "     cd ~/Downloads"
+    display $YELLOW "     tar -xf reaper*linux*.tar.xz"
+    display $YELLOW "     cd reaper_linux_*"
+    display $YELLOW "     sudo ./install-reaper.sh"
     display $YELLOW ""
     display $YELLOW "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     
-    # Prompt user
-    log WARNING "REAPER not found - prompting user for download"
-    echo -e "${BLUE}Open download page now? [Y/n]:${NC}"
-    read -r REPLY
-    
-    if [[ $REPLY =~ ^[Yy]$|^$ ]]; then
-        # Try different methods to open browser
-        if command -v xdg-open &> /dev/null; then
-            xdg-open "https://www.reaper.fm/download.php" 2>/dev/null &
-            log INFO "Opened REAPER download page via xdg-open"
-        elif command -v firefox &> /dev/null; then
-            firefox "https://www.reaper.fm/download.php" 2>/dev/null &
-            log INFO "Opened REAPER download page via firefox"
-        elif command -v google-chrome &> /dev/null; then
-            google-chrome "https://www.reaper.fm/download.php" 2>/dev/null &
-            log INFO "Opened REAPER download page via chrome"
-        elif command -v chromium &> /dev/null; then
-            chromium "https://www.reaper.fm/download.php" 2>/dev/null &
-            log INFO "Opened REAPER download page via chromium"
-        else
-            display $YELLOW "Could not auto-open browser. Please manually visit:"
-            display $YELLOW "https://www.reaper.fm/download.php"
-        fi
-        
-        echo ""
-        display $BLUE "⏳ Waiting for download..."
-        display $BLUE "Download the file, then press ENTER to continue installation"
-        echo -e "${NC}"
-        read -r
-        
-        # Wait a moment for filesystem sync
-        sleep 3
-        
-        # Look for newly downloaded file (modified in last 20 minutes)
-        NEW_TARBALL=$(find ~/Downloads /home/$TARGET_USER/Downloads -maxdepth 1 \
-            -name "reaper*linux*.tar.xz" -mmin -20 2>/dev/null | sort -r | head -1)
-        
-        if [ -n "$NEW_TARBALL" ]; then
-            log INFO "Found newly downloaded REAPER: $NEW_TARBALL"
-            display $GREEN "✓ Found downloaded file, installing..."
-            
-            TEMP_DIR="/tmp/reaper_install_$$"
-            mkdir -p "$TEMP_DIR"
-            
-            if tar -xf "$NEW_TARBALL" -C "$TEMP_DIR"; then
-                cd "$TEMP_DIR" || exit 1
-                INSTALL_SCRIPT=$(find . -name "install-reaper.sh" -type f | head -1)
-                
-                if [ -n "$INSTALL_SCRIPT" ]; then
-                    chmod +x "$INSTALL_SCRIPT"
-                    if sudo "$INSTALL_SCRIPT" --install "$INSTALL_DIR" --integrate-desktop --usr-local-bin-symlink; then
-                        REAPER_INSTALLED=true
-                        log INFO "REAPER installed successfully!"
-                        display $GREEN "✓ REAPER installed successfully!"
-                    fi
-                fi
-                
-                # Manual fallback
-                if [ "$REAPER_INSTALLED" = false ]; then
-                    REAPER_DIR=$(find . -maxdepth 2 -type d -name "reaper_linux_*" -o -name "REAPER" | head -1)
-                    if [ -n "$REAPER_DIR" ]; then
-                        sudo mkdir -p "$INSTALL_DIR"
-                        sudo cp -R "$REAPER_DIR"/* "$INSTALL_DIR/"
-                        sudo chmod +x "$INSTALL_DIR/reaper"
-                        [ -f "$INSTALL_DIR/reamr" ] && sudo chmod +x "$INSTALL_DIR/reamr"
-                        sudo ln -sf "$INSTALL_DIR/reaper" /usr/local/bin/reaper
-                        [ -f "$INSTALL_DIR/reamr" ] && sudo ln -sf "$INSTALL_DIR/reamr" /usr/local/bin/reamr
-                        REAPER_INSTALLED=true
-                        log INFO "REAPER manual installation completed!"
-                        display $GREEN "✓ REAPER installed successfully!"
-                    fi
-                fi
-                
-                cd - > /dev/null || true
-            fi
-            
-            rm -rf "$TEMP_DIR"
-        else
-            log ERROR "Could not find downloaded REAPER file"
-            display $RED "✗ Download not found in ~/Downloads/"
-        fi
-    fi
-    
-    # If still not installed after all attempts
-    if [ "$REAPER_INSTALLED" = false ]; then
-        echo ""
-        display $YELLOW "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        display $RED "⚠️  REAPER not installed - yabridge WILL NOT WORK without it!"
-        display $YELLOW ""
-        display $YELLOW "To install REAPER manually later:"
-        display $YELLOW "  cd ~/Downloads"
-        display $YELLOW "  tar -xf reaper*linux*.tar.xz"
-        display $YELLOW "  cd reaper_linux_*"
-        display $YELLOW "  sudo ./install-reaper.sh"
-        display $YELLOW ""
-        display $YELLOW "Or download it now and re-run this script."
-        display $YELLOW "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
-        
-        echo -e "${RED}Continue without REAPER? [y/N]:${NC}"
-        read -r REPLY
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            log INFO "User chose to exit script to install REAPER first"
-            display $YELLOW "Exiting. Please install REAPER and re-run this script."
-            script_completed="true"  # Prevent .bashrc revert
-            exit 0
-        fi
-        
-        log WARNING "Continuing installation without REAPER (yabridge will not function)"
-        display $YELLOW "Continuing without REAPER..."
-        sleep 3
-    fi
+    log WARNING "REAPER installation failed - continuing without it"
+    display $YELLOW "Continuing installation without REAPER..."
+    display $YELLOW "You can install REAPER manually later."
+    sleep 5
 fi
 
 # Final verification
@@ -600,6 +506,7 @@ if [ "$REAPER_INSTALLED" = true ]; then
         echo ""
         display $GREEN "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         display $GREEN "✓ Native REAPER Installation Complete"
+        display $GREEN "  Version: 7.${REAPER_VERSION}"
         display $GREEN "  Location: $INSTALL_DIR/reaper"
         display $GREEN "  yabridge support: ENABLED"
         display $GREEN "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -608,14 +515,8 @@ if [ "$REAPER_INSTALLED" = true ]; then
     fi
 fi
 
-# Re-enable exit-on-error
-set -e
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-
 # --- END REAPER NATIVE INSTALL BLOCK ---
+
 display $GREEN "Don't fear the Reaper."
 sleep 1s
 display $GREEN "Baby, I'm your man."
