@@ -458,7 +458,13 @@ log INFO "Temporary REAPER files cleaned up."
 
 echo "=== Native REAPER Installation Complete ==="
 # --- END REAPER NATIVE INSTALL BLOCK (FIXED VERSION) ---
-
+display $GREEN "Don't fear the Reaper."
+sleep 1s
+display $GREEN "Baby, I'm your man."
+sleep 2s
+display $GREEN "La, la, la, la, la."
+sleep 2s
+display $GREEN "La, la, la, la, la."
 sleep 5s
 
 echo '########################################' | lolcat
