@@ -370,105 +370,94 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (NOV 2025 SCRAPER VERSION - ALWAYS WORKS) ---
+# --- START REAPER NATIVE INSTALL BLOCK (FIXED VERSION) ---
 INSTALL_DIR="/opt/REAPER"
+REAPER_EXECUTABLE="$INSTALL_DIR/reaper"
+SYMLINK_PATH="/usr/local/bin/reaper"
+SYMLINK_PATH_REAMR="/usr/local/bin/reamr"
 
-log INFO "Downloading and installing latest native REAPER (7.x series)."
-display $GREEN "Installing native REAPER → $INSTALL_DIR (latest build, auto-scraped from reaper.fm)"
+# Official permanent download link for latest Linux x86_64 build
+REAPER_URL="https://www.reaper.fm/files/7.x/reaper_linux_x86_64-install.tar.xz"
+TEMP_DIR="/tmp/reaper_temp"
 
+log INFO "Downloading and installing native Reaper."
+display $GREEN "Installing native Reaper to $INSTALL_DIR (latest stable build)."
 sleep 2s
 
-# Create temp directory
-mkdir -p /tmp/reaper_temp
-cd /tmp/reaper_temp || exit 1
+# Clean up any previous temp files
+rm -rf "$TEMP_DIR" /tmp/reaper.tar.xz
+mkdir -p "$TEMP_DIR"
 
-# === NEW SCRAPER METHOD (2025-proof) ===
-log INFO "Scraping the official REAPER download page for the latest Linux x86_64 .tar.xz link..."
-REAPER_URL=$(curl -s https://www.reaper.fm/download.php |
-             grep -o 'https://dlcfiles\.reaper\.fm/[^"]*linux_x86_64\.tar\.xz' |
-             head -n1)
-
-# Fallback pattern in case they change the subdomain again
-if [[ -z "$REAPER_URL" ]]; then
-    REAPER_URL=$(curl -s https://www.reaper.fm/download.php |
-                 grep -o 'https://[^"]*reaper[0-9]*_linux_x86_64\.tar\.xz' |
-                 head -n1)
-fi
-
-if [[ -z "$REAPER_URL" ]]; then
-    log ERROR "Failed to find latest REAPER Linux download link. Site layout may have changed again."
-    display $RED "REAPER auto-detection failed. Check https://reaper.fm/download.php manually."
+# Download the file
+log INFO "Downloading latest REAPER for Linux x86_64 from $REAPER_URL..."
+if ! curl -L --fail -A "Mozilla/5.0 (X11; Linux x86_64)" -o /tmp/reaper.tar.xz "$REAPER_URL"; then
+    log ERROR "Failed to download REAPER."
     exit 1
 fi
 
-log INFO "Successfully found latest REAPER download URL:"
-log INFO "$REAPER_URL"
-display $GREEN "Downloading from scraped URL..."
-
-# Download with a real browser User-Agent (just in case)
-curl -L --fail-with-body \
-     -A "Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0" \
-     -o /tmp/reaper.tar.xz \
-     "$REAPER_URL"
-
-DOWNLOAD_STATUS=$?
-if [ $DOWNLOAD_STATUS -ne 0 ]; then
-    log ERROR "Failed to download REAPER. curl exit code: $DOWNLOAD_STATUS"
-    rm -f /tmp/reaper.tar.xz
+# Verify the downloaded file is a valid tar.xz
+if ! file /tmp/reaper.tar.xz | grep -q "XZ compressed"; then
+    log ERROR "Downloaded file is not a valid XZ archive."
+    cat /tmp/reaper.tar.xz | head -20  # Show first few lines for debugging
     exit 1
 fi
 
-# Verify we actually got a tar.xz file (not an HTML error page)
-if ! file /tmp/reaper.tar.xz | grep -q "XZ compressed data"; then
-    log ERROR "Downloaded file is not a valid .tar.xz archive (probably an HTML error page)."
-    rm -f /tmp/reaper.tar.xz
+# Extract the archive
+log INFO "Extracting REAPER package..."
+if ! tar -xf /tmp/reaper.tar.xz -C "$TEMP_DIR"; then
+    log ERROR "Failed to extract REAPER package."
     exit 1
 fi
 
-# Extract
-log INFO "Extracting archive..."
-tar -xf /tmp/reaper.tar.xz -C /tmp/reaper_temp --strip-components=1
-TAR_STATUS=$?
-if [ $TAR_STATUS -ne 0 ]; then
-    log ERROR "Failed to extract archive. tar exit code: $TAR_STATUS"
+# Find the actual REAPER directory (it might be named differently)
+REAPER_SOURCE=$(find "$TEMP_DIR" -maxdepth 2 -type d -name "reaper_linux_*" | head -1)
+if [ -z "$REAPER_SOURCE" ]; then
+    log ERROR "Could not find REAPER source directory after extraction."
+    ls -la "$TEMP_DIR"
     exit 1
 fi
 
-# Make sure installer is executable
-chmod +x /tmp/reaper_temp/install-reaper.sh 2>/dev/null || true
+log INFO "Found REAPER source at: $REAPER_SOURCE"
 
-# Run the official installer
-log INFO "Running official REAPER installer script..."
-set +e
-INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh \
-    --install-dir="$INSTALL_DIR" \
-    --install-symlink /usr/local/bin \
-    2>&1)
-INSTALLER_STATUS=$?
-set -e
+# Perform manual installation
+log INFO "Performing manual REAPER installation..."
 
-log INFO "Installer output:\n$INSTALLER_OUTPUT"
+# Create installation directory and copy files
+sudo mkdir -p "$INSTALL_DIR"
+sudo cp -R "$REAPER_SOURCE"/* "$INSTALL_DIR/" 
 
-if [ $INSTALLER_STATUS -ne 0 ]; then
-    log WARN "Installer script returned exit code $INSTALLER_STATUS (this is sometimes normal)."
+# Set execute permissions
+sudo chmod +x "$REAPER_EXECUTABLE"
+if [ -f "$INSTALL_DIR/reamr" ]; then
+    sudo chmod +x "$INSTALL_DIR/reamr"
+    sudo ln -sf "$INSTALL_DIR/reamr" "$SYMLINK_PATH_REAMR"
+    log INFO "Created symlink: $SYMLINK_PATH_REAMR"
 fi
 
-# Final verification
-if [ -f "$INSTALL_DIR/reaper" ] && [ -x "$INSTALL_DIR/reaper" ]; then
+# Create symbolic link for main executable
+sudo ln -sf "$REAPER_EXECUTABLE" "$SYMLINK_PATH"
+log INFO "Created symlink: $SYMLINK_PATH"
+
+# Verify installation
+if [ -f "$REAPER_EXECUTABLE" ] && [ -x "$REAPER_EXECUTABLE" ]; then
     log INFO "REAPER native installation completed successfully!"
-    display $GREEN "REAPER installed → $INSTALL_DIR/reaper"
-    display $GREEN "Symlinks created → /usr/local/bin/reaper (and /usr/local/bin/reamr)"
+    display $GREEN "REAPER installed → $REAPER_EXECUTABLE"
+    # Test that reaper can be called
+    if command -v reaper &> /dev/null; then
+        log INFO "REAPER is accessible via PATH"
+    fi
 else
-    log ERROR "REAPER installation failed: executable not found at $INSTALL_DIR/reaper"
+    log ERROR "REAPER installation failed: executable not found or not executable at $REAPER_EXECUTABLE"
+    ls -la "$INSTALL_DIR"
     exit 1
 fi
 
 # Cleanup
-rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
+rm -rf "$TEMP_DIR" /tmp/reaper.tar.xz
 log INFO "Temporary REAPER files cleaned up."
 
 echo "=== Native REAPER Installation Complete ==="
-# --- END REAPER NATIVE INSTALL BLOCK ---
+# --- END REAPER NATIVE INSTALL BLOCK (FIXED VERSION) ---
 sleep 5s
 
 echo '########################################' | lolcat
