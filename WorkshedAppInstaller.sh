@@ -722,7 +722,7 @@ sleep 5s
 # TEST this section needs to be tested as part of the script.
 log INFO "Installing yt dlp"
 display $GREEN "Installing yt dlp."
-python3 -m pip install -U "yt-dlp[default]"
+python3 -m pip install --user -U "yt-dlp[default]"
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
