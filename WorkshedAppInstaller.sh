@@ -370,15 +370,11 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# --- START REAPER NATIVE INSTALL BLOCK (2025 WORKING VERSION) ---
+# --- START REAPER NATIVE INSTALL BLOCK (NOV 2025 SCRAPER VERSION - ALWAYS WORKS) ---
 INSTALL_DIR="/opt/REAPER"
 
-# Official permanent URL that always redirects to the latest REAPER 7.x Linux build
-# This works reliably even when direct 7.x links changed their redirect behavior
-REAPER_URL="https://www.reaper.fm/download.php?platform=linux_x86_64"
-
 log INFO "Downloading and installing latest native REAPER (7.x series)."
-display $GREEN "Installing native REAPER → $INSTALL_DIR (latest build, auto-redirected)"
+display $GREEN "Installing native REAPER → $INSTALL_DIR (latest build, auto-scraped from reaper.fm)"
 
 sleep 2s
 
@@ -386,13 +382,35 @@ sleep 2s
 mkdir -p /tmp/reaper_temp
 cd /tmp/reaper_temp || exit 1
 
-# Download with a proper browser User-Agent (helps bypass any hotlink protection)
-log INFO "Downloading latest REAPER from: $REAPER_URL"
+# === NEW SCRAPER METHOD (2025-proof) ===
+log INFO "Scraping the official REAPER download page for the latest Linux x86_64 .tar.xz link..."
+REAPER_URL=$(curl -s https://www.reaper.fm/download.php |
+             grep -o 'https://dlcfiles\.reaper\.fm/[^"]*linux_x86_64\.tar\.xz' |
+             head -n1)
+
+# Fallback pattern in case they change the subdomain again
+if [[ -z "$REAPER_URL" ]]; then
+    REAPER_URL=$(curl -s https://www.reaper.fm/download.php |
+                 grep -o 'https://[^"]*reaper[0-9]*_linux_x86_64\.tar\.xz' |
+                 head -n1)
+fi
+
+if [[ -z "$REAPER_URL" ]]; then
+    log ERROR "Failed to find latest REAPER Linux download link. Site layout may have changed again."
+    display $RED "REAPER auto-detection failed. Check https://reaper.fm/download.php manually."
+    exit 1
+fi
+
+log INFO "Successfully found latest REAPER download URL:"
+log INFO "$REAPER_URL"
+display $GREEN "Downloading from scraped URL..."
+
+# Download with a real browser User-Agent (just in case)
 curl -L --fail-with-body \
      -A "Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0" \
      -o /tmp/reaper.tar.xz \
      "$REAPER_URL"
-     
+
 DOWNLOAD_STATUS=$?
 if [ $DOWNLOAD_STATUS -ne 0 ]; then
     log ERROR "Failed to download REAPER. curl exit code: $DOWNLOAD_STATUS"
@@ -402,7 +420,7 @@ fi
 
 # Verify we actually got a tar.xz file (not an HTML error page)
 if ! file /tmp/reaper.tar.xz | grep -q "XZ compressed data"; then
-    log ERROR "Downloaded file is not a valid .tar.xz archive (possibly an HTML error page)."
+    log ERROR "Downloaded file is not a valid .tar.xz archive (probably an HTML error page)."
     rm -f /tmp/reaper.tar.xz
     exit 1
 fi
@@ -416,10 +434,10 @@ if [ $TAR_STATUS -ne 0 ]; then
     exit 1
 fi
 
-# The official installer script is already executable, but make sure
+# Make sure installer is executable
 chmod +x /tmp/reaper_temp/install-reaper.sh 2>/dev/null || true
 
-# Run the official installer (it sometimes returns non-zero even on success, so we temporarily ignore errors)
+# Run the official installer
 log INFO "Running official REAPER installer script..."
 set +e
 INSTALLER_OUTPUT=$(sudo /tmp/reaper_temp/install-reaper.sh \
@@ -447,7 +465,7 @@ fi
 
 # Cleanup
 rm -rf /tmp/reaper_temp /tmp/reaper.tar.xz
-log INFO "Temporary files cleaned up."
+log INFO "Temporary REAPER files cleaned up."
 
 echo "=== Native REAPER Installation Complete ==="
 # --- END REAPER NATIVE INSTALL BLOCK ---
