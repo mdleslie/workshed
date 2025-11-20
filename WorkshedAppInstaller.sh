@@ -417,21 +417,54 @@ if [ "$REAPER_INSTALLED" = false ]; then
                         log INFO "Performing manual REAPER installation from $REAPER_DIR"
                         display $BLUE "Installing REAPER..."
                         
-                        # Copy files
+                        # Copy files - use different method to handle directory structure
                         sudo mkdir -p "$INSTALL_DIR"
+                        
+                        # Copy all contents from REAPER_DIR to INSTALL_DIR
                         if sudo cp -R "$REAPER_DIR"/* "$INSTALL_DIR/" 2>&1 | tee -a "$log_file"; then
+                            log INFO "Files copied successfully"
                             
-                            # Set permissions
-                            sudo chmod +x "$INSTALL_DIR/reaper"
-                            [ -f "$INSTALL_DIR/reamr" ] && sudo chmod +x "$INSTALL_DIR/reamr"
-                            
-                            # Create symlinks
-                            sudo ln -sf "$INSTALL_DIR/reaper" /usr/local/bin/reaper
-                            [ -f "$INSTALL_DIR/reamr" ] && sudo ln -sf "$INSTALL_DIR/reamr" /usr/local/bin/reamr
-                            
-                            REAPER_INSTALLED=true
-                            log INFO "REAPER installation completed successfully!"
-                            display $GREEN "REAPER installed successfully!"
+                            # Verify reaper executable exists
+                            if [ -f "$INSTALL_DIR/reaper" ]; then
+                                # Set permissions
+                                sudo chmod +x "$INSTALL_DIR/reaper"
+                                [ -f "$INSTALL_DIR/reamr" ] && sudo chmod +x "$INSTALL_DIR/reamr"
+                                
+                                # Create symlinks
+                                sudo ln -sf "$INSTALL_DIR/reaper" /usr/local/bin/reaper
+                                [ -f "$INSTALL_DIR/reamr" ] && sudo ln -sf "$INSTALL_DIR/reamr" /usr/local/bin/reamr
+                                
+                                REAPER_INSTALLED=true
+                                log INFO "REAPER installation completed successfully!"
+                                display $GREEN "REAPER installed successfully!"
+                            else
+                                # Files might be in a subdirectory, look for reaper executable
+                                REAPER_BIN=$(find "$INSTALL_DIR" -name "reaper" -type f -executable 2>/dev/null | head -1)
+                                if [ -n "$REAPER_BIN" ]; then
+                                    # Move everything up one level if needed
+                                    REAPER_SUBDIR=$(dirname "$REAPER_BIN")
+                                    if [ "$REAPER_SUBDIR" != "$INSTALL_DIR" ]; then
+                                        log INFO "Restructuring installation directory"
+                                        sudo mv "$REAPER_SUBDIR"/* "$INSTALL_DIR/" 2>/dev/null || true
+                                        sudo rmdir "$REAPER_SUBDIR" 2>/dev/null || true
+                                    fi
+                                    
+                                    # Set permissions
+                                    sudo chmod +x "$INSTALL_DIR/reaper"
+                                    [ -f "$INSTALL_DIR/reamr" ] && sudo chmod +x "$INSTALL_DIR/reamr"
+                                    
+                                    # Create symlinks
+                                    sudo ln -sf "$INSTALL_DIR/reaper" /usr/local/bin/reaper
+                                    [ -f "$INSTALL_DIR/reamr" ] && sudo ln -sf "$INSTALL_DIR/reamr" /usr/local/bin/reamr
+                                    
+                                    REAPER_INSTALLED=true
+                                    log INFO "REAPER installation completed successfully!"
+                                    display $GREEN "REAPER installed successfully!"
+                                else
+                                    log ERROR "Could not find reaper executable after copy"
+                                    display $RED "Installation failed - reaper executable not found"
+                                fi
+                            fi
                         else
                             log ERROR "Failed to copy REAPER files to $INSTALL_DIR"
                         fi
@@ -514,6 +547,10 @@ if [ "$REAPER_INSTALLED" = true ]; then
         echo ""
     fi
 fi
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 
 # --- END REAPER NATIVE INSTALL BLOCK ---
 
