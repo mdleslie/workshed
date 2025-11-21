@@ -150,6 +150,11 @@ deb_packages=(
   "tree"
   "wget"
   "libsndfile1-dev"
+  "jackd2"
+  "libjack-jackd2-dev"
+  "libxcursor-dev"
+  "libxext-dev"
+  "libxrandr-dev"
 )
 
 # List of Flatpak applications to install
