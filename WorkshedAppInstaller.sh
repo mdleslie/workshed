@@ -434,6 +434,11 @@ echo "--- Ratatouille Installation Complete  ---"
 
 # End of Ratatouille block
 
+echo 'They stick me in an institution
+And said it was the only solution
+To give me the needed professional help
+To protect from the enemy, myself' | lolcat
+
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
