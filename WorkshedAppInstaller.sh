@@ -374,12 +374,11 @@ display $GREEN "You know that's right."
 sleep 2s
 
 # Start Ratatouille install
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (FINAL SCRIPTING FIX: using sudo -H -u)"
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (FINAL RESILIENCE FIX: Separate Git and Make)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
 TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
-BUILD_LOG="${TEMP_SOURCE_DIR}/build_debug.log"
 USER_HOME_DIR="/home/$TARGET_USER"
 EXECUTABLE_NAME="ratatouille"
 
@@ -387,24 +386,38 @@ EXECUTABLE_NAME="ratatouille"
 sudo mkdir -p "$USER_HOME_DIR/.lv2"
 sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
 
-# --- STEP 1: BUILD & USER INSTALL (as TARGET USER via sudo -H -u) ---
-log INFO "Building Ratatouille source and installing LV2 plugin. Capturing all output for diagnostics."
+# --- STEP 1: GIT CLONE AND SUBMODULES (Forced Environment Setup) ---
+log INFO "Cloning source and downloading submodules as ${TARGET_USER}."
 
-# Execute all build commands. We use a function that is run by the non-root user.
-# The entire function output is captured into the variable BUILD_OUTPUT_DATA.
-BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
-    # We DO NOT use set -e here because we want the build to finish as much as possible for diagnostics.
-    
+# We run this block separately to ensure the complex Git operations complete fully.
+GIT_CLONE_OUTPUT=$(sudo -H -u "$TARGET_USER" bash -c "
     export HOME=${USER_HOME_DIR}
     cd ${USER_HOME_DIR}
     /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
     mkdir -p ${TEMP_SOURCE_DIR}
     cd ${TEMP_SOURCE_DIR}
 
-    # Clone, update, and build. All output is captured.
-    /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git .
-    /usr/bin/git submodule update --init --recursive
+    /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git . || exit 1
+    /usr/bin/git submodule update --init --recursive || exit 1
     
+    echo 'GIT_SUCCESS'
+" 2>&1)
+
+# Check if the Git operations failed
+if ! echo "$GIT_CLONE_OUTPUT" | grep -q "GIT_SUCCESS"; then
+    log ERROR "FATAL: Git clone/submodule update failed. Dumping output below:"
+    echo "$GIT_CLONE_OUTPUT" | log ERROR
+    sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
+    exit 1
+fi
+echo "$GIT_CLONE_OUTPUT" | log INFO
+
+# --- STEP 2: BUILD & INSTALL (Now guaranteed source exists) ---
+log INFO "Source files ready. Starting compilation."
+BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
+    export HOME=${USER_HOME_DIR}
+    cd ${TEMP_SOURCE_DIR}
+
     # 3. Build and Install the LV2 plugin (User-specific)
     /usr/bin/make lv2
     /usr/bin/make install 
@@ -414,17 +427,16 @@ BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
     
     echo 'BUILD_COMPLETED_TAG'
 " 2>&1)
-
-# Log the output data (this shows the actual compiler errors if they occurred)
 echo "$BUILD_OUTPUT_DATA" | log INFO
 
-# --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (as ROOT) ---
+# --- STEP 3: MANUAL SYSTEM INSTALL & CLEANUP (The Final Check) ---
 
 if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
     log INFO "Executable found. Copying ${EXECUTABLE_NAME} to /usr/local/bin using sudo."
     
-    # Copy the built executable to the system binary path
+    # Copy and set permissions (This is the successful path)
     if sudo /usr/bin/cp "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" /usr/local/bin/; then
+        sudo /usr/bin/chmod +x /usr/local/bin/${EXECUTABLE_NAME}
         log INFO "Standalone installed successfully. Cleaning up source directory."
         
         # Cleanup
@@ -434,20 +446,20 @@ if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
         hash -r
         
         log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
-        display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! SUCCESS!"
+        display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! FINALLY!"
         echo "--- Ratatouille Installation Complete lol ---"
     else
         log ERROR "Failed to copy Ratatouille executable to /usr/local/bin. Check permissions on /usr/local/bin."
         exit 1
     fi
 else
-    # The build failed. Dump the diagnostic log content into the main log file.
+    # The build failed. We already logged the output in Step 2.
     log ERROR "FATAL: Executable '${EXECUTABLE_NAME}' was not found after build."
-    log ERROR "Compiler output and errors are logged above this line. The build failed due to missing dependencies (likely)."
+    log ERROR "Review the compiler output in the log above for the C++ error. The build failed despite having all dependencies."
     
-    # Cleanup (The files are still there, so clean them up)
-    #sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
-    #exit 1
+    # Cleanup 
+    sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
+    exit 1
 fi
 
 # End of Ratatouille block
