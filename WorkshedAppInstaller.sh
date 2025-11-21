@@ -719,10 +719,21 @@ display $GREEN "IS THAT MAURICIO IN THERE, GUS?! IS THAT MAURICIO IN THERE?!"
 sleep 5s
 
 # Install yt-dlp
-# TEST this section needs to be tested as part of the script.
-log INFO "Installing yt dlp"
-display $GREEN "Installing yt dlp."
-python3 -m pip install --user -U "yt-dlp[default]"
+# Install/upgrade yt-dlp the proper 2025 way
+log INFO "Installing/upgrading yt-dlp via pipx (recommended method)"
+display $GREEN "Installing yt-dlp (with all the goodies)..."
+
+if ! command -v pipx &> /dev/null; then
+    log INFO "pipx not found, installing..."
+    sudo nala install -y pipx
+fi
+
+# Ensure pipx binaries are in PATH for this session
+export PATH="$HOME/.local/bin:$PATH"
+
+pipx install yt-dlp &>/dev/null || pipx upgrade yt-dlp
+log INFO "yt-dlp is now at the latest version"
+display $GREEN "yt-dlp ready → $(yt-dlp --version)"
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
