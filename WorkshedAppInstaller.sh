@@ -393,7 +393,7 @@ runuser -l $TARGET_USER -c "
     /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
 
     # Clone and build source code
-    /usr/bin/git clone https://github.com/brummer10//Ratatouille.lv2.git ${TEMP_SOURCE_DIR}
+    /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git ${TEMP_SOURCE_DIR}
     cd ${TEMP_SOURCE_DIR}
     /usr/bin/git submodule update --init --recursive
     
@@ -456,7 +456,7 @@ REAPER_INSTALLED=false
 
 # Update this version number when new REAPER releases come out
 # Check https://www.reaper.fm/download.php for latest version
-REAPER_VERSION="753"  # Update this to latest version (e.g., 754, 760, etc.)
+REAPER_VERSION="754"  # Update this to latest version (e.g., 754, 760, etc.)
 REAPER_URL="https://www.reaper.fm/files/7.x/reaper${REAPER_VERSION}_linux_x86_64.tar.xz"
 
 log INFO "Preparing to install native REAPER (required for yabridge support)"
@@ -678,8 +678,8 @@ log INFO "VST plugin directories created: $VST2_PATH and $VST3_PATH"
 # 4. Set Windows VST plugin paths
 # NOTE: Update these paths to where your actual Windows VST files are stored (e.g., on your NFS/NAS mounts).
 # Example paths for a Wine prefix or shared drive:
-WIN_VST_PATH="/mnt/Unraid/WindowsVST/VSTPlugins" 
-WIN_VST3_PATH="/mnt/Unraid/WindowsVST/VST3"       
+WIN_VST_PATH="/home/$TARGET_USER/VSTPlugins" 
+WIN_VST3_PATH="/home/$TARGET_USER/VST3"       
 log INFO "Windows VST paths configured for yabridge: $WIN_VST_PATH and $WIN_VST3_PATH"
 
 # 5. Execute yabridgectl to link and sync directories (runs as the target user)
