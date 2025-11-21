@@ -720,6 +720,7 @@ sleep 5s
 
 # Install yt-dlp
 # Install/upgrade yt-dlp the proper 2025 way
+# Testing
 log INFO "Installing/upgrading yt-dlp via pipx (recommended method)"
 display $GREEN "Installing yt-dlp (with all the goodies)..."
 
