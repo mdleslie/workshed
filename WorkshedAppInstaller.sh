@@ -389,6 +389,9 @@ sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null ||
 # --- STEP 1: GIT CLONE AND SUBMODULES (Forced Environment Setup) ---
 log INFO "Cloning source and downloading submodules as ${TARGET_USER}."
 
+# Pause
+sleep 20s
+
 # We run this block separately to ensure the complex Git operations complete fully.
 GIT_CLONE_OUTPUT=$(sudo -H -u "$TARGET_USER" bash -c "
     export HOME=${USER_HOME_DIR}
