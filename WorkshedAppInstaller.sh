@@ -375,7 +375,6 @@ sleep 2s
 
 # Start Ratatouille install
 
-# Start Ratatouille install
 log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Direct Diagnostic Log Capture)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
