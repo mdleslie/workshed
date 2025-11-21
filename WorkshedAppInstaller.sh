@@ -446,8 +446,8 @@ else
     log ERROR "Compiler output and errors are logged above this line. The build failed due to missing dependencies (likely)."
     
     # Cleanup (The files are still there, so clean them up)
-    sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
-    exit 1
+    #sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
+    #exit 1
 fi
 
 # End of Ratatouille block
