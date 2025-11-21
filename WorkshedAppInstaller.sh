@@ -352,8 +352,8 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL)
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Final Attempt)"
+# Revised block to install Ratatouille LV2 Plugin and Standalone (3:30AM Version)
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Guaranteed Final Attempt)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application with elevated permissions."
 sleep 2s
 
@@ -384,10 +384,9 @@ runuser -l $TARGET_USER -c "
 " 2>&1 | log INFO
 
 # STEP 2: Execute INSTALL-STANDALONE as ROOT (SUDO)
-# We must use sudo to move the built executable from the user's temp folder 
-# into the global /usr/local/bin directory.
+# Using the absolute path directly to avoid shell variable scope issues.
 log INFO "Installing standalone executable to /usr/local/bin using sudo."
-sudo /usr/bin/make -C ${TEMP_SOURCE_DIR} install-standalone
+sudo /usr/bin/make -C "${TEMP_SOURCE_DIR}" install-standalone
 
 # STEP 3: Clean up source directory (as TARGET USER)
 runuser -l $TARGET_USER -c "
@@ -398,10 +397,8 @@ runuser -l $TARGET_USER -c "
 hash -r
 
 log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
-display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! Check /usr/local/bin now!"
+display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! Please run the full script!"
 echo "--- Ratatouille Installation Complete ---"
-
-display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po!"
 echo "--- Ratatouille Installation Complete ---"
 
 echo '########################################' | lolcat
