@@ -368,6 +368,9 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
+display $GREEN "You know that's right."
+sleep 2s
+
 # Start Ratatouille install
 
 # Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL, FINAL, FINAL, PO!)
