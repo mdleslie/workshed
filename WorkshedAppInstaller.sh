@@ -155,6 +155,7 @@ deb_packages=(
   "libxcursor-dev"
   "libxext-dev"
   "libxrandr-dev"
+  "portaudio19-dev"
 )
 
 # List of Flatpak applications to install
@@ -669,7 +670,7 @@ sudo ln -sf "$YABRIDGE_DIR/yabridge" /usr/local/bin/yabridge
 sudo ln -sf "$YABRIDGE_DIR/yabridgectl" /usr/local/bin/yabridgectl
 
 # 3. Create standard VST Directories (if they don't exist yet)
-VST2_PATH="/home/$TARGET_USER/.vst"
+VST2_PATH="/home/$TARGET_USER/VST2"
 VST3_PATH="/home/$TARGET_USER/.vst3"
 mkdir -p "$VST2_PATH"
 mkdir -p "$VST3_PATH"
@@ -678,6 +679,13 @@ log INFO "VST plugin directories created: $VST2_PATH and $VST3_PATH"
 # 4. Set Windows VST plugin paths
 # NOTE: Update these paths to where your actual Windows VST files are stored (e.g., on your NFS/NAS mounts).
 # Example paths for a Wine prefix or shared drive:
+
+mkdir -p "$WIN_VST_PATH"
+mkdir -p "$WIN_VST3_PATH"
+chown $TARGET_USER:$TARGET_USER "$WIN_VST_PATH" "$WIN_VST3_PATH"  # optional but nice
+
+log INFO "Windows VST paths configured (and created) for yabridge: $WIN_VST_PATH and $WIN_VST3_PATH"
+
 WIN_VST_PATH="/home/$TARGET_USER/VSTPlugins" 
 WIN_VST3_PATH="/home/$TARGET_USER/VST3"       
 log INFO "Windows VST paths configured for yabridge: $WIN_VST_PATH and $WIN_VST3_PATH"
