@@ -352,8 +352,20 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Revised block to install Ratatouille LV2 Plugin and Standalone (The Manual Copy Fix)
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Manual Copy Fix)"
+# Ratatouille pre req check
+
+log INFO "Installing Ratatouille graphical runtime dependencies."
+sudo nala install -y libxcursor-dev libxext-dev libxrandr-dev || true
+sleep 5s
+
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+# Start Ratatouille install
+
+# Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL, FINAL, FINAL, PO!)
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Forced Build Failure Check)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
@@ -368,6 +380,9 @@ sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null ||
 # --- STEP 1: BUILD & USER INSTALL (as TARGET USER) ---
 log INFO "Building Ratatouille source and installing LV2 plugin."
 runuser -l $TARGET_USER -c "
+    # ENSURE FAILURE TRAPPING INSIDE THIS BLOCK, PO!
+    set -e
+    
     export HOME=${USER_HOME_DIR}
     cd ${USER_HOME_DIR}
     /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
@@ -379,15 +394,15 @@ runuser -l $TARGET_USER -c "
     
     # 3. Build and Install the LV2 plugin (User-specific)
     /usr/bin/make lv2
-    /usr/bin/make install # This installs the plugin to \${HOME}/.lv2
+    /usr/bin/make install 
     
-    # 4. Build the Standalone Application (Creates executable in the temp source folder)
+    # 4. Build the Standalone Application 
     /usr/bin/make standalone
+    
+    echo 'BUILD COMPLETED SUCCESSFULLY IN RUNUSER BLOCK'
 " 2>&1 | log INFO
 
 # --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (as ROOT) ---
-# We bypass "make install-standalone" and use 'sudo cp' directly.
-
 if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
     log INFO "Executable found. Copying ${EXECUTABLE_NAME} to /usr/local/bin using sudo."
     
@@ -409,12 +424,15 @@ if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
         exit 1
     fi
 else
-    log ERROR "Executable '${EXECUTABLE_NAME}' was not found in the source directory after build. Check build logs."
+    # This should now only trigger if the 'make standalone' failed due to missing dependencies/libraries
+    log ERROR "Executable '${EXECUTABLE_NAME}' was not found in the source directory after build. DEPENDENCY FAILURE LIKELY."
     sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
     exit 1
 fi
 
 echo "--- Ratatouille Installation Complete  ---"
+
+# End of Ratatouille block
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
