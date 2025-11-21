@@ -352,20 +352,21 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL, FINAL, FINAL!)
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (The Final Logic Fix)"
+# Revised block to install Ratatouille LV2 Plugin and Standalone (The Manual Copy Fix)
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Manual Copy Fix)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
 TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
 USER_HOME_DIR="/home/$TARGET_USER"
+EXECUTABLE_NAME="ratatouille"
 
 # Check and setup directories
 sudo mkdir -p "$USER_HOME_DIR/.lv2"
 sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
 
 # --- STEP 1: BUILD & USER INSTALL (as TARGET USER) ---
-# This block performs cloning, building, and installing the LV2 plugin.
+log INFO "Building Ratatouille source and installing LV2 plugin."
 runuser -l $TARGET_USER -c "
     export HOME=${USER_HOME_DIR}
     cd ${USER_HOME_DIR}
@@ -384,29 +385,36 @@ runuser -l $TARGET_USER -c "
     /usr/bin/make standalone
 " 2>&1 | log INFO
 
-# --- STEP 2: SYSTEM INSTALL & CLEANUP (as ROOT) ---
-# We must use sudo for the system install, and then clean up the source directory.
+# --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (as ROOT) ---
+# We bypass "make install-standalone" and use 'sudo cp' directly.
 
-log INFO "Installing standalone executable to /usr/local/bin using sudo."
-if sudo /usr/bin/make -C "${TEMP_SOURCE_DIR}" install-standalone; then
-    log INFO "Standalone installed successfully. Cleaning up source directory."
-    # Run cleanup as root to ensure we can delete it regardless of any odd build permissions
-    sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}"
+if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
+    log INFO "Executable found. Copying ${EXECUTABLE_NAME} to /usr/local/bin using sudo."
     
-    # Refresh cache
-    hash -r
-    
-    log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
-    display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! Please run the full script!"
-    echo "--- Ratatouille Installation Complete ---"
+    # Copy the built executable to the system binary path
+    if sudo /usr/bin/cp "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" /usr/local/bin/; then
+        log INFO "Standalone installed successfully. Cleaning up source directory."
+        
+        # Cleanup
+        sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}"
+        
+        # Refresh cache
+        hash -r
+        
+        log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
+        display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! FINALLY!"
+        echo "--- Ratatouille Installation Complete lol ---"
+    else
+        log ERROR "Failed to copy Ratatouille executable to /usr/local/bin. Check permissions on /usr/local/bin."
+        exit 1
+    fi
 else
-    log ERROR "Failed to install standalone Ratatouille executable to /usr/local/bin."
-    # Attempt to clean up anyway, but log the error
+    log ERROR "Executable '${EXECUTABLE_NAME}' was not found in the source directory after build. Check build logs."
     sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
     exit 1
 fi
 
-echo "--- Ratatouille Installation Complete lol ---"
+echo "--- Ratatouille Installation Complete  ---"
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
