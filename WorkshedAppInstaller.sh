@@ -375,12 +375,13 @@ sleep 2s
 
 # Start Ratatouille install
 
-# Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL, FINAL, FINAL, PO!)
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Forced Build Failure Check)"
+# Start Ratatouille install
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Direct Diagnostic Log Capture)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
 TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
+BUILD_LOG="${TEMP_SOURCE_DIR}/build_debug.log"
 USER_HOME_DIR="/home/$TARGET_USER"
 EXECUTABLE_NAME="ratatouille"
 
@@ -389,33 +390,28 @@ sudo mkdir -p "$USER_HOME_DIR/.lv2"
 sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
 
 # --- STEP 1: BUILD & USER INSTALL (as TARGET USER) ---
-log INFO "Building Ratatouille source and installing LV2 plugin."
+log INFO "Building Ratatouille source and installing LV2 plugin (Output piped to ${BUILD_LOG})."
+
+# Execute all build commands. We DO NOT use set -e, so the build completes as much as possible.
+# All stdout/stderr is captured to the temporary log file.
 runuser -l $TARGET_USER -c "
-    # ENSURE FAILURE TRAPPING INSIDE THIS BLOCK, PO!
-    set -e
-    
     export HOME=${USER_HOME_DIR}
     cd ${USER_HOME_DIR}
     /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
-
-    # Clone and build source code
-    /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git ${TEMP_SOURCE_DIR}
+    mkdir -p ${TEMP_SOURCE_DIR}
     cd ${TEMP_SOURCE_DIR}
-    /usr/bin/git submodule update --init --recursive
+
+    # Clone, update, and build. All output goes to the log file.
+    /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git . >> ${BUILD_LOG} 2>&1
+    /usr/bin/git submodule update --init --recursive >> ${BUILD_LOG} 2>&1
     
-    # 3. Build and Install the LV2 plugin (User-specific)
-    /usr/bin/make lv2
-    /usr/bin/make install 
+    /usr/bin/make lv2 >> ${BUILD_LOG} 2>&1
+    /usr/bin/make install >> ${BUILD_LOG} 2>&1
     
-    # 4. Build the Standalone Application (Me suspects this is failing silently!)
-    /usr/bin/make standalone
-    
-    echo 'BUILD COMPLETED SUCCESSFULLY IN RUNUSER BLOCK'
-" 2>&1 | log INFO
+    /usr/bin/make standalone >> ${BUILD_LOG} 2>&1
+" >> "$log_file" 2>&1 # Pipe runuser status/logs to script log
 
 # --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (as ROOT) ---
-# We check if the executable exists inside the expected directory structure (dist/bin/ratatouille is common).
-# Since Ratatouille's build system usually puts the executable in the root of the cloned directory, we stick to the root check.
 
 if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
     log INFO "Executable found. Copying ${EXECUTABLE_NAME} to /usr/local/bin using sudo."
@@ -431,16 +427,24 @@ if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
         hash -r
         
         log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
-        display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! FINALLY!"
+        display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! SUCCESS!"
         echo "--- Ratatouille Installation Complete lol ---"
     else
         log ERROR "Failed to copy Ratatouille executable to /usr/local/bin. Check permissions on /usr/local/bin."
         exit 1
     fi
 else
-    # Me is confident that the build itself failed despite the new dependency.
-    # The build failure output is lost in the log.
-    log ERROR "FATAL: Executable '${EXECUTABLE_NAME}' was not found. This is a compiler failure. Please run 'cd ${TEMP_SOURCE_DIR} && make standalone' manually to see the exact C++ error."
+    # The build failed. Dump the diagnostic log to the main install log.
+    log ERROR "FATAL: Executable '${EXECUTABLE_NAME}' was not found after build. Dumping compiler diagnostic log:"
+    
+    # Dump the temporary diagnostic log file content into the main log file
+    if [ -f "${BUILD_LOG}" ]; then
+        cat "${BUILD_LOG}" | log ERROR
+    else
+        log ERROR "Diagnostic log file (${BUILD_LOG}) was not found."
+    fi
+    
+    # Cleanup (We know the source folder exists here, but we ensure it's deleted)
     sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
     exit 1
 fi
