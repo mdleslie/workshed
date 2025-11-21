@@ -352,20 +352,20 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL, FINAL)
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Guaranteed Final Attempt)"
-display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application with elevated permissions."
+# Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL, FINAL, FINAL!)
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (The Final Logic Fix)"
+display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
 TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
 USER_HOME_DIR="/home/$TARGET_USER"
 
-# Check and setup directories (as before)
+# Check and setup directories
 sudo mkdir -p "$USER_HOME_DIR/.lv2"
 sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
 
-# STEP 1: Execute BUILD (Clone, Submodules, make lv2, make standalone) as the TARGET USER
-# This block builds the LV2 plugin (installing it) AND builds the standalone executable in the temp folder.
+# --- STEP 1: BUILD & USER INSTALL (as TARGET USER) ---
+# This block performs cloning, building, and installing the LV2 plugin.
 runuser -l $TARGET_USER -c "
     export HOME=${USER_HOME_DIR}
     cd ${USER_HOME_DIR}
@@ -384,23 +384,28 @@ runuser -l $TARGET_USER -c "
     /usr/bin/make standalone
 " 2>&1 | log INFO
 
-# STEP 2: Execute INSTALL-STANDALONE as ROOT (SUDO)
-# This step relies on the files built in Step 1.
+# --- STEP 2: SYSTEM INSTALL & CLEANUP (as ROOT) ---
+# We must use sudo for the system install, and then clean up the source directory.
+
 log INFO "Installing standalone executable to /usr/local/bin using sudo."
-sudo /usr/bin/make -C "${TEMP_SOURCE_DIR}" install-standalone
+if sudo /usr/bin/make -C "${TEMP_SOURCE_DIR}" install-standalone; then
+    log INFO "Standalone installed successfully. Cleaning up source directory."
+    # Run cleanup as root to ensure we can delete it regardless of any odd build permissions
+    sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}"
+    
+    # Refresh cache
+    hash -r
+    
+    log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
+    display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! Please run the full script!"
+    echo "--- Ratatouille Installation Complete ---"
+else
+    log ERROR "Failed to install standalone Ratatouille executable to /usr/local/bin."
+    # Attempt to clean up anyway, but log the error
+    sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
+    exit 1
+fi
 
-# STEP 3: Clean up source directory (as TARGET USER) -- MOVED TO THE END!
-log INFO "Cleaning up source directory."
-runuser -l $TARGET_USER -c "
-    /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
-" 2>&1 | log INFO
-
-# STEP 4: Refresh cache (Essential after system-wide install)
-hash -r
-
-log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
-display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! This MUST work now!"
-echo "--- Ratatouille Installation Complete ---"
 echo "--- Ratatouille Installation Complete lol ---"
 
 echo '########################################' | lolcat
