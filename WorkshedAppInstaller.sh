@@ -352,18 +352,39 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Install Ratatouille LV2 Plugin
-log INFO "Installing Ratatouille LV2 Plugin"
+# Revised block to install Ratatouille LV2 Plugin as $TARGET_USER
+log INFO "Installing Ratatouille LV2 Plugin for user ${TARGET_USER}"
 display $GREEN "Installing Ratatouille LV2 Plugin."
 sleep 2s
-git clone https://github.com/brummer10//Ratatouille.lv2.git
-cd Ratatouille.lv2
-git submodule update --init --recursive
-make lv2
-make install # Installs to ~/.lv2
-# Optional: Uncomment the next line to install system-wide
-# sudo make install # Installs to /usr/lib/lv2
-cd ..
+
+INSTALL_DIR="/home/$TARGET_USER/Ratatouille.lv2"
+
+# Execute all steps as the TARGET_USER
+# We use runuser -l $TARGET_USER -c '...'
+runuser -l $TARGET_USER -c "
+    # 1. Clone repository into a temporary directory in user's home
+    git clone https://github.com/brummer10//Ratatouille.lv2.git ${INSTALL_DIR}
+    if [ \$? -ne 0 ]; then
+        echo 'Failed to clone Ratatouille.lv2'
+        exit 1
+    fi
+
+    # 2. Change directory, update submodules, build, and install
+    cd ${INSTALL_DIR}
+    git submodule update --init --recursive
+    
+    # 3. Build the LV2 plugin
+    make lv2
+    
+    # 4. Install to the user's .lv2 directory (~/.lv2)
+    make install
+    
+    # 5. Clean up the source directory
+    cd ~
+    rm -rf ${INSTALL_DIR}
+" 2>&1 | log INFO # Pipes output/errors to your log function
+
+log INFO "Ratatouille LV2 Installation Complete for ${TARGET_USER}."
 echo "--- Ratatouille Installation Complete ---"
 
 echo '########################################' | lolcat
@@ -858,6 +879,7 @@ display $BLUE "Finishing up now. Shop smart, shop S-Mart."
 set +e
 
 display $GREEN "Computer will reboot for the PUID changes to take full effect, po."
+display $BLUE "Computer will reboot for the PUID changes to take full effect, po."
 sleep 10s
 
 log INFO "Installation summary saved to $update_summary"
@@ -869,4 +891,5 @@ figlet Workshed | lolcat -a -d 3
 
 # Force an exit before the reboot command to ensure the shell doesn't hang
 # and then execute the reboot as a separate, guaranteed command.
+exit 0
 sudo reboot now
