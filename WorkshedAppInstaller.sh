@@ -679,16 +679,14 @@ log INFO "VST plugin directories created: $VST2_PATH and $VST3_PATH"
 # 4. Set Windows VST plugin paths
 # NOTE: Update these paths to where your actual Windows VST files are stored (e.g., on your NFS/NAS mounts).
 # Example paths for a Wine prefix or shared drive:
+WIN_VST_PATH="/home/$TARGET_USER/VSTPlugins" 
+WIN_VST3_PATH="/home/$TARGET_USER/VST3" 
 
 mkdir -p "$WIN_VST_PATH"
 mkdir -p "$WIN_VST3_PATH"
-chown $TARGET_USER:$TARGET_USER "$WIN_VST_PATH" "$WIN_VST3_PATH"  # optional but nice
+chown $TARGET_USER:$TARGET_USER "$WIN_VST_PATH" "$WIN_VST3_PATH" 
 
 log INFO "Windows VST paths configured (and created) for yabridge: $WIN_VST_PATH and $WIN_VST3_PATH"
-
-WIN_VST_PATH="/home/$TARGET_USER/VSTPlugins" 
-WIN_VST3_PATH="/home/$TARGET_USER/VST3"       
-log INFO "Windows VST paths configured for yabridge: $WIN_VST_PATH and $WIN_VST3_PATH"
 
 # 5. Execute yabridgectl to link and sync directories (runs as the target user)
 log INFO "Executing yabridgectl sync as user $TARGET_USER."
