@@ -352,7 +352,7 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Revised block to install Ratatouille LV2 Plugin and Standalone (3:30AM Version)
+# Revised block to install Ratatouille LV2 Plugin and Standalone (FINAL, FINAL)
 log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Guaranteed Final Attempt)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application with elevated permissions."
 sleep 2s
@@ -365,6 +365,7 @@ sudo mkdir -p "$USER_HOME_DIR/.lv2"
 sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
 
 # STEP 1: Execute BUILD (Clone, Submodules, make lv2, make standalone) as the TARGET USER
+# This block builds the LV2 plugin (installing it) AND builds the standalone executable in the temp folder.
 runuser -l $TARGET_USER -c "
     export HOME=${USER_HOME_DIR}
     cd ${USER_HOME_DIR}
@@ -384,11 +385,12 @@ runuser -l $TARGET_USER -c "
 " 2>&1 | log INFO
 
 # STEP 2: Execute INSTALL-STANDALONE as ROOT (SUDO)
-# Using the absolute path directly to avoid shell variable scope issues.
+# This step relies on the files built in Step 1.
 log INFO "Installing standalone executable to /usr/local/bin using sudo."
 sudo /usr/bin/make -C "${TEMP_SOURCE_DIR}" install-standalone
 
-# STEP 3: Clean up source directory (as TARGET USER)
+# STEP 3: Clean up source directory (as TARGET USER) -- MOVED TO THE END!
+log INFO "Cleaning up source directory."
 runuser -l $TARGET_USER -c "
     /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
 " 2>&1 | log INFO
@@ -397,9 +399,9 @@ runuser -l $TARGET_USER -c "
 hash -r
 
 log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
-display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! Please run the full script!"
+display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! This MUST work now!"
 echo "--- Ratatouille Installation Complete ---"
-echo "--- Ratatouille Installation Complete ---"
+echo "--- Ratatouille Installation Complete lol ---"
 
 echo '########################################' | lolcat
 echo '########################################' | lolcat
