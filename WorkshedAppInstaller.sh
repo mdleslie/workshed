@@ -333,8 +333,8 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Create update script
-log INFO "Creating update script"
+# Create custom update script
+log INFO "Creating custom update script"
 display $GREEN "Creating and downloading the update.sh script."
 sleep 5s
 update_script="/usr/bin/update.sh"
@@ -352,39 +352,59 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 
-# Revised block to install Ratatouille LV2 Plugin as $TARGET_USER
-log INFO "Installing Ratatouille LV2 Plugin for user ${TARGET_USER}"
-display $GREEN "Installing Ratatouille LV2 Plugin."
+# Revised block to install Ratatouille LV2 Plugin and Standalone as $TARGET_USER
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER}"
+display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
-INSTALL_DIR="/home/$TARGET_USER/Ratatouille.lv2"
+TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
+USER_HOME_DIR="/home/$TARGET_USER"
 
-# Execute all steps as the TARGET_USER
-# We use runuser -l $TARGET_USER -c '...'
+# Check and ensure the target user owns their necessary directories
+if [ ! -d "$USER_HOME_DIR" ]; then
+    log ERROR "Target user home directory $USER_HOME_DIR does not exist. Aborting Ratatouille install."
+    echo "--- Ratatouille Installation Failed ---"
+    exit 1
+fi
+# Ensure the .lv2 directory exists and has correct ownership before we install to it
+sudo mkdir -p "$USER_HOME_DIR/.lv2"
+sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
+
+# Execute all steps as the TARGET_USER in a robust environment
 runuser -l $TARGET_USER -c "
-    # 1. Clone repository into a temporary directory in user's home
-    git clone https://github.com/brummer10//Ratatouille.lv2.git ${INSTALL_DIR}
+    # Set the current working directory and HOME environment variable explicitly
+    export HOME=${USER_HOME_DIR}
+    cd ${USER_HOME_DIR}
+
+    # Clean up previous failed attempts
+    /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
+
+    # 1. Clone repository into the temporary directory
+    /usr/bin/git clone https://github.com/brummer10//Ratatouille.lv2.git ${TEMP_SOURCE_DIR}
     if [ \$? -ne 0 ]; then
-        echo 'Failed to clone Ratatouille.lv2'
+        echo 'Failed to clone Ratatouille.lv2 source repository.'
         exit 1
     fi
 
-    # 2. Change directory, update submodules, build, and install
-    cd ${INSTALL_DIR}
-    git submodule update --init --recursive
+    # 2. Change directory and update submodules
+    cd ${TEMP_SOURCE_DIR}
+    /usr/bin/git submodule update --init --recursive
     
-    # 3. Build the LV2 plugin
-    make lv2
+    # 3. Build and Install the LV2 plugin
+    /usr/bin/make lv2
+    /usr/bin/make install # This installs the plugin to \${HOME}/.lv2
     
-    # 4. Install to the user's .lv2 directory (~/.lv2)
-    make install
+    # 4. Build and Install the Standalone Application (NEW STEP!)
+    /usr/bin/make standalone
+    /usr/bin/make install-standalone # This installs the executable to /usr/local/bin
     
     # 5. Clean up the source directory
-    cd ~
-    rm -rf ${INSTALL_DIR}
-" 2>&1 | log INFO # Pipes output/errors to your log function
+    cd ${USER_HOME_DIR}
+    /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
+" 2>&1 | log INFO
 
-log INFO "Ratatouille LV2 Installation Complete for ${TARGET_USER}."
+log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
+display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po!"
 echo "--- Ratatouille Installation Complete ---"
 
 echo '########################################' | lolcat
@@ -568,10 +588,6 @@ if [ "$REAPER_INSTALLED" = true ]; then
         echo ""
     fi
 fi
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
 
 # --- END REAPER NATIVE INSTALL BLOCK ---
 
@@ -889,7 +905,5 @@ sleep 5s
 
 figlet Workshed | lolcat -a -d 3
 
-# Force an exit before the reboot command to ensure the shell doesn't hang
-# and then execute the reboot as a separate, guaranteed command.
-exit 0
+# Force reboot for PUID reasons.
 sudo reboot now
