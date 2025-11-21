@@ -360,8 +360,10 @@ echo '########################################' | lolcat
 
 # Ratatouille pre req check
 
-log INFO "Installing Ratatouille graphical runtime dependencies."
-sudo nala install -y libxcursor-dev libxext-dev libxrandr-dev || true
+# Force PortAudio detection for brummer10 standalone builds (common Ubuntu/Pop issue)
+log INFO "Applying PortAudio linker fix for brummer10 standalone builds"
+echo "/usr/lib/x86_64-linux-gnu" | sudo tee /etc/ld.so.conf.d/portaudio.conf > /dev/null
+sudo ldconfig
 sleep 5s
 
 echo '########################################' | lolcat
@@ -405,13 +407,16 @@ runuser -l $TARGET_USER -c "
     /usr/bin/make lv2
     /usr/bin/make install 
     
-    # 4. Build the Standalone Application 
+    # 4. Build the Standalone Application (Me suspects this is failing silently!)
     /usr/bin/make standalone
     
     echo 'BUILD COMPLETED SUCCESSFULLY IN RUNUSER BLOCK'
 " 2>&1 | log INFO
 
 # --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (as ROOT) ---
+# We check if the executable exists inside the expected directory structure (dist/bin/ratatouille is common).
+# Since Ratatouille's build system usually puts the executable in the root of the cloned directory, we stick to the root check.
+
 if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
     log INFO "Executable found. Copying ${EXECUTABLE_NAME} to /usr/local/bin using sudo."
     
@@ -433,8 +438,9 @@ if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
         exit 1
     fi
 else
-    # This should now only trigger if the 'make standalone' failed due to missing dependencies/libraries
-    log ERROR "Executable '${EXECUTABLE_NAME}' was not found in the source directory after build. DEPENDENCY FAILURE LIKELY."
+    # Me is confident that the build itself failed despite the new dependency.
+    # The build failure output is lost in the log.
+    log ERROR "FATAL: Executable '${EXECUTABLE_NAME}' was not found. This is a compiler failure. Please run 'cd ${TEMP_SOURCE_DIR} && make standalone' manually to see the exact C++ error."
     sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
     exit 1
 fi
