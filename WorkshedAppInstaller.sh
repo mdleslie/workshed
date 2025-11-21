@@ -263,12 +263,12 @@ echo '########################################' | lolcat
 display $GREEN "Are you a fan of delicious flavor?"
 
 # Install FastFetch
-#log INFO "Installing FastFetch"
-#display $GREEN "Installing Fastfetch from the zhangsongcui repo."
-#sleep 5s
-#sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-#sudo nala update
-#sudo nala install fastfetch -y
+log INFO "Installing FastFetch"
+display $GREEN "Installing Fastfetch from the zhangsongcui repo."
+sleep 5s
+sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+sudo nala update
+sudo nala install fastfetch -y
 
 # Install .deb packages
 log INFO "Installing .deb packages"
