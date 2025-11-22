@@ -460,7 +460,7 @@ sudo rm -rf "$TEMP_SOURCE_DIR" 2>/dev/null || true
 hash -r
 
 log INFO "Ratatouille installation fully completed for ${TARGET_USER}"
-echo "--- Ratatouille Installation Complete lol ---"
+echo "--- Ratatouille Installation Complete lol It will never happen. ---"
 
 # Exit if the fallback failed
 if [ $exit_code -eq 1 ]; then
