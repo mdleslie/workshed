@@ -374,15 +374,12 @@ display $GREEN "You know that's right."
 sleep 2s
 
 # Start Ratatouille install
-display $GREEN "Prepare for disappointment."
-sleep 10s
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (FINAL NAME FIX: Capital R)"
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Forcing Standalone Build First)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
 TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
 USER_HOME_DIR="/home/$TARGET_USER"
-# CRITICAL FIX: The standalone executable is typically named 'Ratatouille'
 EXECUTABLE_NAME="Ratatouille" 
 
 # Check and setup directories
@@ -390,7 +387,7 @@ sudo mkdir -p "$USER_HOME_DIR/.lv2"
 sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
 
 # --- STEP 1: BUILD & USER INSTALL (as TARGET USER via sudo -H -u) ---
-log INFO "Building Ratatouille source and installing LV2 plugin. Capturing all raw output."
+log INFO "Building Ratatouille source. FORCING STANDALONE BUILD FIRST."
 
 BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
     export HOME=${USER_HOME_DIR}
@@ -403,12 +400,12 @@ BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
     /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git .
     /usr/bin/git submodule update --init --recursive
     
-    # 3. Build and Install the LV2 plugin (User-specific)
+    # 1. BUILD STANDALONE (MUST COME BEFORE LV2 INSTALL FOR THIS MAKEFILE)
+    /usr/bin/make standalone
+    
+    # 2. Build and Install the LV2 plugin
     /usr/bin/make lv2
     /usr/bin/make install 
-    
-    # 4. Build the Standalone Application 
-    /usr/bin/make standalone
     
     echo 'BUILD_COMPLETED_TAG'
 " 2>&1)
@@ -445,9 +442,9 @@ if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
         exit 1
     fi
 else
-    # This should now only trigger if the build truly failed (which it didn't in the manual test)
+    # The build truly failed.
     log ERROR "FATAL: Executable '${EXECUTABLE_NAME}' was not found after build."
-    log ERROR "The build should have succeeded. Re-run or check permissions on the source directory."
+    log ERROR "The build failed. Review the RAW COMPILER OUTPUT START/END section above."
     
     # Cleanup (We clean up the failed source files)
     sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
