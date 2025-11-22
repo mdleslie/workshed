@@ -1,6 +1,6 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2025 Edition
-# Author: workshed (@mdleslie) – arrays at the top for instant editing, po!
+# Author: workshed (@mdleslie) 
 
 set -eEuo pipefail
 IFS=$'\n\t'
