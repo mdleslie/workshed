@@ -80,6 +80,12 @@ check_and_install_nala() {
     fi
 }
 
+# Function to cache sudo credentials
+cache_sudo() {
+    sudo -v
+    ( while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null ) &
+}
+
 
 ###############################################
 # Error Handling & Traps
@@ -118,6 +124,7 @@ deb_packages=(
 flatpak_apps=(
   "org.guitarix.Guitarix"     # Guitarix
   "org.rncbc.qpwgraph"        # PipeWire/JACK Graph Manager
+  "ar.com.tuxguitar.TuxGuitar"
 )
 
 # Array to store the names of installed packages
@@ -443,13 +450,24 @@ if [ "$REAPER_INSTALLED" = false ]; then
 fi
 echo '########################################' | lolcat
 
+display $GREEN "Don't fear the Reaper."
+sleep 1s
+display $GREEN "Baby, I'm your man."
+sleep 2s
+display $GREEN "La, la, la, la, la."
+sleep 2s
+display $GREEN "La, la, la, la, la."
+sleep 5s
+
+# --- End of Reaper Install Block ---
+
 # --- YABRIDGE INSTALL BLOCK ---
 install_yabridge # Runs the function defined earlier
 
 echo '########################################' | lolcat
 
 # ----------------------------------------------------
-# NEXT STEP: Shortcut Installation (To be implemented later)
+
 # Miku will install the shortcuts now to complete the file structure
 install_desktop_shortcuts # Creates .desktop files for all apps
 
