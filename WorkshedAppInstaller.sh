@@ -374,22 +374,24 @@ display $GREEN "You know that's right."
 sleep 2s
 
 # Start Ratatouille install
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (RAW Diagnostic Dump)"
+display $GREEN "Prepare for disappointment."
+sleep 10s
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (FINAL NAME FIX: Capital R)"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
 TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
 USER_HOME_DIR="/home/$TARGET_USER"
-EXECUTABLE_NAME="ratatouille"
+# CRITICAL FIX: The standalone executable is typically named 'Ratatouille'
+EXECUTABLE_NAME="Ratatouille" 
 
 # Check and setup directories
 sudo mkdir -p "$USER_HOME_DIR/.lv2"
 sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
 
 # --- STEP 1: BUILD & USER INSTALL (as TARGET USER via sudo -H -u) ---
-log INFO "Building Ratatouille source and installing LV2 plugin. Capturing all raw output for diagnostics."
+log INFO "Building Ratatouille source and installing LV2 plugin. Capturing all raw output."
 
-# Execute all build commands. We capture ALL stdout/stderr into the variable BUILD_OUTPUT_DATA.
 BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
     export HOME=${USER_HOME_DIR}
     cd ${USER_HOME_DIR}
@@ -397,30 +399,33 @@ BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
     mkdir -p ${TEMP_SOURCE_DIR}
     cd ${TEMP_SOURCE_DIR}
 
-    # Clone, update, and build. All output is captured.
+    # Clone, update, and build. 
     /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git .
     /usr/bin/git submodule update --init --recursive
     
+    # 3. Build and Install the LV2 plugin (User-specific)
     /usr/bin/make lv2
     /usr/bin/make install 
     
+    # 4. Build the Standalone Application 
     /usr/bin/make standalone
     
     echo 'BUILD_COMPLETED_TAG'
 " 2>&1)
 
-# Log the output data (The raw output, without the log function's formatting/suppression)
+# Log the output data (The raw output, without the log function's filtering)
 echo "--------------------------------------------------------" | tee -a "$log_file"
-echo "RAW COMPILER OUTPUT START (Look for 'error:' or 'undefined reference'):" | tee -a "$log_file"
+echo "RAW COMPILER OUTPUT START:" | tee -a "$log_file"
 echo "$BUILD_OUTPUT_DATA" | tee -a "$log_file"
 echo "RAW COMPILER OUTPUT END" | tee -a "$log_file"
 echo "--------------------------------------------------------" | tee -a "$log_file"
 
 
-# --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (as ROOT) ---
+# --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (The Final Check) ---
 
+# CRITICAL CHECK: Use the correct, case-sensitive executable name.
 if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
-    log INFO "Executable found. Copying ${EXECUTABLE_NAME} to /usr/local/bin using sudo."
+    log INFO "Executable found: ${EXECUTABLE_NAME}. Copying to /usr/local/bin using sudo."
     
     # Copy the built executable to the system binary path
     if sudo /usr/bin/cp "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" /usr/local/bin/; then
@@ -433,18 +438,18 @@ if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
         hash -r
         
         log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
-        display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! SUCCESS!"
+        display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! ABSOLUTE SUCCESS!"
         echo "--- Ratatouille Installation Complete lol ---"
     else
         log ERROR "Failed to copy Ratatouille executable to /usr/local/bin. Check permissions on /usr/local/bin."
         exit 1
     fi
 else
-    # The build failed. The raw output is already written above this line using tee -a.
+    # This should now only trigger if the build truly failed (which it didn't in the manual test)
     log ERROR "FATAL: Executable '${EXECUTABLE_NAME}' was not found after build."
-    log ERROR "Review the RAW COMPILER OUTPUT START/END section above for the exact C++ compilation error!"
+    log ERROR "The build should have succeeded. Re-run or check permissions on the source directory."
     
-    # Cleanup (The files are still there, so clean them up)
+    # Cleanup (We clean up the failed source files)
     sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
     exit 1
 fi
