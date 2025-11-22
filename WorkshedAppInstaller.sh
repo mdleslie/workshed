@@ -244,13 +244,14 @@ display $GREEN "Band Maid logo installed – po!"
 
 # ─── 8.5 yt-dlp (latest & greatest, via pipx)
 log INFO "Installing/upgrading yt-dlp via pipx"
-display $GREEN "Installing yt-dlp
+display $GREEN "Installing yt-dlp"
+
 if ! command -v pipx &>/dev/null; then
     sudo nala install -y pipx
 fi
 
 # Make sure pipx is in PATH for this session
-export4 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
@@ -258,20 +259,34 @@ display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
 # Safe UID change service 
 log INFO "Scheduling safe UID change to $NEW_UID"
 display $RED "Rebooting once to apply UID change – totally normal!"
-sudo tee /opt/fix-my-uid.sh > /dev/null <<'EOF'
+
+# NOTE: We use unquoted EOF here so we can inject $TARGET_USER and $NEW_UID
+# but we escape \$ runtime variables that must run later.
+sudo tee /opt/fix-my-uid.sh > /dev/null <<EOF
 #!/bin/bash
 set -euo pipefail
-TARGET_USER="${1:-$(logname 2>/dev/null || echo $SUDO_USER)}"
-OLD_UID=$(id -u "$TARGET_USER")
-[[ "$OLD_UID" == "1026" ]] && exit 0
-pkill -u "$TARGET_USER" || true; sleep 2
-usermod -u 1026 "$TARGET_USER"
-find /home "$TARGET_USER" -uid "$OLD_UID" -exec chown "$TARGET_USER:$TARGET_USER" {} + 2>/dev/null || true
-find /tmp /var/tmp -uid "$OLD_UID" -exec chown "$TARGET_USER:$TARGET_USER" {} + 2>/dev/null || true
-runuser -u "$TARGET_USER" -- flatpak repair --user || true
-runuser -u "$TARGET_USER" -- systemctl --user daemon-reload || true
+
+# Hardcoded values from installer
+TARGET_USER="$TARGET_USER"
+NEW_UID="$NEW_UID"
+
+OLD_UID=\$(id -u "\$TARGET_USER")
+[[ "\$OLD_UID" == "\$NEW_UID" ]] && exit 0
+
+pkill -u "\$TARGET_USER" || true; sleep 2
+usermod -u \$NEW_UID "\$TARGET_USER"
+
+# Fix ownership
+find /home "\$TARGET_USER" -uid "\$OLD_UID" -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
+find /tmp /var/tmp -uid "\$OLD_UID" -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
+
+# Repair flatpak permissions and systemd
+runuser -u "\$TARGET_USER" -- flatpak repair --user || true
+runuser -u "\$TARGET_USER" -- systemctl --user daemon-reload || true
+
 touch /var/lib/uid-fix-done
 EOF
+
 sudo chmod +x /opt/fix-my-uid.sh
 sudo tee /etc/systemd/system/fix-my-uid.service > /dev/null <<EOF
 [Unit]
@@ -286,6 +301,7 @@ ExecStartPost=/bin/touch /var/lib/uid-fix-done
 [Install]
 WantedBy=multi-user.target
 EOF
+
 sudo systemctl daemon-reload
 sudo systemctl enable fix-my-uid.service
 
