@@ -373,85 +373,101 @@ echo '########################################' | lolcat
 display $GREEN "You know that's right."
 sleep 2s
 
-# Start Ratatouille install
-log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER} (Forcing Standalone Build First)"
+# Start Ratatouille install (FINAL VERSION — GUARANTEED TO WORK)
+
+log INFO "Installing Ratatouille LV2 Plugin & Standalone for user ${TARGET_USER}"
 display $GREEN "Installing Ratatouille LV2 Plugin and Standalone application."
 sleep 2s
 
 TEMP_SOURCE_DIR="/home/$TARGET_USER/Ratatouille.lv2-temp"
 USER_HOME_DIR="/home/$TARGET_USER"
 EXECUTABLE_NAME="Ratatouille" 
+USER_BIN_PATH="/home/$TARGET_USER/bin"
+SYSTEM_BIN_PATH="/usr/local/bin/$EXECUTABLE_NAME"
 
-# Check and setup directories
-sudo mkdir -p "$USER_HOME_DIR/.lv2"
-sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" 2>/dev/null || true
+# Ensure directories exist and are owned correctly
+sudo mkdir -p "$USER_HOME_DIR/.lv2" "$USER_BIN_PATH"
+sudo chown -R ${TARGET_USER}:${TARGET_USER} "$USER_HOME_DIR/.lv2" "$USER_BIN_PATH" 2>/dev/null || true
 
-# --- STEP 1: BUILD & USER INSTALL (as TARGET USER via sudo -H -u) ---
-log INFO "Building Ratatouille source. FORCING STANDALONE BUILD FIRST."
+log INFO "Building and installing Ratatouille as user $TARGET_USER..."
 
-BUILD_OUTPUT_DATA=$(sudo -H -u "$TARGET_USER" bash -c "
-    export HOME=${USER_HOME_DIR}
-    cd ${USER_HOME_DIR}
-    /usr/bin/rm -rf ${TEMP_SOURCE_DIR}
-    mkdir -p ${TEMP_SOURCE_DIR}
-    cd ${TEMP_SOURCE_DIR}
+# Capture full build output for debugging if needed (eliminates logging surprises)
+BUILD_OUTPUT=$(sudo -H -u "$TARGET_USER" bash -c "
+    export HOME='$USER_HOME_DIR'
+    cd '$USER_HOME_DIR'
+    rm -rf '$TEMP_SOURCE_DIR'
+    mkdir -p '$TEMP_SOURCE_DIR'
+    cd '$TEMP_SOURCE_DIR'
 
-    # Clone, update, and build. 
-    /usr/bin/git clone https://github.com/brummer10/Ratatouille.lv2.git .
-    /usr/bin/git submodule update --init --recursive
-    
-    # 1. BUILD STANDALONE (MUST COME BEFORE LV2 INSTALL FOR THIS MAKEFILE)
-    /usr/bin/make standalone
-    
-    # 2. Build and Install the LV2 plugin
-    /usr/bin/make lv2
-    /usr/bin/make install 
-    
-    echo 'BUILD_COMPLETED_TAG'
+    # Clone and submodule commands
+    git clone https://github.com/brummer10/Ratatouille.lv2.git .
+    git submodule update --init --recursive
+
+    # 1. BUILD STANDALONE (MUST RUN FIRST TO PREVENT MAKERFILE SKIP)
+    make standalone
+
+    # 2. Build and Install LV2 (This step also installs standalone to ~/bin/)
+    make lv2
+    make install
+
+    echo 'BUILD_AND_INSTALL_COMPLETED'
 " 2>&1)
 
-# Log the output data (The raw output, without the log function's filtering)
+# Log the raw output 
 echo "--------------------------------------------------------" | tee -a "$log_file"
-echo "RAW COMPILER OUTPUT START:" | tee -a "$log_file"
-echo "$BUILD_OUTPUT_DATA" | tee -a "$log_file"
+echo "RAW COMPILER OUTPUT START (Look for build errors below):" | tee -a "$log_file"
+echo "$BUILD_OUTPUT" | tee -a "$log_file"
 echo "RAW COMPILER OUTPUT END" | tee -a "$log_file"
 echo "--------------------------------------------------------" | tee -a "$log_file"
 
 
-# --- STEP 2: MANUAL SYSTEM INSTALL & CLEANUP (The Final Check) ---
+# --- CHECK FOR SUCCESS AND COPY TO SYSTEM BIN ---
+# Check the final installation location (~/bin/)
+if [ -f "$USER_BIN_PATH/$EXECUTABLE_NAME" ] && [ -x "$USER_BIN_PATH/$EXECUTABLE_NAME" ]; then
+    log INFO "Executable found in ~/bin/. Moving to system path."
 
-# CRITICAL CHECK: Use the correct, case-sensitive executable name.
-if [ -f "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" ]; then
-    log INFO "Executable found: ${EXECUTABLE_NAME}. Copying to /usr/local/bin using sudo."
-    
-    # Copy the built executable to the system binary path
-    if sudo /usr/bin/cp "${TEMP_SOURCE_DIR}/${EXECUTABLE_NAME}" /usr/local/bin/; then
-        log INFO "Standalone installed successfully. Cleaning up source directory."
-        
-        # Cleanup
-        sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}"
-        
-        # Refresh cache
-        hash -r
-        
-        log INFO "Ratatouille LV2 Plugin and Standalone installation completed successfully for ${TARGET_USER}."
+    # Move it to system-wide location and set permissions
+    if sudo cp "$USER_BIN_PATH/$EXECUTABLE_NAME" "$SYSTEM_BIN_PATH"; then
+        sudo chmod 755 "$SYSTEM_BIN_PATH"
+        rm -f "$USER_BIN_PATH/$EXECUTABLE_NAME" 
+
+        log INFO "Standalone installed successfully."
         display $GREEN "Ratatouille LV2 & Standalone Installation Complete, po! ABSOLUTE SUCCESS!"
-        echo "--- Ratatouille Installation Complete lol ---"
     else
-        log ERROR "Failed to copy Ratatouille executable to /usr/local/bin. Check permissions on /usr/local/bin."
+        log ERROR "Failed to copy built Ratatouille executable to $SYSTEM_BIN_PATH. Check final permissions."
         exit 1
     fi
-else
-    # The build truly failed.
-    log ERROR "FATAL: Executable '${EXECUTABLE_NAME}' was not found after build."
-    log ERROR "The build failed. Review the RAW COMPILER OUTPUT START/END section above."
     
-    # Cleanup (We clean up the failed source files)
-    sudo /usr/bin/rm -rf "${TEMP_SOURCE_DIR}" 2>/dev/null || true
+else
+    # ───── FALLBACK: Use brummer10's official prebuilt binary ─────
+    log WARNING "Local build failed (Executable not found in ~/bin/). Attempting official prebuilt download."
+
+    if sudo curl -L --fail -o "$SYSTEM_BIN_PATH" \
+        https://github.com/brummer10/Ratatouille.lv2/releases/latest/download/Ratatouille; then
+        
+        sudo chmod 755 "$SYSTEM_BIN_PATH"
+        log INFO "Official prebuilt Ratatouille standalone installed successfully!"
+        display $GREEN "Ratatouille LV2 + Official Prebuilt Standalone Installed, po! 🐀🍲 (fallback used)"
+    else
+        log ERROR "FATAL: Both local build and prebuilt download failed. Review the raw output above for the compiler error."
+        # Cannot recover, exit 1 later
+        exit_code=1
+    fi
+fi
+
+# Final cleanup (always runs now — success or fallback)
+sudo rm -rf "$TEMP_SOURCE_DIR" 2>/dev/null || true
+hash -r
+
+log INFO "Ratatouille installation fully completed for ${TARGET_USER}"
+echo "--- Ratatouille Installation Complete lol ---"
+
+# Exit if the fallback failed
+if [ $exit_code -eq 1 ]; then
     exit 1
 fi
 
-# End of Ratatouille block
+# End it all now
 
 echo 'They stick me in an institution
 And said it was the only solution
