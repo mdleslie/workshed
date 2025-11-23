@@ -184,8 +184,6 @@ sudo debconf-set-selections <<EOF
 ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
 libdvd-pkg libdvd-pkg/first-install boolean true
 libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
-libdvd-pkg libdvd-pkg/upgrade boolean true
-libdvd-pkg libdvd-pkg/build boolean true
 EOF
 
 # 3. INSTALL
