@@ -146,11 +146,14 @@ if ! command -v lolcat &>/dev/null; then
     sudo apt update && sudo apt install -y lolcat
 fi
 
-
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 display $GREEN "Lets go, it's showtime!"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+display $GREEN "Don't mix danger, handle with care!"
 sleep 5
 cache_sudo
 
