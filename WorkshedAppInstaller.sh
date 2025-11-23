@@ -223,11 +223,15 @@ if ! command -v flatpak &>/dev/null; then
     sudo nala install -y flatpak
 fi
 
-# 2. Add Remote (System-Wide)
-# We add this for ROOT so the system-wide install works below
+# 2. CRITICAL FIX: Remove conflicting 'user' remote
+# This deletes the 'user' version of flathub so it doesn't conflict with the 'system' one.
+# We ignore errors in case it doesn't exist.
+flatpak remote-delete --user flathub 2>/dev/null || true
+
+# 3. Add Remote (System-Wide)
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
 
-# 3. Install Loop
+# 4. Install Loop
 for app in "${flatpak_apps[@]}"; do
     # Check if installed (System-wide check)
     if flatpak list | grep -q "$app"; then
@@ -235,8 +239,8 @@ for app in "${flatpak_apps[@]}"; do
     else
         log INFO "Installing Flatpak → $app"
         # We run this as ROOT (sudo) to install for the whole system.
-        # This is much more reliable than trying to sudo -u as the user.
-        if flatpak install -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
+        # Added --system flag to be explicitly clear we want the system-wide install.
+        if flatpak install --system -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
              installed_flatpak_apps+=("$app")
              log INFO "$app installed successfully"
         else
@@ -316,7 +320,6 @@ log INFO "Scheduling safe UID change to $NEW_UID"
 display $RED "Rebooting once to apply UID change – totally normal!"
 
 # NOTE: We use unquoted EOF here so we can inject $TARGET_USER and $NEW_UID
-# but we escape \$ runtime variables that must run later.
 sudo tee /opt/fix-my-uid.sh > /dev/null <<EOF
 #!/bin/bash
 set -euo pipefail
@@ -324,18 +327,27 @@ set -euo pipefail
 # Hardcoded values from installer
 TARGET_USER="$TARGET_USER"
 NEW_UID="$NEW_UID"
+TARGET_HOME="/home/\$TARGET_USER"
 
 OLD_UID=\$(id -u "\$TARGET_USER")
 [[ "\$OLD_UID" == "\$NEW_UID" ]] && exit 0
 
-pkill -u "\$TARGET_USER" || true; sleep 2
+# 1. Kill any stray user processes
+pkill -u "\$TARGET_USER" || true; sleep 1
+
+# 2. Change the UID
 usermod -u \$NEW_UID "\$TARGET_USER"
 
-# Fix ownership
-find /home "\$TARGET_USER" -uid "\$OLD_UID" -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
+# 3. FAST FIX: Use recursive chown instead of 'find'
+# This is much faster than searching file-by-file
+if [ -d "\$TARGET_HOME" ]; then
+    chown -R "\$TARGET_USER:\$TARGET_USER" "\$TARGET_HOME"
+fi
+
+# 4. Clean up /tmp (Keep 'find' here as it's safer for shared directories)
 find /tmp /var/tmp -uid "\$OLD_UID" -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
 
-# Repair flatpak permissions and systemd
+# 5. Repair Flatpaks
 runuser -u "\$TARGET_USER" -- flatpak repair --user || true
 runuser -u "\$TARGET_USER" -- systemctl --user daemon-reload || true
 
