@@ -145,9 +145,9 @@ if ! command -v lolcat &>/dev/null; then
     sudo apt update && sudo apt install -y lolcat
 fi
 
-echo '########################################' | lol
-echo '########################################' | lol
-echo '########################################' | lol
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 display $GREEN "Lets go, it's showtime!"
 sleep 5
 cache_sudo
@@ -158,24 +158,44 @@ display $GREEN "Updating and upgrading..."
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y nala
 
-echo '########################################' | lol
+echo '########################################' | lolcat
 display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
 ##############################
-# Microsoft Fonts + DVD support – THE ONE THAT HAS NEVER FAILED YOU
-##############################
 # Preconfigure Microsoft fonts and libdvd-pkg
-log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
-display $GREEN "Installing Microsoft fonts and libdvd."
+##############################
+
+log INFO "Preconfiguring Microsoft fonts and libdvd-pkg – proven method"
+display $GREEN "Installing Microsoft fonts and libdvd – this one actually works 100% unattended, po!"
+
+# 1. Accept MS Fonts EULA
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+
+# 2. Accept libdvd-pkg upgrades (This prevents the "purple screen" hang!)
+echo "libdvd-pkg libdvd-pkg/first-install select true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/post-invoke_hook-install select true" | sudo debconf-set-selections
+
+# 3. Force non-interactive and install BOTH packages
 export DEBIAN_FRONTEND=noninteractive
-sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
-sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
+sudo apt -yq install ttf-mscorefonts-installer libdvd-pkg
+
+# 4. The Brute Force Fix: Manually run the DVD setup with "Yes" inputs
+# This handles the actual download/compile of libdvdcss2
+sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
+y
+y
+EOF
+
+# 5. Cleanup
 unset DEBIAN_FRONTEND
+# Optional: We usually keep libdvd-pkg so it updates the library later, 
+# but if you want to purge it to keep the system clean, this works:
+# sudo apt -y purge libdvd-pkg 2>/dev/null || true
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
-echo '########################################' | lol
+echo '########################################' | lolcat
+sleep 3s
 display $GREEN "Are you a fan of delicious flavor?"
 sleep 2s
 
@@ -214,6 +234,7 @@ sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/upd
     -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
 display $GREEN "update.sh installed → just run 'update.sh' anytime!"
+sleep 2s
 
 # ─── 8.2 Bash aliases 
 log INFO "Adding Workshed bash aliases"
@@ -225,6 +246,7 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%
 
 echo -e "\n# ── Workshed aliases loaded – po! ──" >> "$TARGET_HOME/.bashrc"
 display $GREEN "Aliases added! Open a new terminal or run 'source ~/.bashrc'"
+sleep 2s
 
 # ─── 8.3 NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
@@ -236,6 +258,7 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab \
     | sudo tee -a /etc/fstab > /dev/null
 
 display $GREEN "NFS mounts added – they’ll appear after reboot"
+sleep 2s
 
 # ─── 8.4 Band Maid fastfetch logo 
 log INFO "Downloading an impossibly hard rocking maid logo, po."
@@ -246,6 +269,7 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
     -o "$TARGET_HOME/.local/share/fastfetch/logos/maid"
 
 display $GREEN "Band Maid logo installed – po!"
+sleep 3s
 
 # ─── 8.5 yt-dlp (latest & greatest, via pipx)
 log INFO "Installing/upgrading yt-dlp via pipx"
@@ -260,6 +284,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
+sleep 2s
 
 # Safe UID change service 
 log INFO "Scheduling safe UID change to $NEW_UID"
