@@ -165,27 +165,13 @@ sleep 3s
 ##############################
 # Microsoft Fonts + DVD support – THE ONE THAT HAS NEVER FAILED YOU
 ##############################
-log INFO "Preconfiguring Microsoft fonts and libdvd-pkg – the proven method"
-display $GREEN "Installing Microsoft fonts and libdvd – this one actually works 100% of the time"
-
-# Accept the EULA
+# Preconfigure Microsoft fonts and libdvd-pkg
+log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
+display $GREEN "Installing Microsoft fonts and libdvd."
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-
-# Force non-interactive for everything
 export DEBIAN_FRONTEND=noninteractive
-
-# Install the packages
-sudo apt -yq install libdvd-pkg ttf-mscorefonts-installer
-
-# This is the exact line you had in the very first script that always worked
-sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
-y
-y
-EOF
-
-# Optional cleanup – you had this in the original too
-sudo apt -y purge libdvd-pkg 2>/dev/null || true
-
+sudo DEBIAN_FRONTEND=noninteractive apt -yq install libdvd-pkg
+sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 unset DEBIAN_FRONTEND
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
