@@ -211,15 +211,35 @@ for package in "${deb_packages[@]}"; do
 done
 
 # Flatpak setup
-log INFO "Installing ${#flatpak_apps[@]} Flatpak apps"
-[[ ! -x "$(command -v flatpak)" ]] && sudo nala install -y flatpak
+log INFO "Installing ${#flatpak_apps[@]} Flatpak apps (System-Wide)"
+display $GREEN "Installing Flatpak applications..."
+
+# 1. Ensure Flatpak is installed
+if ! command -v flatpak &>/dev/null; then
+    log INFO "Flatpak not installed, installing now..."
+    sudo nala install -y flatpak
+fi
+
+# 2. Add Remote (System-Wide)
+# We add this for ROOT so the system-wide install works below
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+
+# 3. Install Loop
 for app in "${flatpak_apps[@]}"; do
-    if flatpak list --user | grep -q "$app"; then
+    # Check if installed (System-wide check)
+    if flatpak list | grep -q "$app"; then
         log INFO "$app → already installed"
     else
         log INFO "Installing Flatpak → $app"
-        sudo -u "$TARGET_USER" flatpak install -y --user flathub "$app" && installed_flatpak_apps+=("$app")
+        # We run this as ROOT (sudo) to install for the whole system.
+        # This is much more reliable than trying to sudo -u as the user.
+        if flatpak install -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
+             installed_flatpak_apps+=("$app")
+             log INFO "$app installed successfully"
+        else
+             log ERROR "Failed to install $app"
+             display $RED "Failed to install $app"
+        fi
     fi
 done
 
