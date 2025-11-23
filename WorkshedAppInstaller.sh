@@ -146,22 +146,18 @@ if ! command -v lolcat &>/dev/null; then
     sudo apt update && sudo apt install -y lolcat
 fi
 
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
 display $GREEN "Lets go, it's showtime!"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-display $GREEN "Don't mix danger, handle with care!"
 sleep 5
 cache_sudo
 
-# Add Fastfetch PPA
+# ─── Add Fastfetch PPA immediately ───
 log INFO "Adding Fastfetch PPA"
 display $GREEN "Adding Fastfetch PPA..."
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-#######################################################
+# ─────────────────────────────────────────────────
 
 # System update + Nala
 log INFO "Updating system + installing Nala"
@@ -189,12 +185,12 @@ libdvd-pkg libdvd-pkg/first-install boolean true
 libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
 EOF
 
-# 3. INSTALL
+# 3. INSTALL (FIX: Global Export + sudo -E to force silence everywhere)
 export DEBIAN_FRONTEND=noninteractive
-sudo apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
+sudo -E apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
 # 4. BUILD & CONFIGURE
-sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
+sudo -E bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
 y
 y
 EOF
