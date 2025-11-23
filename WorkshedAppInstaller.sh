@@ -161,18 +161,37 @@ sudo apt install -y nala
 echo '########################################' | lol
 display $GREEN "Gus, don't be William Zabka from Back to School."
 
-# Microsoft fonts + DVD (your bulletproof method)
-log INFO "Installing Microsoft fonts + libdvdcss"
-display $GREEN "Microsoft fonts + DVD playback – the version that never fails, po!"
+# ─── Microsoft TrueType fonts + DVD playback (the version that actually never fails) ───
+log INFO "Installing Microsoft TrueType fonts + libdvdcss – 100 % unattended, po!"
+display $GREEN "Microsoft fonts + DVD playback – the original bulletproof method!"
+
+# Accept the EULA once and for all
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+
+# Fully non-interactive for the whole block
 export DEBIAN_FRONTEND=noninteractive
+
+# Install the packages themselves
 sudo apt install -y ttf-mscorefonts-installer libdvd-pkg
+
+# Build and install libdvdcss – this is the nuclear option that always works
+sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
+y
+y
+EOF
+
+# Clean up the temporary package
+sudo apt purge -y libdvd-pkg 2>/dev/null || true
+sudo apt autoremove -y 2>/dev/null || true
+
 unset DEBIAN_FRONTEND
-sudo dpkg-reconfigure -f noninteractive libdvd-pkg || true
-sudo /usr/lib/libdvd-pkg/b-i_libdvdcss.sh -y <<< "y"
+
+display $GREEN "Microsoft fonts + libdvdcss installed perfectly – po!"
+sleep 3s
 
 echo '########################################' | lol
 display $GREEN "Are you a fan of delicious flavor?"
+sleep 2s
 
 # Install deb packages
 log INFO "Installing ${#deb_packages[@]} deb packages"
