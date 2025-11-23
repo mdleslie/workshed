@@ -223,9 +223,7 @@ if ! command -v flatpak &>/dev/null; then
     sudo nala install -y flatpak
 fi
 
-# 2. CRITICAL FIX: Remove conflicting 'user' remote
-# This deletes the 'user' version of flathub so it doesn't conflict with the 'system' one.
-# We ignore errors in case it doesn't exist.
+# 2. FIX: Remove conflicting 'user' remote so the system one takes priority
 flatpak remote-delete --user flathub 2>/dev/null || true
 
 # 3. Add Remote (System-Wide)
@@ -233,14 +231,13 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 
 # 4. Install Loop
 for app in "${flatpak_apps[@]}"; do
-    # Check if installed (System-wide check)
     if flatpak list | grep -q "$app"; then
         log INFO "$app → already installed"
     else
         log INFO "Installing Flatpak → $app"
-        # We run this as ROOT (sudo) to install for the whole system.
-        # Added --system flag to be explicitly clear we want the system-wide install.
-        if flatpak install --system -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
+        # FIX IS HERE: We added 'sudo' to the front. 
+        # Since sudo is cached, this installs silently without a popup.
+        if sudo flatpak install --system -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
              installed_flatpak_apps+=("$app")
              log INFO "$app installed successfully"
         else
