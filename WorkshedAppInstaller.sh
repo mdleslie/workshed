@@ -168,18 +168,17 @@ sleep 3s
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 display $GREEN "Installing Microsoft fonts and libdvd – trying the silent treatment, po!"
 
-# 1. PURGE first (Optional but recommended to clear previous stuck configs)
-# If a previous run failed, the config might be in a weird state.
+# 1. PURGE (Safety clear)
 sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
 
-# 2. PRE-SEED CORRECTLY
-# We direct these into debconf immediately. 
-# "upgrade boolean true" is the specific line that fixes your error!
+# 2. PRE-SEED (The "Nuclear" List)
+# We add the critical 'build' key here
 sudo debconf-set-selections <<EOF
 ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
 libdvd-pkg libdvd-pkg/first-install boolean true
 libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
 libdvd-pkg libdvd-pkg/upgrade boolean true
+libdvd-pkg libdvd-pkg/build boolean true
 EOF
 
 # 3. INSTALL
@@ -187,7 +186,7 @@ export DEBIAN_FRONTEND=noninteractive
 sudo apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
 # 4. BUILD & CONFIGURE
-# Force the build script to run with "yes" inputs
+# We still force the manual build script just to be 100% sure it runs
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
 y
 y
