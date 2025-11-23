@@ -163,6 +163,10 @@ echo '########################################' | lolcat
 display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
+# FIX: Add Fastfetch PPA so it can be found on Pop!_OS
+sudo add-apt-repository -y ppa:zhangsongcui333666/fastfetch
+
+
 #################################################################################
 #################################################################################
 ##############################
