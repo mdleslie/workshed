@@ -1,6 +1,6 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2025 Edition
-# Author: workshed (@mdleslie) heavily vibe coded.
+# Author: workshed (@mdleslie) 
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -120,8 +120,7 @@ flatpak_apps=(
     it.mijorus.gearlever
     io.github.Faugus.faugus-launcher
 )
-#################################################################################
-#################################################################################
+
 ##############################
 # Core Functions 
 ##############################
@@ -153,6 +152,12 @@ display $GREEN "Lets go, it's showtime!"
 sleep 5
 cache_sudo
 
+# ─── Add Fastfetch PPA immediately ───
+log INFO "Adding Fastfetch PPA"
+display $GREEN "Adding Fastfetch PPA..."
+sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+# ─────────────────────────────────────────────────
+
 # System update + Nala
 log INFO "Updating system + installing Nala"
 display $GREEN "Updating and upgrading..."
@@ -163,34 +168,30 @@ echo '########################################' | lolcat
 display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
-# Add Fastfetch PPA so it can be found on Pop!_OS
-log INFO "Adding Fastfetch PPA"
-display $GREEN "Adding Fastfetch PPA"
-sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-
-
-#################################################################################
-#################################################################################
 ##############################
 # Microsoft Fonts + DVD support
 ##############################
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 display $GREEN "Installing Microsoft fonts and libdvd – safe mode, po!"
 
-# 1. Pre-accept Licenses
-echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/upgrade boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/build boolean true" | sudo debconf-set-selections
+# 1. PURGE (Safety clear)
+sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
 
-# 2. Install
+# 2. PRE-SEED (The "Safe Mode" List)
+# Includes keys for upgrade/build to stop prompts
+sudo debconf-set-selections <<EOF
+ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
+libdvd-pkg libdvd-pkg/first-install boolean true
+libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
+libdvd-pkg libdvd-pkg/upgrade boolean true
+libdvd-pkg libdvd-pkg/build boolean true
+EOF
+
+# 3. INSTALL
 export DEBIAN_FRONTEND=noninteractive
-sudo -E apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
+sudo apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 3. Run Helper Script (The Safe Way)
-# We use a 'heredoc' here instead of 'yes |' because 'yes' crashes 
-# scripts running with 'set -o pipefail'.
+# 4. BUILD & CONFIGURE
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
 y
 y
@@ -198,15 +199,11 @@ EOF
 
 unset DEBIAN_FRONTEND
 
-#####
-
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
 echo '########################################' | lolcat
 sleep 3s
 display $GREEN "Are you a fan of delicious flavor?"
 sleep 2s
-#################################################################################
-#################################################################################
 
 # Install deb packages
 log INFO "Installing ${#deb_packages[@]} deb packages"
@@ -218,8 +215,6 @@ for package in "${deb_packages[@]}"; do
         sudo nala install -y "$package" && installed_deb_packages+=("$package")
     fi
 done
-#################################################################################
-#################################################################################
 
 # Flatpak setup
 log INFO "Installing ${#flatpak_apps[@]} Flatpak apps (System-Wide)"
@@ -235,7 +230,8 @@ fi
 flatpak remote-delete --user flathub 2>/dev/null || true
 
 # 3. Add Remote (System-Wide)
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+# FIX: Added 'sudo' here to prevent the PolicyKit password popup window!
+sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
 
 # 4. Install Loop
 for app in "${flatpak_apps[@]}"; do
@@ -243,8 +239,7 @@ for app in "${flatpak_apps[@]}"; do
         log INFO "$app → already installed"
     else
         log INFO "Installing Flatpak → $app"
-        # FIX IS HERE: We added 'sudo' to the front. 
-        # Since sudo is cached, this installs silently without a popup.
+        # We use 'sudo' here to install system-wide without prompts
         if sudo flatpak install --system -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
              installed_flatpak_apps+=("$app")
              log INFO "$app installed successfully"
@@ -254,8 +249,6 @@ for app in "${flatpak_apps[@]}"; do
         fi
     fi
 done
-#################################################################################
-#################################################################################
 
 # =============================================================================
 # 8. FINAL TOUCHES 
@@ -320,11 +313,10 @@ pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
 sleep 2s
 
-# Safe UID change service 
+# Safe UID change service (FAST VERSION)
 log INFO "Scheduling safe UID change to $NEW_UID"
 display $RED "Rebooting once to apply UID change – totally normal!"
 
-# NOTE: We use unquoted EOF here so we can inject $TARGET_USER and $NEW_UID
 sudo tee /opt/fix-my-uid.sh > /dev/null <<EOF
 #!/bin/bash
 set -euo pipefail
@@ -337,22 +329,21 @@ TARGET_HOME="/home/\$TARGET_USER"
 OLD_UID=\$(id -u "\$TARGET_USER")
 [[ "\$OLD_UID" == "\$NEW_UID" ]] && exit 0
 
-# 1. Kill any stray user processes
+# Kill user processes
 pkill -u "\$TARGET_USER" || true; sleep 1
 
-# 2. Change the UID
+# Change the UID
 usermod -u \$NEW_UID "\$TARGET_USER"
 
-# 3. FAST FIX: Use recursive chown instead of 'find'
-# This is much faster than searching file-by-file
+# FAST FIX: Use recursive chown (Instant on new systems)
 if [ -d "\$TARGET_HOME" ]; then
     chown -R "\$TARGET_USER:\$TARGET_USER" "\$TARGET_HOME"
 fi
 
-# 4. Clean up /tmp (Keep 'find' here as it's safer for shared directories)
+# Check tmp files (safer with find)
 find /tmp /var/tmp -uid "\$OLD_UID" -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
 
-# 5. Repair Flatpaks
+# Repair Flatpaks and Reload Systemd
 runuser -u "\$TARGET_USER" -- flatpak repair --user || true
 runuser -u "\$TARGET_USER" -- systemctl --user daemon-reload || true
 
