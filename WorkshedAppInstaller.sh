@@ -163,40 +163,25 @@ display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
 ##############################
-# Preconfigure Microsoft fonts and libdvd-pkg
+# Microsoft Fonts + DVD support
 ##############################
+log INFO "Installing Microsoft fonts and libdvd-pkg"
 
-##############################
-# Microsoft Fonts + DVD support – THE NUCLEAR OPTION
-##############################
-log INFO "Preconfiguring Microsoft fonts and libdvd-pkg – proven method"
-display $GREEN "Installing Microsoft fonts and libdvd – trying the silent treatment, po!"
+# 1. Pre-accept the licenses (Stops the blue/purple prompts)
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/first-install select true" | sudo debconf-set-selections
 
-# 1. PRE-SEED EVERYTHING (The critical part you were missing)
-# This answers "Yes" to "Enable automatic upgrades?" and "Download now?" before it even asks.
-sudo debconf-set-selections <<EOF
-ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
-libdvd-pkg libdvd-pkg/first-install boolean true
-libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
-libdvd-pkg libdvd-pkg/upgrade boolean true
-EOF
-
-# 2. Install quietly
-# We force non-interactive mode specifically for this command
+# 2. Install BOTH packages silently
+# Note: We use -yq to keep it quiet and non-interactive
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 3. The "Double Tap" - Force the build script manually
-# This ensures the library is actually compiled and installed if apt skipped the trigger
-if [ -f /usr/lib/libdvd-pkg/b-i_libdvdcss.sh ]; then
-    log INFO "Triggering manual DVD build..."
-    sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
+# 3. Configure DVD playback
+# This script downloads the css library. We feed it "y" so it doesn't wait for you.
+sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
 y
 y
 EOF
-else
-    log ERROR "libdvd-pkg script not found – install might have failed."
-fi
 
 unset DEBIAN_FRONTEND
 
