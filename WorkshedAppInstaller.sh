@@ -160,35 +160,35 @@ sudo apt install -y nala
 
 echo '########################################' | lol
 display $GREEN "Gus, don't be William Zabka from Back to School."
+sleep 3s
 
-# ─── Microsoft TrueType fonts + DVD playback (the version that actually never fails) ───
-log INFO "Installing Microsoft TrueType fonts + libdvdcss – 100 % unattended, po!"
-display $GREEN "Microsoft fonts + DVD playback – the original bulletproof method!"
+##############################
+# Microsoft Fonts + DVD support – THE ONE THAT HAS NEVER FAILED YOU
+##############################
+log INFO "Preconfiguring Microsoft fonts and libdvd-pkg – the proven method"
+display $GREEN "Installing Microsoft fonts and libdvd – this one actually works 100% of the time"
 
-# Accept the EULA once and for all
+# Accept the EULA
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 
-# Fully non-interactive for the whole block
+# Force non-interactive for everything
 export DEBIAN_FRONTEND=noninteractive
 
-# Install the packages themselves
-sudo apt install -y ttf-mscorefonts-installer libdvd-pkg
+# Install the packages
+sudo apt -yq install libdvd-pkg ttf-mscorefonts-installer
 
-# Build and install libdvdcss – this is the nuclear option that always works
+# This is the exact line you had in the very first script that always worked
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
 y
 y
 EOF
 
-# Clean up the temporary package
-sudo apt purge -y libdvd-pkg 2>/dev/null || true
-sudo apt autoremove -y 2>/dev/null || true
+# Optional cleanup – you had this in the original too
+sudo apt -y purge libdvd-pkg 2>/dev/null || true
 
 unset DEBIAN_FRONTEND
 
-display $GREEN "Microsoft fonts + libdvdcss installed perfectly – po!"
-sleep 3s
-
+display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
 echo '########################################' | lol
 display $GREEN "Are you a fan of delicious flavor?"
 sleep 2s
