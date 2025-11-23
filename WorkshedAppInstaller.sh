@@ -166,32 +166,39 @@ sleep 3s
 # Preconfigure Microsoft fonts and libdvd-pkg
 ##############################
 
+##############################
+# Microsoft Fonts + DVD support – THE NUCLEAR OPTION
+##############################
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg – proven method"
-display $GREEN "Installing Microsoft fonts and libdvd – this one actually works 100% unattended, po!"
+display $GREEN "Installing Microsoft fonts and libdvd – trying the silent treatment, po!"
 
-# 1. Accept MS Fonts EULA
-echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+# 1. PRE-SEED EVERYTHING (The critical part you were missing)
+# This answers "Yes" to "Enable automatic upgrades?" and "Download now?" before it even asks.
+sudo debconf-set-selections <<EOF
+ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
+libdvd-pkg libdvd-pkg/first-install boolean true
+libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
+libdvd-pkg libdvd-pkg/upgrade boolean true
+EOF
 
-# 2. Accept libdvd-pkg upgrades (This prevents the "purple screen" hang!)
-echo "libdvd-pkg libdvd-pkg/first-install select true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/post-invoke_hook-install select true" | sudo debconf-set-selections
-
-# 3. Force non-interactive and install BOTH packages
+# 2. Install quietly
+# We force non-interactive mode specifically for this command
 export DEBIAN_FRONTEND=noninteractive
-sudo apt -yq install ttf-mscorefonts-installer libdvd-pkg
+sudo apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 4. The Brute Force Fix: Manually run the DVD setup with "Yes" inputs
-# This handles the actual download/compile of libdvdcss2
-sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
+# 3. The "Double Tap" - Force the build script manually
+# This ensures the library is actually compiled and installed if apt skipped the trigger
+if [ -f /usr/lib/libdvd-pkg/b-i_libdvdcss.sh ]; then
+    log INFO "Triggering manual DVD build..."
+    sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
 y
 y
 EOF
+else
+    log ERROR "libdvd-pkg script not found – install might have failed."
+fi
 
-# 5. Cleanup
 unset DEBIAN_FRONTEND
-# Optional: We usually keep libdvd-pkg so it updates the library later, 
-# but if you want to purge it to keep the system clean, this works:
-# sudo apt -y purge libdvd-pkg 2>/dev/null || true
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
 echo '########################################' | lolcat
