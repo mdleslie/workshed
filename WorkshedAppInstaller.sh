@@ -163,21 +163,30 @@ display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
 ##############################
-# Microsoft Fonts + DVD support
+# Microsoft Fonts + DVD support – THE FIX
 ##############################
-log INFO "Installing Microsoft fonts and libdvd-pkg"
+log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
+display $GREEN "Installing Microsoft fonts and libdvd – trying the silent treatment, po!"
 
-# 1. Pre-accept the licenses (Stops the blue/purple prompts)
+# 1. PURGE first (Optional but recommended to clear previous stuck configs)
+# If a previous run failed, the config might be in a weird state.
+sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
+
+# 2. PRE-SEED CORRECTLY (Pay attention to 'select' vs 'boolean')
+
+# Fonts: Use 'select'
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/first-install select true" | sudo debconf-set-selections
 
-# 2. Install BOTH packages silently
-# Note: We use -yq to keep it quiet and non-interactive
+# DVD: Use 'boolean' (This is why your previous attempt failed!)
+echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true" | sudo debconf-set-selections
+
+# 3. INSTALL
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 3. Configure DVD playback
-# This script downloads the css library. We feed it "y" so it doesn't wait for you.
+# 4. BUILD & CONFIGURE
+# Force the build script to run with "yes" inputs
 sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
 y
 y
