@@ -163,7 +163,7 @@ display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
 ##############################
-# Microsoft Fonts + DVD support – THE FIX
+# Microsoft Fonts + DVD support
 ##############################
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 display $GREEN "Installing Microsoft fonts and libdvd – trying the silent treatment, po!"
@@ -172,14 +172,15 @@ display $GREEN "Installing Microsoft fonts and libdvd – trying the silent trea
 # If a previous run failed, the config might be in a weird state.
 sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
 
-# 2. PRE-SEED CORRECTLY (Pay attention to 'select' vs 'boolean')
-
-# Fonts: Use 'select'
-echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
-
-# DVD: Use 'boolean' (This is why your previous attempt failed!)
-echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
-echo "libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true" | sudo debconf-set-selections
+# 2. PRE-SEED CORRECTLY
+# We direct these into debconf immediately. 
+# "upgrade boolean true" is the specific line that fixes your error!
+sudo debconf-set-selections <<EOF
+ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
+libdvd-pkg libdvd-pkg/first-install boolean true
+libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
+libdvd-pkg libdvd-pkg/upgrade boolean true
+EOF
 
 # 3. INSTALL
 export DEBIAN_FRONTEND=noninteractive
