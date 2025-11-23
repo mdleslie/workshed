@@ -311,7 +311,9 @@ pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
 sleep 2s
 
-# Safe UID change service (FIXED: LOOP PREVENTION)
+#########################################################################################
+
+# Safe UID change service (OPTIMIZED: NO HANGS)
 log INFO "Scheduling safe UID change to $NEW_UID"
 display $RED "Rebooting once to apply UID change – totally normal!"
 
@@ -324,58 +326,58 @@ TARGET_USER="$TARGET_USER"
 NEW_UID="$NEW_UID"
 TARGET_HOME="/home/\$TARGET_USER"
 
-# 1. CHECK IDEMPOTENCY (Fixes the reboot loop)
-# If we are already the correct UID, create the done file and exit immediately.
+# 1. IDEMPOTENCY CHECK (Stops the reboot loop)
+# If the file exists, or if UID is already correct, exit immediately.
+if [ -f /var/lib/uid-fix-done ]; then
+    exit 0
+fi
+
 CURRENT_UID=\$(id -u "\$TARGET_USER")
 if [ "\$CURRENT_UID" == "\$NEW_UID" ]; then
     touch /var/lib/uid-fix-done
     exit 0
 fi
 
-# 2. Kill user processes
-pkill -u "\$TARGET_USER" || true; sleep 1
-
-# 3. Change the UID
+# 2. Kill processes and Change UID
+pkill -u "\$TARGET_USER" || true
 usermod -u \$NEW_UID "\$TARGET_USER"
 
-# 4. FAST FIX: Use recursive chown (Instant on new systems)
+# 3. FAST CHOWN
+# This is the only critical step. It fixes ownership so you can login.
 if [ -d "\$TARGET_HOME" ]; then
     chown -R "\$TARGET_USER:\$TARGET_USER" "\$TARGET_HOME"
 fi
 
-# 5. Check tmp files
-# We use OLD_UID here assuming we just changed from it. 
-# Since we don't know the exact old UID easily inside this script without querying before change,
-# we rely on standard 1000. But 'find' is robust enough.
-find /tmp /var/tmp -uid 1000 -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
-
-# 6. Repair Flatpaks and Reload Systemd
-runuser -u "\$TARGET_USER" -- flatpak repair --user || true
-runuser -u "\$TARGET_USER" -- systemctl --user daemon-reload || true
-
-# 7. Mark as done
+# 4. Mark as done
 touch /var/lib/uid-fix-done
 EOF
 
 sudo chmod +x /opt/fix-my-uid.sh
+
+# SYSTEMD UNIT
+# We removed 'TimeoutSec=infinity' because it's dangerous. 
+# We default to standard timeout so if it fails, it doesn't hang boot forever.
 sudo tee /etc/systemd/system/fix-my-uid.service > /dev/null <<EOF
 [Unit]
-Description=Safe UID fix (once before login)
+Description=Safe UID fix
 ConditionPathExists=!/var/lib/uid-fix-done
 After=local-fs.target
 Before=display-manager.service
-# Fix slow boot if script hangs
-TimeoutSec=infinity
+
 [Service]
 Type=oneshot
 ExecStart=/opt/fix-my-uid.sh
+# Force create file even if script fails slightly, preventing loops
 ExecStartPost=/bin/touch /var/lib/uid-fix-done
+
 [Install]
 WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
 sudo systemctl enable fix-my-uid.service
+
+#########################################################################################
 
 # Final report
 printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
