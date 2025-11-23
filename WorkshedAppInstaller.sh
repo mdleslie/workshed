@@ -157,11 +157,11 @@ display $GREEN "Don't mix danger, handle with care!"
 sleep 5
 cache_sudo
 
-# ─── Add Fastfetch PPA immediately ───
+# Add Fastfetch PPA
 log INFO "Adding Fastfetch PPA"
 display $GREEN "Adding Fastfetch PPA..."
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-# ─────────────────────────────────────────────────
+#######################################################
 
 # System update + Nala
 log INFO "Updating system + installing Nala"
