@@ -86,6 +86,7 @@ deb_packages=(
     libxcursor-dev
     libxext-dev
     libxrandr-dev
+    net-tools
 )
 
 flatpak_apps=(
@@ -145,10 +146,11 @@ if ! command -v lolcat &>/dev/null; then
     sudo apt update && sudo apt install -y lolcat
 fi
 
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+
 display $GREEN "Lets go, it's showtime!"
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 sleep 5
 cache_sudo
 
@@ -174,11 +176,10 @@ sleep 3s
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 display $GREEN "Installing Microsoft fonts and libdvd – safe mode, po!"
 
-# 1. PURGE (Safety clear)
+# 1. PURGE
 sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
 
-# 2. PRE-SEED (The "Safe Mode" List)
-# Includes keys for upgrade/build to stop prompts
+# 2. PRE-SEED 
 sudo debconf-set-selections <<EOF
 ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
 libdvd-pkg libdvd-pkg/first-install boolean true
@@ -226,7 +227,7 @@ if ! command -v flatpak &>/dev/null; then
     sudo nala install -y flatpak
 fi
 
-# 2. FIX: Remove conflicting 'user' remote so the system one takes priority
+# 2. Remove conflicting 'user' remote so the system one takes priority
 flatpak remote-delete --user flathub 2>/dev/null || true
 
 # 3. Add Remote (System-Wide)
