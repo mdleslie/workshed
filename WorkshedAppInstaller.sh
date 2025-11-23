@@ -1,6 +1,6 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2025 Edition
-# Author: workshed (@mdleslie) 
+# Author: workshed (@mdleslie) heavily vibe coded.
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -164,7 +164,9 @@ display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
 # Add Fastfetch PPA so it can be found on Pop!_OS
-sudo add-apt-repository -y ppa:zhangsongcui333666/fastfetch
+log INFO "Adding Fastfetch PPA"
+display $GREEN "Adding Fastfetch PPA"
+sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 
 
 #################################################################################

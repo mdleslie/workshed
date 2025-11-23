@@ -35,6 +35,7 @@ alias du='ncdu'
 alias df='pydf'
 alias cat='cat | lolcat'
 alias rm='rm -i'
+alias id='id -u'
 
 
 
