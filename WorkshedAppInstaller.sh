@@ -163,35 +163,25 @@ display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
 ##############################
-# Microsoft Fonts + DVD support
+# Microsoft Fonts + DVD support – HYBRID FIX
 ##############################
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
-display $GREEN "Installing Microsoft fonts and libdvd – trying the silent treatment, po!"
+display $GREEN "Installing Microsoft fonts and libdvd – hybrid mode, po!"
 
-# 1. PURGE (Safety clear)
-sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
+# 1. Pre-accept the Licenses (We still need this!)
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
 
-# 2. PRE-SEED (The "Nuclear" List)
-# We add the critical 'build' key here
-sudo debconf-set-selections <<EOF
-ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
-libdvd-pkg libdvd-pkg/first-install boolean true
-libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
-libdvd-pkg libdvd-pkg/upgrade boolean true
-libdvd-pkg libdvd-pkg/build boolean true
-EOF
-
-# 3. INSTALL
+# 2. Install with Environment Variables
+# We explicitly install BOTH packages here.
 export DEBIAN_FRONTEND=noninteractive
-sudo apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
+sudo -E apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 4. BUILD & CONFIGURE
-# We still force the manual build script just to be 100% sure it runs
-sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
-y
-y
-EOF
+# 3. Run the Helper Script (with a "yes" pipe)
+# Your old script would hang here on a fresh system. "yes" fixes that.
+yes | sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
 
+# 4. Cleanup
 unset DEBIAN_FRONTEND
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
