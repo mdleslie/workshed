@@ -162,33 +162,42 @@ echo '########################################' | lolcat
 display $GREEN "Gus, don't be William Zabka from Back to School."
 sleep 3s
 
+#################################################################################
+#################################################################################
 ##############################
-# Microsoft Fonts + DVD support – HYBRID FIX
+# Microsoft Fonts + DVD support
 ##############################
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
-display $GREEN "Installing Microsoft fonts and libdvd – hybrid mode, po!"
+display $GREEN "Installing Microsoft fonts and libdvd – safe mode, po!"
 
-# 1. Pre-accept the Licenses (We still need this!)
+# 1. Pre-accept Licenses
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true" | sudo debconf-set-selections
 
-# 2. Install with Environment Variables
-# We explicitly install BOTH packages here.
+# 2. Install
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 3. Run the Helper Script (with a "yes" pipe)
-# Your old script would hang here on a fresh system. "yes" fixes that.
-yes | sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh
+# 3. Run Helper Script (The Safe Way)
+# We use a 'heredoc' here instead of 'yes |' because 'yes' crashes 
+# scripts running with 'set -o pipefail'.
+sudo bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
+y
+y
+EOF
 
-# 4. Cleanup
 unset DEBIAN_FRONTEND
+
+#####
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
 echo '########################################' | lolcat
 sleep 3s
 display $GREEN "Are you a fan of delicious flavor?"
 sleep 2s
+#################################################################################
+#################################################################################
 
 # Install deb packages
 log INFO "Installing ${#deb_packages[@]} deb packages"
