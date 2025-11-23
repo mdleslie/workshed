@@ -175,6 +175,8 @@ display $GREEN "Installing Microsoft fonts and libdvd – safe mode, po!"
 echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
 echo "libdvd-pkg libdvd-pkg/first-install boolean true" | sudo debconf-set-selections
 echo "libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/upgrade boolean true" | sudo debconf-set-selections
+echo "libdvd-pkg libdvd-pkg/build boolean true" | sudo debconf-set-selections
 
 # 2. Install
 export DEBIAN_FRONTEND=noninteractive
