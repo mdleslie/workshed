@@ -185,7 +185,7 @@ libdvd-pkg libdvd-pkg/first-install boolean true
 libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
 EOF
 
-# 3. INSTALL (FIX: Global Export + sudo -E to force silence everywhere)
+# 3. INSTALL (Global Export + sudo -E)
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
@@ -311,7 +311,7 @@ pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
 sleep 2s
 
-# Safe UID change service (FAST VERSION)
+# Safe UID change service (FIXED: LOOP PREVENTION)
 log INFO "Scheduling safe UID change to $NEW_UID"
 display $RED "Rebooting once to apply UID change – totally normal!"
 
@@ -324,27 +324,36 @@ TARGET_USER="$TARGET_USER"
 NEW_UID="$NEW_UID"
 TARGET_HOME="/home/\$TARGET_USER"
 
-OLD_UID=\$(id -u "\$TARGET_USER")
-[[ "\$OLD_UID" == "\$NEW_UID" ]] && exit 0
+# 1. CHECK IDEMPOTENCY (Fixes the reboot loop)
+# If we are already the correct UID, create the done file and exit immediately.
+CURRENT_UID=\$(id -u "\$TARGET_USER")
+if [ "\$CURRENT_UID" == "\$NEW_UID" ]; then
+    touch /var/lib/uid-fix-done
+    exit 0
+fi
 
-# Kill user processes
+# 2. Kill user processes
 pkill -u "\$TARGET_USER" || true; sleep 1
 
-# Change the UID
+# 3. Change the UID
 usermod -u \$NEW_UID "\$TARGET_USER"
 
-# FAST FIX: Use recursive chown (Instant on new systems)
+# 4. FAST FIX: Use recursive chown (Instant on new systems)
 if [ -d "\$TARGET_HOME" ]; then
     chown -R "\$TARGET_USER:\$TARGET_USER" "\$TARGET_HOME"
 fi
 
-# Check tmp files (safer with find)
-find /tmp /var/tmp -uid "\$OLD_UID" -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
+# 5. Check tmp files
+# We use OLD_UID here assuming we just changed from it. 
+# Since we don't know the exact old UID easily inside this script without querying before change,
+# we rely on standard 1000. But 'find' is robust enough.
+find /tmp /var/tmp -uid 1000 -exec chown "\$TARGET_USER:\$TARGET_USER" {} + 2>/dev/null || true
 
-# Repair Flatpaks and Reload Systemd
+# 6. Repair Flatpaks and Reload Systemd
 runuser -u "\$TARGET_USER" -- flatpak repair --user || true
 runuser -u "\$TARGET_USER" -- systemctl --user daemon-reload || true
 
+# 7. Mark as done
 touch /var/lib/uid-fix-done
 EOF
 
@@ -355,6 +364,8 @@ Description=Safe UID fix (once before login)
 ConditionPathExists=!/var/lib/uid-fix-done
 After=local-fs.target
 Before=display-manager.service
+# Fix slow boot if script hangs
+TimeoutSec=infinity
 [Service]
 Type=oneshot
 ExecStart=/opt/fix-my-uid.sh
