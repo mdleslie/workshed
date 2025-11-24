@@ -143,18 +143,13 @@ script_completed="false"
 # Early lolcat
 if ! command -v lolcat &>/dev/null; then
     log INFO "Installing lolcat – aesthetics matter, po!"
-    display $GREEN "Installing lolcat – aesthetics matter, po!"
     sudo apt update && sudo apt install -y lolcat
 fi
 
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
 display $GREEN "Lets go, it's showtime!"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-display $GREEN "Don't mix danger, handle with care."
 sleep 5
 cache_sudo
 
@@ -171,14 +166,14 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y nala
 
 echo '########################################' | lolcat
-display $GREEN "IS THAT MAURICIO IN THERE, GUS? IS THAT MAURICIO IN THERE?."
-sleep 5s
+display $GREEN "Gus, don't be William Zabka from Back to School."
+sleep 3s
 
 ##############################
 # Microsoft Fonts + DVD support
 ##############################
 log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
-display $GREEN "Installing Microsoft fonts and libdvd, po!"
+display $GREEN "Installing Microsoft fonts and libdvd – safe mode, po!"
 
 # 1. PURGE
 sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
@@ -202,11 +197,11 @@ EOF
 
 unset DEBIAN_FRONTEND
 
-display $GREEN "Microsoft fonts + DVD playback installed perfectly, po!"
+display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
 echo '########################################' | lolcat
 sleep 3s
 display $GREEN "Are you a fan of delicious flavor?"
-sleep 5s
+sleep 2s
 
 # Install deb packages
 log INFO "Installing ${#deb_packages[@]} deb packages"
@@ -253,20 +248,20 @@ for app in "${flatpak_apps[@]}"; do
     fi
 done
 
-################################################################################
+# =============================================================================
 # 8. FINAL TOUCHES 
-################################################################################
+# =============================================================================
 
-# 8.1 Custom update script 
+# ─── 8.1 Custom update script 
 log INFO "Downloading your custom update.sh script"
 display $GREEN "Creating and downloading the update.sh script."
 sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh \
     -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
 display $GREEN "update.sh installed → just run 'update.sh' anytime!"
-sleep 3s
+sleep 2s
 
-# 8.2 Bash aliases 
+# ─── 8.2 Bash aliases 
 log INFO "Adding Workshed bash aliases"
 display $GREEN "Modifying .bashrc file to include useful aliases."
 cp "$TARGET_HOME/.bashrc" "$TARGET_HOME/.bashrc.bak" 2>/dev/null || true
@@ -276,9 +271,9 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/bash.rc%
 
 echo -e "\n# ── Workshed aliases loaded – po! ──" >> "$TARGET_HOME/.bashrc"
 display $GREEN "Aliases added! Open a new terminal or run 'source ~/.bashrc'"
-sleep 3s
+sleep 2s
 
-# 8.3 NFS mounts for Arkive
+# ─── 8.3 NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 sudo mkdir -p /mnt/Arkive 
@@ -288,9 +283,9 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab \
     | sudo tee -a /etc/fstab > /dev/null
 
 display $GREEN "NFS mounts added – they’ll appear after reboot"
-sleep 3s
+sleep 2s
 
-# 8.4 Band Maid fastfetch logo 
+# ─── 8.4 Band Maid fastfetch logo 
 log INFO "Downloading an impossibly hard rocking maid logo, po."
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
 sleep 5s
@@ -299,9 +294,9 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
     -o "$TARGET_HOME/.local/share/fastfetch/logos/maid"
 
 display $GREEN "Band Maid logo installed – po!"
-sleep 5s
+sleep 3s
 
-# 8.5 yt-dlp (latest & greatest, via pipx)
+# ─── 8.5 yt-dlp (latest & greatest, via pipx)
 log INFO "Installing/upgrading yt-dlp via pipx"
 display $GREEN "Installing yt-dlp"
 
@@ -316,30 +311,65 @@ pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
 sleep 2s
 
-# Cleanup
-log INFO "Performing final cleanup"
-sudo nala autoremove -y
-sudo nala clean
-
 # Final report
 printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
 printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
 printf "Installed Flatpak apps: %s\n" "${#installed_flatpak_apps[@]}" >> "$update_summary"
 printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
 
-display $GREEN "Shop smart, shop S-Mart."
+display $GREEN "Computer will reboot for the PUID changes to take full effect, po."
 display $BLUE "Warning, Computer will reboot for the PUID changes to take full effect, po."
-sleep 5s
+sleep 10s
 
 log INFO "Installation summary saved to $update_summary"
 
 display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
 
-display $BLUE "IS THAT THE LAST OF THE SECRET TACO SAUCE IN THERE?"
-sleep 20s
+#########################################################################################
+# Safe UID change (LIVE METHOD - ROOT BUBBLE)
+#########################################################################################
+log INFO "Changing UID to $NEW_UID"
+display $RED "Updating UID instantly..."
 
-exit 0
+CURRENT_UID=$(id -u "$TARGET_USER")
+if [ "$CURRENT_UID" != "$NEW_UID" ]; then
+    # DISABLE TRAPS: Prevents the script from reverting bashrc if chown throws a minor error
+    trap - ERR EXIT
+
+    # Create the "Bubble": Run everything inside this block as root
+    sudo bash -c "
+        # Backup
+        cp /etc/passwd /etc/passwd.bak
+        cp /etc/group /etc/group.bak
+
+        # Update Passwd File Directly using current variables
+        sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
+
+        # Fix permissions
+        # Added '|| true' to ignore locked socket errors (PREVENTS CRASH)
+        echo 'Updating file ownership...'
+        chown -R $NEW_UID:$NEW_GID $TARGET_HOME || true
+    
+        # Fix temp files
+        find /tmp /var/tmp -uid $CURRENT_UID -exec chown -h $NEW_UID {} + 2>/dev/null || true
+
+        echo 'UID changed. Rebooting immediately.'
+        
+        # Force Reboot to skip saving the broken session
+        /sbin/reboot -f
+    "
+else
+    display $GREEN "UID is already $NEW_UID. No change needed."
+    
+    log INFO "Installation summary saved to $update_summary"
+
+    script_completed="true"
+    display $BLUE "Computer will now reboot."
+    display $BLUE "Shop smart. Shop S-Mart."
+    sleep 5
+    sudo reboot now
+fi
 
 
 
