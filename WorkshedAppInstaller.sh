@@ -362,7 +362,7 @@ Before=display-manager.service
 Type=oneshot
 ExecStart=/opt/fix-my-uid.sh
 # TIMEOUT: If this takes longer than 30 seconds, kill it and boot anyway.
-TimeoutSec=30
+TimeoutSec=5
 
 [Install]
 WantedBy=multi-user.target
