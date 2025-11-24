@@ -327,7 +327,10 @@ display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
 
 #########################################################################################
-# Safe UID change (LIVE METHOD - CRASH PROOF)
+#########################################################################################
+# Safe UID change (LIVE METHOD - CRASH PROOF + NO SUDO)
+# We removed 'sudo' from these commands because the script is ALREADY running as root.
+# Using 'sudo' after changing the UID confuses sudo and causes crashes.
 #########################################################################################
 log INFO "Changing UID to $NEW_UID"
 display $RED "Updating UID instantly..."
@@ -338,28 +341,27 @@ if [ "$CURRENT_UID" != "$NEW_UID" ]; then
     # chown will throw errors on open sockets, but we MUST NOT crash or clean up.
     trap - ERR EXIT
 
-    # 1. Backup
-    sudo cp /etc/passwd /etc/passwd.bak
-    sudo cp /etc/group /etc/group.bak
+    # 1. Backup (No sudo needed, we are root)
+    cp /etc/passwd /etc/passwd.bak
+    cp /etc/group /etc/group.bak
 
-    # 2. Update Passwd File Directly
-    sudo sed -i "s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/" /etc/passwd
+    # 2. Update Passwd File Directly (No sudo needed)
+    sed -i "s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/" /etc/passwd
 
-    # 3. Update File Ownership (With Ignore Error Flag)
+    # 3. Update File Ownership (With Ignore Error Flag) (No sudo needed)
     display $BLUE "Updating file ownership..."
-    # Added '|| true' so socket errors don't kill the script
-    sudo chown -R "$NEW_UID:$NEW_GID" "$TARGET_HOME" || true
+    chown -R "$NEW_UID:$NEW_GID" "$TARGET_HOME" || true
     
-    # 4. Update system temp files
-    sudo find /tmp /var/tmp -uid "$CURRENT_UID" -exec chown -h "$NEW_UID" {} + 2>/dev/null || true
+    # 4. Update system temp files (No sudo needed)
+    find /tmp /var/tmp -uid "$CURRENT_UID" -exec chown -h "$NEW_UID" {} + 2>/dev/null || true
 
     display $GREEN "UID changed. Rebooting immediately to lock it in."
     
     # 5. Final Report
     log INFO "Installation summary saved to $update_summary"
 
-    # 6. FORCE REBOOT
-    sudo reboot -f
+    # 6. FORCE REBOOT (No sudo needed)
+    /sbin/reboot -f
 else
     display $GREEN "UID is already $NEW_UID. No change needed."
     
@@ -369,5 +371,5 @@ else
     display $BLUE "Computer will now reboot."
     display $BLUE "Shop smart. Shop S-Mart."
     sleep 5
-    sudo reboot now
+    /sbin/reboot
 fi
