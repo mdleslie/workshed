@@ -313,50 +313,44 @@ sleep 2s
 
 #########################################################################################
 
-# Safe UID change service (OPTIMIZED: NO HANGS)
+#########################################################################################
+# Safe UID change service (SELF-DESTRUCT EDITION)
 log INFO "Scheduling safe UID change to $NEW_UID"
 display $RED "Rebooting once to apply UID change – totally normal!"
 
+# 1. Create the worker script
 sudo tee /opt/fix-my-uid.sh > /dev/null <<EOF
 #!/bin/bash
-set -euo pipefail
-
-# Hardcoded values from installer
+# No 'set -e' here so we ensure cleanup happens even if a minor error occurs
 TARGET_USER="$TARGET_USER"
 NEW_UID="$NEW_UID"
 TARGET_HOME="/home/\$TARGET_USER"
 
-# 1. IDEMPOTENCY CHECK (Stops the reboot loop)
-# If the file exists, or if UID is already correct, exit immediately.
-if [ -f /var/lib/uid-fix-done ]; then
-    exit 0
-fi
-
-CURRENT_UID=\$(id -u "\$TARGET_USER")
-if [ "\$CURRENT_UID" == "\$NEW_UID" ]; then
-    touch /var/lib/uid-fix-done
-    exit 0
-fi
-
-# 2. Kill processes and Change UID
+# A. CHANGE UID
+# We force the change. If it's already done, this is harmless/instant.
 pkill -u "\$TARGET_USER" || true
 usermod -u \$NEW_UID "\$TARGET_USER"
 
-# 3. FAST CHOWN
-# This is the only critical step. It fixes ownership so you can login.
+# B. FAST CHOWN
+# Fix permissions on home folder
 if [ -d "\$TARGET_HOME" ]; then
     chown -R "\$TARGET_USER:\$TARGET_USER" "\$TARGET_HOME"
 fi
 
-# 4. Mark as done
+# C. SELF-DESTRUCT SEQUENCE (The "100% Sure" Fix)
+# We disable the service and delete the files so this CANNOT run again.
+systemctl disable fix-my-uid.service
+rm /etc/systemd/system/fix-my-uid.service
+rm /opt/fix-my-uid.sh
+
+# D. Create a flag just in case
 touch /var/lib/uid-fix-done
+exit 0
 EOF
 
 sudo chmod +x /opt/fix-my-uid.sh
 
-# SYSTEMD UNIT
-# We removed 'TimeoutSec=infinity' because it's dangerous. 
-# We default to standard timeout so if it fails, it doesn't hang boot forever.
+# 2. Create the Systemd Unit
 sudo tee /etc/systemd/system/fix-my-uid.service > /dev/null <<EOF
 [Unit]
 Description=Safe UID fix
@@ -367,8 +361,8 @@ Before=display-manager.service
 [Service]
 Type=oneshot
 ExecStart=/opt/fix-my-uid.sh
-# Force create file even if script fails slightly, preventing loops
-ExecStartPost=/bin/touch /var/lib/uid-fix-done
+# TIMEOUT: If this takes longer than 30 seconds, kill it and boot anyway.
+TimeoutSec=30
 
 [Install]
 WantedBy=multi-user.target
@@ -376,6 +370,7 @@ EOF
 
 sudo systemctl daemon-reload
 sudo systemctl enable fix-my-uid.service
+#########################################################################################
 
 #########################################################################################
 
