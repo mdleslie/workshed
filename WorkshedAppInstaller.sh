@@ -327,55 +327,46 @@ display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
 
 #########################################################################################
-# Safe UID change (LIVE METHOD)
-# This modifies /etc/passwd directly to avoid the "user currently logged in" error
-# and avoids creating systemd services that slow down boot.
+# Safe UID change (LIVE METHOD - CRASH PROOF)
 #########################################################################################
 log INFO "Changing UID to $NEW_UID"
 display $RED "Updating UID instantly..."
 
 CURRENT_UID=$(id -u "$TARGET_USER")
 if [ "$CURRENT_UID" != "$NEW_UID" ]; then
+    # CRITICAL: Disable error trapping here. 
+    # chown will throw errors on open sockets, but we MUST NOT crash or clean up.
+    trap - ERR EXIT
+
     # 1. Backup
     sudo cp /etc/passwd /etc/passwd.bak
     sudo cp /etc/group /etc/group.bak
 
     # 2. Update Passwd File Directly
-    # We swap the current UID for the NEW_UID for this specific user.
-    # This bypasses the usermod lock.
     sudo sed -i "s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/" /etc/passwd
 
-    # 3. Update File Ownership
+    # 3. Update File Ownership (With Ignore Error Flag)
     display $BLUE "Updating file ownership..."
-    sudo chown -R "$NEW_UID:$NEW_GID" "$TARGET_HOME"
+    # Added '|| true' so socket errors don't kill the script
+    sudo chown -R "$NEW_UID:$NEW_GID" "$TARGET_HOME" || true
     
-    # 4. Update system temp files to avoid errors on shutdown
+    # 4. Update system temp files
     sudo find /tmp /var/tmp -uid "$CURRENT_UID" -exec chown -h "$NEW_UID" {} + 2>/dev/null || true
 
     display $GREEN "UID changed. Rebooting immediately to lock it in."
     
     # 5. Final Report
-    printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
-    printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
-    printf "Installed Flatpak apps: %s\n" "${#installed_flatpak_apps[@]}" >> "$update_summary"
-    printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
     log INFO "Installation summary saved to $update_summary"
 
     # 6. FORCE REBOOT
-    # We use -f to skip gentle service stopping since our user ID is now mismatched
     sudo reboot -f
 else
     display $GREEN "UID is already $NEW_UID. No change needed."
     
-    # Final Report
-    printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
-    printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
-    printf "Installed Flatpak apps: %s\n" "${#installed_flatpak_apps[@]}" >> "$update_summary"
-    printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
     log INFO "Installation summary saved to $update_summary"
 
     script_completed="true"
-     display $BLUE "Computer will now reboot."
+    display $BLUE "Computer will now reboot."
     display $BLUE "Shop smart. Shop S-Mart."
     sleep 5
     sudo reboot now
