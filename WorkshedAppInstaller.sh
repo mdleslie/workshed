@@ -311,69 +311,6 @@ pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
 sleep 2s
 
-#########################################################################################
-
-#########################################################################################
-# Safe UID change service (SELF-DESTRUCT EDITION)
-log INFO "Scheduling safe UID change to $NEW_UID"
-display $RED "Rebooting once to apply UID change – totally normal!"
-
-# 1. Create the worker script
-sudo tee /opt/fix-my-uid.sh > /dev/null <<EOF
-#!/bin/bash
-# No 'set -e' here so we ensure cleanup happens even if a minor error occurs
-TARGET_USER="$TARGET_USER"
-NEW_UID="$NEW_UID"
-TARGET_HOME="/home/\$TARGET_USER"
-
-# A. CHANGE UID
-# We force the change. If it's already done, this is harmless/instant.
-pkill -u "\$TARGET_USER" || true
-usermod -u \$NEW_UID "\$TARGET_USER"
-
-# B. FAST CHOWN
-# Fix permissions on home folder
-if [ -d "\$TARGET_HOME" ]; then
-    chown -R "\$TARGET_USER:\$TARGET_USER" "\$TARGET_HOME"
-fi
-
-# C. SELF-DESTRUCT SEQUENCE (The "100% Sure" Fix)
-# We disable the service and delete the files so this CANNOT run again.
-systemctl disable fix-my-uid.service
-rm /etc/systemd/system/fix-my-uid.service
-rm /opt/fix-my-uid.sh
-
-# D. Create a flag just in case
-touch /var/lib/uid-fix-done
-exit 0
-EOF
-
-sudo chmod +x /opt/fix-my-uid.sh
-
-# 2. Create the Systemd Unit
-sudo tee /etc/systemd/system/fix-my-uid.service > /dev/null <<EOF
-[Unit]
-Description=Safe UID fix
-ConditionPathExists=!/var/lib/uid-fix-done
-After=local-fs.target
-Before=display-manager.service
-
-[Service]
-Type=oneshot
-ExecStart=/opt/fix-my-uid.sh
-# TIMEOUT: If this takes longer than 30 seconds, kill it and boot anyway.
-TimeoutSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable fix-my-uid.service
-#########################################################################################
-
-#########################################################################################
-
 # Final report
 printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
 printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
@@ -389,31 +326,57 @@ log INFO "Installation summary saved to $update_summary"
 display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
 
-script_completed="true"
-log INFO "All done – po!"
-sleep 5s
-display $BLUE "Shop smart. Shop S-Mart."
-sleep 5s
-figlet Workshed | lolcat -a -d 3
-display $GREEN "Rebooting now to finish setup..."
-display $RED "10"
-sleep 1
-display $RED "9"
-sleep 1
-display $RED "8"
-sleep 1
-display $RED "7"
-sleep 1
-display $RED "6"
-sleep 1
-display $RED "5"
-sleep 1
-display $RED "4"
-sleep 1
-display $RED "3"
-sleep 1
-display $RED "2"
-sleep 1
-display $RED "1"
-sleep 1
-sudo reboot now
+#########################################################################################
+# Safe UID change (LIVE METHOD)
+# This modifies /etc/passwd directly to avoid the "user currently logged in" error
+# and avoids creating systemd services that slow down boot.
+#########################################################################################
+log INFO "Changing UID to $NEW_UID"
+display $RED "Updating UID instantly..."
+
+CURRENT_UID=$(id -u "$TARGET_USER")
+if [ "$CURRENT_UID" != "$NEW_UID" ]; then
+    # 1. Backup
+    sudo cp /etc/passwd /etc/passwd.bak
+    sudo cp /etc/group /etc/group.bak
+
+    # 2. Update Passwd File Directly
+    # We swap the current UID for the NEW_UID for this specific user.
+    # This bypasses the usermod lock.
+    sudo sed -i "s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/" /etc/passwd
+
+    # 3. Update File Ownership
+    display $BLUE "Updating file ownership..."
+    sudo chown -R "$NEW_UID:$NEW_GID" "$TARGET_HOME"
+    
+    # 4. Update system temp files to avoid errors on shutdown
+    sudo find /tmp /var/tmp -uid "$CURRENT_UID" -exec chown -h "$NEW_UID" {} + 2>/dev/null || true
+
+    display $GREEN "UID changed. Rebooting immediately to lock it in."
+    
+    # 5. Final Report
+    printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
+    printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
+    printf "Installed Flatpak apps: %s\n" "${#installed_flatpak_apps[@]}" >> "$update_summary"
+    printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
+    log INFO "Installation summary saved to $update_summary"
+
+    # 6. FORCE REBOOT
+    # We use -f to skip gentle service stopping since our user ID is now mismatched
+    sudo reboot -f
+else
+    display $GREEN "UID is already $NEW_UID. No change needed."
+    
+    # Final Report
+    printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
+    printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
+    printf "Installed Flatpak apps: %s\n" "${#installed_flatpak_apps[@]}" >> "$update_summary"
+    printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
+    log INFO "Installation summary saved to $update_summary"
+
+    script_completed="true"
+     display $BLUE "Computer will now reboot."
+    display $BLUE "Shop smart. Shop S-Mart."
+    sleep 5
+    sudo reboot now
+fi
