@@ -8,7 +8,7 @@ figlet Workshed | lolcat -a -d 3
 # ─── PACKAGE MANAGEMENT ───
 alias i='sudo nala install'
 alias fetch='sudo nala fetch'
-alias update='update.sh' 
+alias update='update.sh | lolcat' 
 alias fix='sudo apt --fix-broken install'
 
 # ─── SYSTEM & SAFETY ───
