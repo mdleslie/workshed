@@ -96,9 +96,9 @@ fi
 echo "/usr/lib/x86_64-linux-gnu" | sudo tee /etc/ld.so.conf.d/portaudio.conf > /dev/null
 sudo ldconfig
 
-# -----------------------------------------------------------
-# 5. RATATOUILLE FIX (Build as User, Install as Root)
-# -----------------------------------------------------------
+##############################
+# 5. Ratatouille Install
+##############################
 log INFO "Installing Ratatouille..."
 TEMP_SOURCE="/home/$TARGET_USER/Ratatouille.lv2-temp"
 
@@ -128,9 +128,10 @@ else
 fi
 rm -rf "$TEMP_SOURCE"
 
-# -----------------------------------------------------------
-# 6. SCARLETT FIX (Create Firmware Dir)
-# -----------------------------------------------------------
+##############################
+# 6. Scarlett Focus GUI
+# Not finished
+##############################
 log INFO "Installing Scarlett Focus GUI..."
 if [ -d "alsa-scarlett-gui" ]; then rm -rf alsa-scarlett-gui; fi
 
@@ -146,7 +147,9 @@ sudo make install
 cd ../.. 
 rm -rf alsa-scarlett-gui
 
+##############################
 # 7. REAPER Install
+##############################
 log INFO "Installing REAPER..."
 mkdir -p /tmp/reaper_install
 curl -L "$REAPER_URL" -o /tmp/reaper_install/reaper.tar.xz
@@ -156,7 +159,9 @@ sudo cp -R "$REAPER_SRC"/* "$REAPER_INSTALL_DIR/" 2>/dev/null || sudo mkdir -p "
 sudo ln -sf "$REAPER_INSTALL_DIR/reaper" /usr/local/bin/reaper
 rm -rf /tmp/reaper_install
 
+##############################
 # 8. Yabridge Install
+##############################
 log INFO "Installing Yabridge..."
 sudo mkdir -p "$YABRIDGE_DIR"
 curl -sL "$YABRIDGE_URL" -o /tmp/yabridge.tar.gz
@@ -165,7 +170,9 @@ sudo ln -sf "$YABRIDGE_DIR/yabridge" /usr/local/bin/yabridge
 sudo ln -sf "$YABRIDGE_DIR/yabridgectl" /usr/local/bin/yabridgectl
 rm /tmp/yabridge.tar.gz
 
+##############################
 # 9. Create Desktop Shortcuts
+##############################
 log INFO "Creating Shortcuts..."
 mkdir -p "/home/$TARGET_USER/.local/share/applications"
 
@@ -189,11 +196,14 @@ Type=Application
 Categories=Audio;
 EOF
 
-# Scarlett Shortcut (Ensuring full path)
+# Scarlett Shortcut
 sudo sed -i 's|Exec=alsa-scarlett-gui|Exec=/usr/local/bin/alsa-scarlett-gui|g' /usr/share/applications/alsa-scarlett-gui.desktop 2>/dev/null
 
-# Correct ownership of shortcuts
+# Set ownership of shortcuts
 sudo chown -R $TARGET_USER:$TARGET_USER "/home/$TARGET_USER/.local/share/applications"
 
+
+##############################
+##############################
 log INFO "Installation Complete!"
 display $GREEN "All done, po!"
