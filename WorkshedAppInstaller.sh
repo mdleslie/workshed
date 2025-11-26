@@ -153,11 +153,11 @@ echo '########################################' | lolcat
 sleep 5
 cache_sudo
 
-# ─── Add Fastfetch PPA immediately ───
+# Add Fastfetch PPA immediately
 log INFO "Adding Fastfetch PPA"
 display $GREEN "Adding Fastfetch PPA..."
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-# ─────────────────────────────────────────────────
+##############################
 
 # System update + Nala
 log INFO "Updating system + installing Nala"
@@ -248,11 +248,11 @@ for app in "${flatpak_apps[@]}"; do
     fi
 done
 
-# =============================================================================
+##############################
 # 8. FINAL TOUCHES 
-# =============================================================================
+##############################
 
-# ─── 8.1 Custom update script 
+# 8.1 Custom update script 
 log INFO "Downloading your custom update.sh script"
 display $GREEN "Creating and downloading the update.sh script."
 sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh \
@@ -261,7 +261,7 @@ sudo chmod +x /usr/bin/update.sh
 display $GREEN "update.sh installed → just run 'update.sh' anytime!"
 sleep 2s
 
-# ─── 8.2 Bash aliases 
+# 8.2 Bash aliases 
 log INFO "Adding Workshed bash aliases"
 display $GREEN "Modifying .bashrc file to include useful aliases."
 cp "$TARGET_HOME/.bashrc" "$TARGET_HOME/.bashrc.bak" 2>/dev/null || true
@@ -273,7 +273,7 @@ echo -e "\n# ── Workshed aliases loaded – po! ──" >> "$TARGET_HOME/.ba
 display $GREEN "Aliases added! Open a new terminal or run 'source ~/.bashrc'"
 sleep 2s
 
-# ─── 8.3 NFS mounts for Arkive
+# 8.3 NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 sudo mkdir -p /mnt/Arkive 
@@ -285,7 +285,7 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab \
 display $GREEN "NFS mounts added – they’ll appear after reboot"
 sleep 2s
 
-# ─── 8.4 Band Maid fastfetch logo 
+# 8.4 Band Maid fastfetch logo 
 log INFO "Downloading an impossibly hard rocking maid logo, po."
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
 sleep 5s
@@ -296,7 +296,7 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
 display $GREEN "Band Maid logo installed – po!"
 sleep 3s
 
-# ─── 8.5 yt-dlp (latest & greatest, via pipx)
+# 8.5 yt-dlp (latest & greatest, via pipx)
 log INFO "Installing/upgrading yt-dlp via pipx"
 display $GREEN "Installing yt-dlp"
 
