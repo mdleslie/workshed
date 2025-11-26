@@ -120,6 +120,7 @@ flatpak_apps=(
     app.zen_browser.zen
     it.mijorus.gearlever
     io.github.Faugus.faugus-launcher
+    io.github.seadve.Kooha
 )
 
 ##############################
