@@ -117,7 +117,11 @@ deb_packages=(
   "libxcursor-dev"            # Graphical dependencies for custom UI libraries
   "libxext-dev"
   "libxrandr-dev"
-  "curl"                      # Needed for downloading REAPER/yabridge/Ratatouille fallback
+  "curl" 
+  "make" 
+  "gcc"
+  "libgtk-4-dev"
+  "libasound2-dev"                    
 )
 
 # Flatpak applications relevant to DAW workflow (e.g., audio utilities)
@@ -388,6 +392,26 @@ else
     fi
 fi
 
+# --- SCARLETT FOCUS GUI INSTALL BLOCK ---
+log INFO "Installing Scarlett Focus GUI..."
+
+# 1. Clean previous install attempt to prevent git error
+if [ -d "alsa-scarlett-gui" ]; then
+    rm -rf alsa-scarlett-gui
+fi
+
+# 2. Clone and Build
+git clone https://github.com/geoffreybennett/alsa-scarlett-gui
+cd alsa-scarlett-gui/src
+make -j$(nproc)
+sudo make install
+
+# 3. CRITICAL: Return to previous directory and clean up
+cd ../..
+rm -rf alsa-scarlett-gui
+log INFO "Scarlett Focus GUI installed."
+
+############################################################
 # Final cleanup (always runs now — success or fallback)
 sudo rm -rf "$TEMP_SOURCE_DIR" 2>/dev/null || true
 hash -r
