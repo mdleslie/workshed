@@ -3,16 +3,14 @@
 # DAW Installation Script
 # Author: workshed (Modified by Miku Kobato, po!)
 # Description: Installs REAPER, yabridge, Ratatouille, and Scarlett GUI.
-#              (Unattended / Silent Version)
+#              (Fixed Permissions & Directory Logic)
 
 ##############################
 # Configuration Variables
 ##############################
 
 TARGET_USER="${SUDO_USER:-$USER}"
-# Log files
 log_file="/home/$TARGET_USER/daw_install_log.txt"
-update_summary="/home/$TARGET_USER/daw_install_summary.txt"
 
 # REAPER Version
 REAPER_VERSION="754"
@@ -25,9 +23,7 @@ YABRIDGE_DIR="/opt/yabridge-$YABRIDGE_VERSION"
 YABRIDGE_URL="https://github.com/robbert-vdh/yabridge/releases/download/$YABRIDGE_VERSION/yabridge-$YABRIDGE_VERSION.tar.gz"
 
 # Colors
-RED='\033[0;31m'
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
 NC='\033[0m'
 
 ##############################
@@ -35,9 +31,7 @@ NC='\033[0m'
 ##############################
 
 log() {
-    local level=$1
-    local message=$2
-    echo "[$level] $message" | tee -a "$log_file"
+    echo "[$1] $2" | tee -a "$log_file"
 }
 
 display() {
@@ -46,7 +40,6 @@ display() {
 
 check_and_install_nala() {
     if ! command -v nala &> /dev/null; then
-        log INFO "Installing Nala..."
         sudo apt update && sudo apt install nala -y
     fi
 }
@@ -56,27 +49,11 @@ check_and_install_nala() {
 ##############################
 
 deb_packages=(
-  "wine-stable"
-  "git"
-  "build-essential"
-  "pkg-config"
-  "libssl-dev"
-  "libexpat1-dev"
-  "libcairo2-dev"
-  "libx11-dev"
-  "libsndfile1-dev"
-  "lv2-dev"
-  "jackd2"
-  "libjack-jackd2-dev"
-  "portaudio19-dev"
-  "libxcursor-dev"
-  "libxext-dev"
-  "libxrandr-dev"
-  "curl" 
-  "make" 
-  "gcc"
-  "libgtk-4-dev"
-  "libasound2-dev"   # <--- Corrected Typo
+  "wine-stable" "git" "build-essential" "pkg-config" "libssl-dev"
+  "libexpat1-dev" "libcairo2-dev" "libx11-dev" "libsndfile1-dev"
+  "lv2-dev" "jackd2" "libjack-jackd2-dev" "portaudio19-dev"
+  "libxcursor-dev" "libxext-dev" "libxrandr-dev" "curl" 
+  "make" "gcc" "libgtk-4-dev" "libasound2-dev"
 )
 
 flatpak_apps=(
@@ -89,7 +66,6 @@ flatpak_apps=(
 # Main Logic
 ##############################
 
-# Prevent interactive prompts (The Fix for Jackd2 popup)
 export DEBIAN_FRONTEND=noninteractive
 
 log INFO "Starting DAW Installation..."
@@ -97,20 +73,15 @@ display $GREEN "Omajinai time! Setting up the pro-audio software!"
 
 # 1. Install Nala & Pre-configure Jackd2
 check_and_install_nala
-
-log INFO "Pre-configuring JACK Audio Connection Kit..."
-# Ensure debconf-utils is present to handle the selection
 sudo apt-get install -y debconf-utils
-# This line answers "Yes" to the realtime priority question automatically
 echo "jackd2 jackd/tweak_rt_limits boolean true" | sudo debconf-set-selections
 
 # 2. Install Dependencies
 INSTALLER="nala"
 if ! command -v nala &> /dev/null; then INSTALLER="apt"; fi
 
-log INFO "Installing dependencies using $INSTALLER..."
+log INFO "Installing dependencies..."
 for package in "${deb_packages[@]}"; do
-    # -y flag plus noninteractive frontend ensures silence
     sudo DEBIAN_FRONTEND=noninteractive "$INSTALLER" install -y "$package"
 done
 
@@ -125,39 +96,53 @@ fi
 echo "/usr/lib/x86_64-linux-gnu" | sudo tee /etc/ld.so.conf.d/portaudio.conf > /dev/null
 sudo ldconfig
 
-# 5. Ratatouille Install
+# -----------------------------------------------------------
+# 5. RATATOUILLE FIX (Build as User, Install as Root)
+# -----------------------------------------------------------
 log INFO "Installing Ratatouille..."
 TEMP_SOURCE="/home/$TARGET_USER/Ratatouille.lv2-temp"
+
+# Step A: Compile as the normal user (avoids permission errors in home dir)
+# We delete the fallback curl command entirely because it was broken.
 sudo -H -u "$TARGET_USER" bash -c "
-    mkdir -p '$TEMP_SOURCE' && cd '$TEMP_SOURCE'
+    rm -rf '$TEMP_SOURCE'
+    mkdir -p '$TEMP_SOURCE'
+    cd '$TEMP_SOURCE'
     git clone https://github.com/brummer10/Ratatouille.lv2.git .
     git submodule update --init --recursive
     make standalone
     make lv2
-    sudo make install
 "
 
-# Move standalone to system bin if needed
-if [ -f "/usr/local/bin/Ratatouille" ]; then
-    log INFO "Ratatouille installed successfully."
+# Step B: Install the compiled binaries as ROOT
+if [ -f "$TEMP_SOURCE/Ratatouille" ]; then
+    log INFO "Binary compiled successfully. Installing..."
+    cp "$TEMP_SOURCE/Ratatouille" /usr/local/bin/Ratatouille
+    chmod +x /usr/local/bin/Ratatouille
+    
+    # Install LV2 Plugin
+    mkdir -p /usr/lib/lv2/Ratatouille.lv2
+    cp -r "$TEMP_SOURCE/Ratatouille.lv2/"* /usr/lib/lv2/Ratatouille.lv2/
 else
-    # Fallback to prebuilt if compile failed
-    log WARNING "Compiling failed, downloading prebuilt..."
-    sudo curl -L -o /usr/local/bin/Ratatouille https://github.com/brummer10/Ratatouille.lv2/releases/latest/download/Ratatouille
-    sudo chmod +x /usr/local/bin/Ratatouille
+    log ERROR "Ratatouille failed to compile. Check 'build-essential' and 'libgtk-4-dev'."
 fi
 rm -rf "$TEMP_SOURCE"
 
-# 6. Scarlett Focus GUI
+# -----------------------------------------------------------
+# 6. SCARLETT FIX (Create Firmware Dir)
+# -----------------------------------------------------------
 log INFO "Installing Scarlett Focus GUI..."
 if [ -d "alsa-scarlett-gui" ]; then rm -rf alsa-scarlett-gui; fi
+
+# CRITICAL FIX: Create the firmware directory to prevent Segfault
+sudo mkdir -p /usr/lib/firmware/scarlett2
 
 git clone https://github.com/geoffreybennett/alsa-scarlett-gui
 cd alsa-scarlett-gui/src
 make -j$(nproc)
 sudo make install
 
-# Return to previous directory and clean up
+# Cleanup
 cd ../.. 
 rm -rf alsa-scarlett-gui
 
@@ -183,6 +168,8 @@ rm /tmp/yabridge.tar.gz
 # 9. Create Desktop Shortcuts
 log INFO "Creating Shortcuts..."
 mkdir -p "/home/$TARGET_USER/.local/share/applications"
+
+# REAPER Shortcut
 cat << EOF | sudo tee "/home/$TARGET_USER/.local/share/applications/reaper-native.desktop" > /dev/null
 [Desktop Entry]
 Name=REAPER
@@ -192,6 +179,7 @@ Type=Application
 Categories=Audio;
 EOF
 
+# Ratatouille Shortcut
 cat << EOF | sudo tee "/home/$TARGET_USER/.local/share/applications/ratatouille.desktop" > /dev/null
 [Desktop Entry]
 Name=Ratatouille
@@ -200,6 +188,9 @@ Icon=audio-input-microphone
 Type=Application
 Categories=Audio;
 EOF
+
+# Scarlett Shortcut (Ensuring full path)
+sudo sed -i 's|Exec=alsa-scarlett-gui|Exec=/usr/local/bin/alsa-scarlett-gui|g' /usr/share/applications/alsa-scarlett-gui.desktop 2>/dev/null
 
 # Correct ownership of shortcuts
 sudo chown -R $TARGET_USER:$TARGET_USER "/home/$TARGET_USER/.local/share/applications"
