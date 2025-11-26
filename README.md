@@ -33,6 +33,8 @@ Run after app install script or stand alone.
 
 `curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/DAW_Install.sh | bash`
 
+There is also a uninstall_DAW.sh to remove all apps installed with the install DAW script.
+
 ### Groovy.
 
 ###Groovy.
