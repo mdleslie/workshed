@@ -27,6 +27,12 @@ The script can be run via a curl command.
 
 `curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh | bash`
 
+DAW Install script
+I am working on this secondary install script for audio recording and production. Of which I am still learning and have a long way to go.
+Run after app install script or stand alone. 
+
+`curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/DAW_Install.sh | bash`
+
 ### Groovy.
 
 ###Groovy.
