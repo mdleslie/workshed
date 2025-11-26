@@ -3,7 +3,7 @@
 # DAW Installation Script
 # Author: workshed (Modified by Miku Kobato, po!)
 # Description: Installs REAPER, yabridge, Ratatouille, and Scarlett GUI.
-#              (Fixed Permissions & Directory Logic)
+#              
 
 ##############################
 # Configuration Variables
