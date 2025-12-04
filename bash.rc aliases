@@ -3,12 +3,14 @@
 ################################################################################################
 
 # Startup Greeting
-figlet Workshed | lolcat -a -d 3
+if command -v figlet &>/dev/null && command -v lolcat &>/dev/null; then
+    figlet Workshed | lolcat -a -d 3
+fi
 
 # ─── PACKAGE MANAGEMENT ───
 alias i='sudo nala install'
 alias fetch='sudo nala fetch'
-alias update='update.sh | lolcat' 
+alias update='update.sh' | lolcat
 alias fix='sudo apt --fix-broken install'
 
 # ─── SYSTEM & SAFETY ───
@@ -33,18 +35,17 @@ alias extip='curl icanhazip.com'
 alias parrot='curl parrot.live'
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
 alias mem5='ps auxf | sort -nr -k 4 | head -5'
-alias ports='sudo netstat -tulanp'  # Requires net-tools, showing listening ports
+alias ports='sudo netstat -tulanp'  # Requires net-tools
 
 # ─── DISK & FILE TOOLS ───
 alias wget='wget -c'
 alias cpv='rsync -avh --info=progress2'
-alias usage='ncdu'          # Changed from 'du' to prevent breakage
-alias pydf='pydf'           # Kept pydf separate from df just in case
-alias catt='cat | lolcat'   # Changed from 'cat' to prevent pipe corruption
+alias usage='ncdu'          
+alias pydf='pydf'           
+alias catt='cat | lolcat'   
 alias store='arkive_files.sh'
 
 # ─── MEDIA & SERVER ───
-# Changed browser to chrome (since you install it). Change back if you use Firefox.
 alias yt='yt-dlp --cookies-from-browser chrome' 
 
 # Docker Shortcuts (For Arr Stack)
@@ -53,7 +54,7 @@ alias dcompose='docker compose'
 alias dlogs='docker logs -tf --tail="50" '
 
 # ─── AESTHETICS ───
-# Place maid logo in ~/.local/share/fastfetch/logos/maid
+# Expects logo at ~/.local/share/fastfetch/logos/maid
 alias fastfetch='fastfetch -l maid | lolcat'
 
 # Nice username colors
@@ -66,7 +67,7 @@ alias arr="ssh david@192.168.1.2"
 
 # ─── FUNCTIONS ───
 
-# Sudo the last command (The "Fuck" command)
+# Sudo the fuck command
 fuck() {
     if [[ $# == 0 ]]; then
         sudo $(history -p '!!')
@@ -79,17 +80,17 @@ fuck() {
 extract () {
   if [ -f $1 ] ; then
     case $1 in
-      *.tar.bz2)   tar xjf $1     ;;
-      *.tar.gz)    tar xzf $1     ;;
-      *.bz2)       bunzip2 $1     ;;
-      *.rar)       unrar e $1     ;;
-      *.gz)        gunzip $1      ;;
-      *.tar)       tar xf $1      ;;
-      *.tbz2)      tar xjf $1     ;;
-      *.tgz)       tar xzf $1     ;;
-      *.zip)       unzip $1       ;;
-      *.Z)         uncompress $1  ;;
-      *.7z)        7z x $1        ;;
+      *.tar.bz2)   tar xjf $1      ;;
+      *.tar.gz)    tar xzf $1      ;;
+      *.bz2)       bunzip2 $1      ;;
+      *.rar)       unrar e $1      ;;
+      *.gz)        gunzip $1       ;;
+      *.tar)       tar xf $1       ;;
+      *.tbz2)      tar xjf $1      ;;
+      *.tgz)       tar xzf $1      ;;
+      *.zip)       unzip $1        ;;
+      *.Z)         uncompress $1   ;;
+      *.7z)        7z x $1         ;;
       *)     echo "'$1' cannot be extracted via extract()" ;;
     esac
   else
