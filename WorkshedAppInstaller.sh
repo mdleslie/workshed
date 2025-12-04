@@ -262,8 +262,8 @@ display $GREEN "Configuring log rotation for Arkive logs..."
 
 # Ensure the log directory exists with correct permissions first
 # (This prevents logrotate from failing if the folder doesn't exist yet)
-mkdir -p /home/david/logs
-chown david:david /home/david/logs
+mkdir -p "$LOG_DIR"
+chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
 
 # Create the logrotate config file
 sudo cat << EOF > /etc/logrotate.d/arkive_files
@@ -295,10 +295,10 @@ sleep 2s
 
 # Custom file archiving 
 log INFO "Downloading your custom arkive_files.sh script"
-display $GREEN "Creating and downloading the uarkive_files.sh script."
+display $GREEN "Creating and downloading the arkive_files.sh script."
 sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/arkive_files.sh \
-    -o /usr/bin/update.sh
-sudo chmod +x /usr/bin/arikive_files.sh
+    -o /usr/bin/arkive_files.sh
+sudo chmod +x /usr/bin/arkive_files.sh
 display $GREEN "arkive_files.sh installed → just run 'store' anytime!"
 sleep 2s
 
