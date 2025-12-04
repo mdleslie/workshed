@@ -3,7 +3,7 @@
 # --- CONFIGURATION ---
 SOURCE_DIR="/media/david/LandingDrive/Drop Folder"
 DEST_DIR="/mnt/Ark/Vault/Sorted"
-LOGDIR="/home/david/logs"
+LOGDIR="/home/david/logs/move_logs"
 LOGFILE="$LOGDIR/move_logs.log"
 
 # --- PRE-FLIGHT ---

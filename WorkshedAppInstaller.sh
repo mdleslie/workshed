@@ -249,20 +249,60 @@ for app in "${flatpak_apps[@]}"; do
     fi
 done
 
+display $GREEN "Breaking new gate!"
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+
+# ---------------------------------------------------------
+# CONFIGURE LOG ROTATION
+# ---------------------------------------------------------
+
+display $GREEN "Configuring log rotation for Arkive logs..."
+
+# Ensure the log directory exists with correct permissions first
+# (This prevents logrotate from failing if the folder doesn't exist yet)
+mkdir -p /home/david/logs
+chown david:david /home/david/logs
+
+# Create the logrotate config file
+sudo cat << EOF > /etc/logrotate.d/arkive_files
+/home/david/logs/move_logs.log {
+    su david david
+    daily
+    rotate 4
+    size 5M
+    missingok
+    notifempty
+    compress
+}
+EOF
+
+display $GREEN "Log rotation configured."
+
 ##############################
-# 8. FINAL TOUCHES 
+#  FINAL TOUCHES 
 ##############################
 
-# 8.1 Custom update script 
+# Custom update script 
 log INFO "Downloading your custom update.sh script"
 display $GREEN "Creating and downloading the update.sh script."
 sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/update.sh \
     -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
-display $GREEN "update.sh installed → just run 'update.sh' anytime!"
+display $GREEN "update.sh installed → just run 'update' anytime!"
 sleep 2s
 
-# 8.2 Bash aliases 
+# Custom file archiving 
+log INFO "Downloading your custom arkive_files.sh script"
+display $GREEN "Creating and downloading the uarkive_files.sh script."
+sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/arkive_files.sh \
+    -o /usr/bin/update.sh
+sudo chmod +x /usr/bin/arikive_files.sh
+display $GREEN "arkive_files.sh installed → just run 'store' anytime!"
+sleep 2s
+
+# Bash aliases 
 log INFO "Adding Workshed bash aliases"
 display $GREEN "Modifying .bashrc file to include useful aliases."
 cp "$TARGET_HOME/.bashrc" "$TARGET_HOME/.bashrc.bak" 2>/dev/null || true
@@ -274,7 +314,7 @@ echo -e "\n# ── Workshed aliases loaded – po! ──" >> "$TARGET_HOME/.ba
 display $GREEN "Aliases added! Open a new terminal or run 'source ~/.bashrc'"
 sleep 2s
 
-# 8.3 NFS mounts for Arkive
+# NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 sudo mkdir -p /mnt/Arkive 
@@ -286,7 +326,7 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab \
 display $GREEN "NFS mounts added – they’ll appear after reboot"
 sleep 2s
 
-# 8.4 Band Maid fastfetch logo 
+# Band Maid fastfetch logo 
 log INFO "Downloading an impossibly hard rocking maid logo, po."
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
 sleep 5s
@@ -297,7 +337,7 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
 display $GREEN "Band Maid logo installed – po!"
 sleep 3s
 
-# 8.5 yt-dlp (latest & greatest, via pipx)
+# yt-dlp (latest & greatest, via pipx)
 log INFO "Installing/upgrading yt-dlp via pipx"
 display $GREEN "Installing yt-dlp"
 
