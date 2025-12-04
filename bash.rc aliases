@@ -41,6 +41,7 @@ alias cpv='rsync -avh --info=progress2'
 alias usage='ncdu'          # Changed from 'du' to prevent breakage
 alias pydf='pydf'           # Kept pydf separate from df just in case
 alias catt='cat | lolcat'   # Changed from 'cat' to prevent pipe corruption
+alias store='arkive_files.sh'
 
 # ─── MEDIA & SERVER ───
 # Changed browser to chrome (since you install it). Change back if you use Firefox.
