@@ -260,15 +260,19 @@ echo '########################################' | lolcat
 
 display $GREEN "Configuring log rotation for Arkive logs..."
 
-# Ensure the log directory exists with correct permissions first
-# (This prevents logrotate from failing if the folder doesn't exist yet)
+# 1. DEFINE the variable (This was missing!)
+LOG_DIR="$TARGET_HOME/logs"
+
+# Ensure the log directory exists with correct permissions
 mkdir -p "$LOG_DIR"
+# Use the calculated user variable, not hardcoded 'david'
 chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
 
 # Create the logrotate config file
+# We use variables inside the config so it adapts to any user
 sudo cat << EOF > /etc/logrotate.d/arkive_files
-/home/david/logs/move_logs.log {
-    su david david
+$LOG_DIR/move_logs.log {
+    su $TARGET_USER $TARGET_USER
     daily
     rotate 4
     size 5M
