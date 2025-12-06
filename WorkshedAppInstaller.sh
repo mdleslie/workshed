@@ -87,6 +87,7 @@ deb_packages=(
     libxext-dev
     libxrandr-dev
     net-tools
+    ethtool
 )
 
 flatpak_apps=(
