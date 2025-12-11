@@ -103,7 +103,6 @@ flatpak_apps=(
     org.localsend.localsend_app
     io.github.shiftey.Desktop
     com.github.tchx84.Flatseal
-    eu.betterbird.Betterbird
     net.davidotek.pupgui2
     com.vscodium.codium
     org.darktable.Darktable
