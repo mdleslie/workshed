@@ -10,7 +10,7 @@ fi
 # ─── PACKAGE MANAGEMENT ───
 alias i='sudo nala install'
 alias fetch='sudo nala fetch'
-alias update='update.sh' | lolcat
+alias update='update.sh'
 alias fix='sudo apt --fix-broken install'
 
 # ─── SYSTEM & SAFETY ───
