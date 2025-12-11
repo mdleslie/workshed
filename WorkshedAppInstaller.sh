@@ -271,8 +271,8 @@ chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
 
 # Create the logrotate config file
 # We use variables inside the config so it adapts to any user
-sudo cat << EOF > /etc/logrotate.d/arkive_files
-$LOG_DIR/move_logs.log {
+cat << EOF | sudo tee /etc/logrotate.d/arkive_files > /dev/null
+${log_file} {
     su $TARGET_USER $TARGET_USER
     daily
     rotate 4
