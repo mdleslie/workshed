@@ -121,6 +121,7 @@ flatpak_apps=(
     it.mijorus.gearlever
     io.github.Faugus.faugus-launcher
     io.github.seadve.Kooha
+    no.mifi.losslesscut
 )
 
 ##############################
