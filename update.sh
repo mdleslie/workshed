@@ -87,7 +87,7 @@ sudo pop-upgrade release upgrade 2>&1 | tee -a "$log_file" | tee -a "$update_sum
 # yt dlp specific upgrade
 log_and_display INFO "Updating yt-dlp specific components"
 sleep 2s
-yt-dlp -U
+pipx upgrade yt-dlp
 
 sleep $SLEEP
 
