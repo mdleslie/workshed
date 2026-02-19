@@ -3,8 +3,12 @@
 ####################################################################################################
 ####################################################################################################
 
-#nfs mount command  
-192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,intr 0 0
+#nfs mount command
+#192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,intr 0 0
+#192.168.1.150:/volume1/Ark /mnt/Ark nfs defaults,_netdev,noatime,vers=3,hard,intr 0 0
+
+192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,intr,x-systemd.automount,x-systemd.idle-timeout=600 0 0
+192.168.1.150:/volume1/Ark /mnt/Ark nfs defaults,_netdev,noatime,vers=3,hard,intr,x-systemd.automount,x-systemd.idle-timeout=600 0 0
 
 
 
