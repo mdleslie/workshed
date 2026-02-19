@@ -1,6 +1,8 @@
 #!/bin/bash
-# Pop!_OS / Ubuntu Fresh Install Setup Script – 2025 Edition
+# Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
+# Version: 1.0.4-LILITH
+# Updated: 2026-02-19
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -351,7 +353,7 @@ if ! command -v pipx &>/dev/null; then
 fi
 
 # Make sure pipx is in PATH for this session
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$TARGET_HOME/.local/bin:$PATH"
 
 pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
 display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
@@ -371,6 +373,16 @@ log INFO "Installation summary saved to $update_summary"
 
 display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
+
+# ─── Install Bun (Required for the 'yt' alias) ───
+log INFO "Installing Bun for $TARGET_USER"
+display $GREEN "Installing Bun JS Runtime, po!"
+
+# Run the installer as the target user, not as root
+sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
+
+# Ensure the script session knows where Bun is for the next steps
+export PATH="$TARGET_HOME/.bun/bin:$PATH"
 
 #########################################################################################
 # Safe UID change (LIVE METHOD - ROOT BUBBLE)
