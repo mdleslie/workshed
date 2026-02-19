@@ -2,8 +2,8 @@
 
 # --- CONFIGURATION ---
 SOURCE_DIR="/media/david/LandingDrive/Drop Folder"
-DEST_DIR="/mnt/Ark/Vault/Sorted"
-LOGDIR="/home/david/logs/move_logs"
+DEST_DIR="/mnt/Ark/Vault/Sorted"  # Verified: Manual mount point
+LOGDIR="/home/david/logs/arkive"   # Consolidated with system logs
 LOGFILE="$LOGDIR/move_logs.log"
 
 # --- PRE-FLIGHT ---
