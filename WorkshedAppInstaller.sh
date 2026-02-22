@@ -112,13 +112,9 @@ flatpak_apps=(
     com.google.Chrome
     io.github.flattool.Warehouse
     com.discordapp.Discord
-    com.github.IsmaelMartinez.teams_for_linux
     com.github.taiko2k.tauonmb
     org.inkscape.Inkscape
-    com.rtosta.zapzap
-    us.zoom.Zoom
     com.dropbox.Client
-    md.obsidian.Obsidian
     com.github.unrud.VideoDownloader
     app.zen_browser.zen
     it.mijorus.gearlever
@@ -151,7 +147,7 @@ trap 'log ERROR "Failed at line $LINENO"' ERR
 trap cleanup EXIT
 script_completed="false"
 
-# Early lolcat
+# lolcat
 if ! command -v lolcat &>/dev/null; then
     log INFO "Installing lolcat – aesthetics matter, po!"
     sudo apt update && sudo apt install -y lolcat
@@ -177,8 +173,10 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y nala
 
 echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
 display $GREEN "Gus, don't be William Zabka from Back to School."
-sleep 3s
+sleep 5s
 
 ##############################
 # Microsoft Fonts + DVD support
@@ -287,8 +285,8 @@ for snap_app in "${snap_packages[@]}"; do
         log INFO "$snap_app → already installed"
     else
         log INFO "Installing Snap → $snap_app"
-        # Snaps usually require sudo for installation
         if sudo snap install "$snap_app"; then
+             installed_snap_packages+=("$snap_app") # <--- ADD THIS LINE
              log INFO "$snap_app installed successfully"
         else
              log ERROR "Failed to install $snap_app"
@@ -301,7 +299,7 @@ display $GREEN "Breaking new gate!"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-sleep 3s
+sleep 5s
 
 # ---------------------------------------------------------
 # CONFIGURE LOG ROTATION
@@ -473,9 +471,6 @@ else
     script_completed="true"
     display $BLUE "Computer will now reboot."
     display $BLUE "Shop smart. Shop S-Mart."
-    sleep 5
+    sleep 10s
     sudo reboot now
 fi
-
-
-
