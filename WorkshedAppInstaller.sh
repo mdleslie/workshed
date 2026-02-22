@@ -1,8 +1,8 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 1.0.4-LILITH
-# Updated: 2026-02-19
+# Version: 1.0.5 Snaps added
+# Updated: 2026-02-21
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -26,7 +26,7 @@ installed_deb_packages=()
 installed_flatpak_apps=()
 
 ##############################
-# EDIT THESE TWO ARRAYS 
+# EDIT THESE THREE ARRAYS 
 ##############################
 
 deb_packages=(
@@ -124,6 +124,11 @@ flatpak_apps=(
     io.github.Faugus.faugus-launcher
     io.github.seadve.Kooha
     no.mifi.losslesscut
+)
+
+snap_packages=(
+    upnote
+    lunatask
 )
 
 ##############################
@@ -252,10 +257,49 @@ for app in "${flatpak_apps[@]}"; do
     fi
 done
 
+##############################
+# Snap Setup 
+##############################
+log INFO "Installing Snapd and ${#snap_packages[@]} Snap packages"
+display $GREEN "Setting up Snap environment..."
+
+# 1. Install snapd service
+if ! command -v snap &>/dev/null; then
+    log INFO "snapd not found. Installing..."
+    sudo nala install -y snapd
+fi
+
+# 2. Start and enable the service immediately
+sudo systemctl enable --now snapd.socket
+
+# 3. Install the core snap and snapd (Required for many apps to function)
+log INFO "Installing Snapd..."
+sudo snap install snapd
+
+log INFO "Installing Snap Core..."
+sudo snap install core
+
+# 4. Install Snap Loop
+for snap_app in "${snap_packages[@]}"; do
+    if snap list | grep -q "$snap_app"; then
+        log INFO "$snap_app → already installed"
+    else
+        log INFO "Installing Snap → $snap_app"
+        # Snaps usually require sudo for installation
+        if sudo snap install "$snap_app"; then
+             log INFO "$snap_app installed successfully"
+        else
+             log ERROR "Failed to install $snap_app"
+             display $RED "Failed to install $snap_app"
+        fi
+    fi
+done
+
 display $GREEN "Breaking new gate!"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
+sleep 3s
 
 # ---------------------------------------------------------
 # CONFIGURE LOG ROTATION
