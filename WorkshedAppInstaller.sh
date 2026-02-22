@@ -24,6 +24,7 @@ NEW_GID="1000"
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 installed_deb_packages=()
 installed_flatpak_apps=()
+installed_snap_packages=()
 
 ##############################
 # EDIT THESE THREE ARRAYS 
@@ -408,6 +409,8 @@ printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$updat
 printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
 printf "Installed Flatpak apps: %s\n" "${#installed_flatpak_apps[@]}" >> "$update_summary"
 printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
+printf "Installed Snap packages: %s\n" "${#installed_snap_packages[@]}" >> "$update_summary"
+printf '%s\n' "${installed_snap_packages[@]}" >> "$update_summary"
 
 display $GREEN "Computer will reboot for the PUID changes to take full effect, po."
 display $BLUE "Warning, Computer will reboot for the PUID changes to take full effect, po."
