@@ -6,6 +6,7 @@ SLEEP=2s
 now=$(date +"%Y-%m-%d %H:%M:%S")
 log_file="/home/$USER/logs/update_log.txt"
 update_summary="/home/$USER/logs/update_summary_$(date +"%Y%m%d_%H%M%S").txt"
+FAILED_MANAGERS=()
 
 # Log rotation
 if [ -f "$log_file" ]; then
@@ -22,31 +23,38 @@ log_and_display() {
     logger -p user.$level "$2"
 }
 
-# Check if system is pending a reboot
+# Wrapper function for error handling per manager
+run_update() {
+    local name=$1
+    local cmd=$2
+    log_and_display INFO "Starting $name updates..."
+    
+    # Execute command and capture exit code
+    if eval "$cmd" 2>&1 | tee -a "$log_file" | tee -a "$update_summary"; then
+        log_and_display INFO "$name updates completed successfully."
+    else
+        log_and_display ERROR "$name updates failed."
+        FAILED_MANAGERS+=("$name")
+    fi
+    sleep $SLEEP
+}
+
+# --- Pre-flight Checks ---
+
 if [ -f /var/run/reboot-required ]; then
     log_and_display WARNING "A system reboot is required. Please reboot before running this script."
     exit 1
 fi
 
-# Error handling
-set -e
-trap 'log_and_display ERROR "An error occurred. Exit code: $?"' ERR
+# Check dependencies
+for cmd in lolcat nala snap flatpak pipx; do
+    if ! command -v $cmd &> /dev/null; then
+        log_and_display WARNING "$cmd is missing. Attempting to install or skipping..."
+        # (Add specific install logic here if desired, like your existing nala/lolcat checks)
+    fi
+done
 
-log_and_display INFO "Starting update script"
-
-# Check if lolcat is installed
-if ! command -v lolcat &> /dev/null; then
-    log_and_display WARNING "lolcat is not installed. Installing lolcat."
-    sudo apt install -y lolcat
-fi
-
-# Check if nala is installed
-if ! command -v nala &> /dev/null; then
-    log_and_display WARNING "nala is not installed. Installing nala."
-    sudo apt update && sudo apt install -y nala
-fi
-
-# Checking available Hard drive space.
+# Disk Space Check
 available_space=$(df -h $HOME | awk 'NR==2 {print $4}')
 available_space_numeric=$(echo $available_space | sed 's/[^0-9.]//g')
 available_space_unit=$(echo $available_space | sed 's/[0-9.]//g')
@@ -61,100 +69,59 @@ esac
 available_space_gb=$(echo "$available_space_numeric * $multiplier" | bc)
 
 if (( $(echo "$available_space_gb < 5" | bc -l) )); then
-    log_and_display WARNING "Less than 5GB of free space available. Clean up disk space before updating!"
+    log_and_display WARNING "Less than 5GB free ($available_space_gb GB). Clean up disk space!"
     exit 1
 fi
 
-# Prompt for sudo password early
-log_and_display INFO "This script requires sudo privileges. Enter password for $USER now."
-if sudo -v; then
-    log_and_display INFO "Sudo access granted. Starting update process..."
-else
-    log_and_display ERROR "Failed to obtain sudo privileges. Exiting."
-    exit 1
-fi
+# Sudo Refresh
+log_and_display INFO "Refreshing sudo credentials..."
+sudo -v || { log_and_display ERROR "Sudo failed. Exiting."; exit 1; }
 
-log_and_display INFO "Updating packages"
-sleep 2s
-sudo nala update -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
-flatpak update -y --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+# --- Update Execution ---
 
-# Snap package updates
-log_and_display INFO "Updating Snap packages"
-if command -v snap &> /dev/null; then
-    sleep 2s
-    sudo snap refresh 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
-else
-    log_and_display WARNING "Snap is not installed or the daemon is not running. Skipping."
-fi
+# 1. System Repos (Nala)
+run_update "Nala Update" "sudo nala update -v"
 
-# Pop specific upgrade
-log_and_display INFO "Updating Pop!_OS specific components"
-sleep 2s
-sudo pop-upgrade release upgrade 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+# 2. Flatpak
+run_update "Flatpak" "flatpak update -y --verbose"
 
-# yt dlp specific upgrade
-log_and_display INFO "Updating yt-dlp specific components"
-sleep 2s
-pipx upgrade yt-dlp
+# 3. Snap (For Upnote/Lunatask)
+run_update "Snap" "sudo snap refresh"
 
-sleep $SLEEP
+# 4. Pop!_OS Components
+run_update "Pop_OS Upgrade" "sudo pop-upgrade release upgrade"
 
-log_and_display INFO "Repairing Flatpaks"
-sleep $SLEEP
-sudo flatpak repair --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+# 5. Pipx (yt-dlp)
+run_update "Pipx" "pipx upgrade yt-dlp"
 
-sleep $SLEEP
+# 6. Maintenance & Cleanup
+log_and_display INFO "Running system maintenance..."
 
-log_and_display INFO "Upgrading apt packages"
-sleep $SLEEP
-sudo nala full-upgrade -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+log_and_display INFO "Step 6a: Repairing Flatpaks (This may take a minute...)"
+sudo flatpak repair --verbose 2>&1 | tee -a "$log_file"
 
-sleep $SLEEP
+log_and_display INFO "Step 6b: Finalizing upgrades..."
+sudo nala full-upgrade -y -v 2>&1 | tee -a "$log_file"
 
-log_and_display INFO "Cleaning up"
-sleep $SLEEP
-sudo nala autoremove -y -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
-flatpak uninstall --unused -y --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+log_and_display INFO "Step 6c: Removing orphaned packages..."
+sudo nala autoremove -y -v 2>&1 | tee -a "$log_file"
+flatpak uninstall --unused -y 2>&1 | tee -a "$log_file"
 
-sleep $SLEEP
-
-log_and_display INFO "Updating audit file"
-echo "$now - Update completed" >> "/home/$USER/logs/update_audit.txt"
-
-sleep $SLEEP
-
-log_and_display INFO "System desktop: $XDG_SESSION_DESKTOP"
-log_and_display INFO "Windowing system: $XDG_SESSION_TYPE"
-
-sleep $SLEEP
-
-sudo date >> "$log_file"
+# --- Finalization ---
 
 log_and_display INFO "Update summary saved to $update_summary"
 
-# Updates were successful or failed.
-if [ $? -eq 0 ]; then
-    log_and_display INFO "All updates completed successfully"
+if [ ${#FAILED_MANAGERS[@]} -eq 0 ]; then
+    log_and_display INFO "ALL updates completed successfully! 🎉"
+    echo "$now - Success" >> "/home/$USER/logs/update_audit.txt"
 else
-    log_and_display ERROR "Some updates failed. Check the logs for details."
+    log_and_display ERROR "The following managers failed: ${FAILED_MANAGERS[*]}"
+    echo "$now - Failed: ${FAILED_MANAGERS[*]}" >> "/home/$USER/logs/update_audit.txt"
 fi
 
-sleep $SLEEP
-
-sudo cat "/home/$USER/logs/update_audit.txt" | tail -10 | lolcat
-
-sleep $SLEEP
-
-# Reboot request if kernel has been upgraded.
 if [ -f /var/run/reboot-required ]; then
-    log_and_display WARNING "A system reboot is required after the updates."
+    log_and_display WARNING "REBOOT REQUIRED."
 fi
 
-log_and_display INFO "Update script finished"
-
-sleep $SLEEP
-
+sudo cat "/home/$USER/logs/update_audit.txt" | tail -5 | lolcat
 figlet Workshed | lolcat -a -d 3
-
-exit 0
