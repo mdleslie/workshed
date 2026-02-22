@@ -79,6 +79,15 @@ sleep 2s
 sudo nala update -v 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 flatpak update -y --verbose 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
 
+# Snap package updates
+log_and_display INFO "Updating Snap packages"
+if command -v snap &> /dev/null; then
+    sleep 2s
+    sudo snap refresh 2>&1 | tee -a "$log_file" | tee -a "$update_summary"
+else
+    log_and_display WARNING "Snap is not installed or the daemon is not running. Skipping."
+fi
+
 # Pop specific upgrade
 log_and_display INFO "Updating Pop!_OS specific components"
 sleep 2s
