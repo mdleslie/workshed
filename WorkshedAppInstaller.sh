@@ -1,7 +1,7 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 1.0.5 Snaps added
+# Version: 1.0.5 LILITH edition with Snaps support added.
 # Updated: 2026-02-21
 
 set -eEuo pipefail
@@ -130,6 +130,7 @@ flatpak_apps=(
 snap_packages=(
     upnote
     lunatask
+    spotify
 )
 
 ##############################
