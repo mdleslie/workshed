@@ -1,5 +1,7 @@
 #!/bin/bash
 
+START_TIME=$SECONDS
+
 mkdir -p /home/$USER/logs
 
 SLEEP=2s
@@ -109,19 +111,17 @@ flatpak uninstall --unused -y 2>&1 | tee -a "$log_file"
 
 # --- Finalization ---
 
+# Calculate Duration
+TOTAL_SECONDS=$((SECONDS - START_TIME))
+ELAPSED_TIME=$(printf '%dh:%dm:%ds\n' $((TOTAL_SECONDS/3600)) $((TOTAL_SECONDS%3600/60)) $((TOTAL_SECONDS%60)))
+
 log_and_display INFO "Update summary saved to $update_summary"
+log_and_display INFO "Total Duration: $ELAPSED_TIME"
 
 if [ ${#FAILED_MANAGERS[@]} -eq 0 ]; then
     log_and_display INFO "ALL updates completed successfully! 🎉"
-    echo "$now - Success" >> "/home/$USER/logs/update_audit.txt"
+    echo "$now - Success (Duration: $ELAPSED_TIME)" >> "/home/$USER/logs/update_audit.txt"
 else
     log_and_display ERROR "The following managers failed: ${FAILED_MANAGERS[*]}"
-    echo "$now - Failed: ${FAILED_MANAGERS[*]}" >> "/home/$USER/logs/update_audit.txt"
+    echo "$now - Failed: ${FAILED_MANAGERS[*]} (Duration: $ELAPSED_TIME)" >> "/home/$USER/logs/update_audit.txt"
 fi
-
-if [ -f /var/run/reboot-required ]; then
-    log_and_display WARNING "REBOOT REQUIRED."
-fi
-
-sudo cat "/home/$USER/logs/update_audit.txt" | tail -5 | lolcat
-figlet Workshed | lolcat -a -d 3
