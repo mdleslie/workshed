@@ -114,7 +114,6 @@ flatpak_apps=(
     com.discordapp.Discord
     com.github.taiko2k.tauonmb
     org.inkscape.Inkscape
-    com.dropbox.Client
     com.github.unrud.VideoDownloader
     app.zen_browser.zen
     it.mijorus.gearlever
