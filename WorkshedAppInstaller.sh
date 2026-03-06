@@ -285,7 +285,7 @@ for snap_app in "${snap_packages[@]}"; do
     else
         log INFO "Installing Snap → $snap_app"
         if sudo snap install "$snap_app"; then
-             installed_snap_packages+=("$snap_app") # <--- ADD THIS LINE
+             installed_snap_packages+=("$snap_app") 
              log INFO "$snap_app installed successfully"
         else
              log ERROR "Failed to install $snap_app"
