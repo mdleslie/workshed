@@ -91,6 +91,7 @@ deb_packages=(
     libxrandr-dev
     net-tools
     ethtool
+    boxes
 )
 
 flatpak_apps=(
