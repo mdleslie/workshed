@@ -19,9 +19,10 @@
 # - ncdu, pydf, rsync (Utilities)
 ###############################################################################
 
-# Startup Greeting
+# Enhanced Startup Greeting
 if command -v figlet &>/dev/null && command -v lolcat &>/dev/null; then
-    figlet Workshed | lolcat -a -d 3
+    # -t auto-fits your terminal width
+    figlet -t -f slant "Workshed" | boxes -d stone | lolcat
 fi
 
 # ─── PACKAGE MANAGEMENT ───
