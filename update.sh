@@ -87,7 +87,7 @@ run_update "Nala Update" "sudo nala update -v"
 # 2. Flatpak
 run_update "Flatpak" "flatpak update -y --verbose"
 
-# 3. Snap (For Upnote/Lunatask)
+# 3. Snap (For Upnote/Lunatask/Spotify and other snaps)
 run_update "Snap" "sudo snap refresh"
 
 # 4. Pop!_OS Components
