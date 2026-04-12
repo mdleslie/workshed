@@ -109,6 +109,9 @@ log_and_display INFO "Step 6c: Removing orphaned packages..."
 sudo nala autoremove -y -v 2>&1 | tee -a "$log_file"
 flatpak uninstall --unused -y 2>&1 | tee -a "$log_file"
 
+log_and_display INFO "Step 6d:  Checking COSMIC Component Versions..."
+dpkg -l | grep cosmic | awk '{print $2, $3}' >> "$update_summary"
+
 # --- Finalization ---
 
 # Calculate Duration
