@@ -112,6 +112,9 @@ flatpak uninstall --unused -y 2>&1 | tee -a "$log_file"
 log_and_display INFO "Step 6d:  Checking COSMIC Component Versions..."
 dpkg -l | grep cosmic | awk '{print $2, $3}' >> "$update_summary"
 
+log_and_display INFO "Step 6e:  Checking for Firmware Updates..."
+sudo fwupdmgr get-updates && sudo fwupdmgr update
+
 # --- Finalization ---
 
 # Calculate Duration
