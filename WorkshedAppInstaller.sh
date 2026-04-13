@@ -121,6 +121,7 @@ flatpak_apps=(
     io.github.Faugus.faugus-launcher
     io.github.seadve.Kooha
     no.mifi.losslesscut
+    eu.betterbird.Betterbird
 )
 
 snap_packages=(
