@@ -122,6 +122,8 @@ flatpak_apps=(
     io.github.seadve.Kooha
     no.mifi.losslesscut
     eu.betterbird.Betterbird
+    tv.plex.PlexDesktop
+    io.github.cosmic_utils.camera
 )
 
 snap_packages=(
