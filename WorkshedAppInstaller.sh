@@ -124,6 +124,7 @@ flatpak_apps=(
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
     io.github.cosmic_utils.camera
+    com.warlordsoftwares.youtube-downloader-4ktube
 )
 
 snap_packages=(
