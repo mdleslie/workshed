@@ -92,6 +92,7 @@ deb_packages=(
     net-tools
     ethtool
     boxes
+    yubikey-manager
 )
 
 flatpak_apps=(
@@ -124,7 +125,8 @@ flatpak_apps=(
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
     io.github.cosmic_utils.camera
-    com.warlordsoftwares.youtube-downloader-4ktube
+    com.yubico.yubioath
+    
 )
 
 snap_packages=(
