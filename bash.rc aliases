@@ -39,6 +39,9 @@ alias mkdir='mkdir -pv'
 alias bashrc="nano ~/.bashrc"
 alias reload="source ~/.bashrc"
 
+# ─── SECURITY ───
+alias yubistatus='fido2-token -L'
+
 # ─── NAVIGATION & LISTING ───
 alias ..="cd .."
 alias ...="cd ../../"
