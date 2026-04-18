@@ -93,6 +93,7 @@ deb_packages=(
     ethtool
     boxes
     yubikey-manager
+    fido2-tools
 )
 
 flatpak_apps=(
