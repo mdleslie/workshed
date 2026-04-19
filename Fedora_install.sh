@@ -349,7 +349,6 @@ sudo -u "$TARGET_USER" pipx install yt-dlp || true
 log INFO "Installing Bun"
 sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 
-
 display $GREEN "Shop smart, Shop S-Mart. "
 echo '########################################' | lolcat
 echo '########################################' | lolcat
@@ -367,19 +366,30 @@ if [ "$CURRENT_UID" != "$NEW_UID" ]; then
     # The "Safety" sync
     sync
 
-    # NEW: The Manual Pause
+    # FIXED: The Manual Pause for curl | bash sessions
     display $YELLOW "#######################################################"
     display $YELLOW "INSTALL COMPLETE. Press ENTER to change UID and REBOOT."
     display $YELLOW "#######################################################"
-    read -p ""
+    read -p "" </dev/tty
 
     trap - ERR EXIT
     sudo bash -c "
+        # 1. Update the identity in passwd
         sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
+        
+        # 2. Re-stamp ownership on the HOME and the update script
+        # This catches Pipx, Bun, and all your downloaded configs
         chown -R $NEW_UID:$NEW_GID $TARGET_HOME
         chown $NEW_UID:$NEW_GID /usr/bin/update.sh
+        
+        # 3. Final hardware sync
         sync
-        echo 'Rebooting now...'
+        
+        echo 'Rebooting now... po!'
         /sbin/reboot -f
     "
+else
+    # If the user runs the script a second time, it won't try to reboot again
+    display $GREEN "UID is already $NEW_UID. No reboot required."
+    sync
 fi
