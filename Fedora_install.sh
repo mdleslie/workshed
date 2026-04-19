@@ -300,44 +300,68 @@ EOF
 gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
 
 ##############################
-# Scripts & Configs 
+#  FINAL TOUCHES (Fedora)
 ##############################
 
-# Custom update script (System wide)
+# 1. Custom update script 
 log INFO "Downloading Fedora update script"
-display $GREEN "Creating and downloading the update.sh script."
+display $GREEN "Installing update.sh to /usr/bin."
 sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_update.sh" -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
+# Create symlink so 'update' command works natively
+sudo ln -sf /usr/bin/update.sh /usr/bin/update
+display $GREEN "update.sh installed → just run 'update' anytime!"
 sleep 2s
 
-# Bash aliases (Targeting the actual home directory)
-log INFO "Adding Fedora bash aliases"
-display $GREEN "Modifying .bashrc file to include useful aliases."
-# We target the actual home folder of the user running the script
+# 2. Custom file archiving
+log INFO "Downloading custom arkive_files.sh script"
+sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/arkive_files.sh" -o /usr/bin/arkive_files.sh
+sudo chmod +x /usr/bin/arkive_files.sh
+# Create symlink for 'store' command
+sudo ln -sf /usr/bin/arkive_files.sh /usr/bin/store
+display $GREEN "arkive_files.sh installed → run 'store' anytime!"
+sleep 2s
+
+# 3. Custom verification script
+log INFO "Downloading custom verify.sh script"
+sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/verify.sh" -o /usr/bin/verify.sh
+sudo chmod +x /usr/bin/verify.sh
+# Create symlink for 'verify' command
+sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
+display $GREEN "verify.sh installed → run 'verify' anytime!"
+sleep 2s
+
+# 4. Bash aliases (Pointed to the FIXED Fedora_bashrc)
+log INFO "Adding Workshed bash aliases"
+display $GREEN "Updating .bashrc with Fedora-specific aliases."
+cp "${HOME}/.bashrc" "${HOME}/.bashrc.bak" 2>/dev/null || true
+
+# Pull the now-verified, non-blank Fedora_bashrc
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" >> "${HOME}/.bashrc"
+
+echo -e "\n# ── Workshed aliases loaded – po! ──" >> "${HOME}/.bashrc"
+display $GREEN "Aliases added! Shop smart, po!"
 sleep 2s
 
-# Band Maid logo
-log INFO "Downloading Band Maid logo"
-display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
-mkdir -p "${HOME}/.local/share/fastfetch/logos"
-curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${HOME}/.local/share/fastfetch/logos/maid"
-sleep 2s
-
-# NFS mounts for Arkive
+# 5. NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
-display $BLUE "Modifying fstab file to include NFS mount to Arkive."
 sudo mkdir -p /mnt/Arkive 
 sudo cp /etc/fstab /etc/fstab.bak
-# fstab config from GitHub
-curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab" \
-    | sudo tee -a /etc/fstab > /dev/null
-display $GREEN "NFS mounts added – po!"
-sleep 5s
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab" | sudo tee -a /etc/fstab > /dev/null
+display $GREEN "NFS mounts added to fstab – po!"
+sleep 2s
 
-#Sync step
-log INFO "Syncing data to disk before UID change..."
+# 6. Band Maid logo 
+log INFO "Downloading the hard rocking maid logo, po."
+mkdir -p "${HOME}/.local/share/fastfetch/logos"
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${HOME}/.local/share/fastfetch/logos/maid"
+display $GREEN "Band Maid logo installed – po!"
+sleep 3s
+
+# FINAL SYNC
+log INFO "Syncing data to disk before identity swap..."
 sync
+sleep 5s
 
 display $GREEN "Gus, Is that Mauricio in there?! Is that Mauricio in there?! "
 echo '########################################' | lolcat

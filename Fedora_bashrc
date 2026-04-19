@@ -46,16 +46,13 @@ alias ....="cd ../../../"
 alias ll='ls -alF --color=auto'
 alias la='ls -A --color=auto'
 alias l='ls -CF --color=auto'
-# Keep cosmic-files if you are using COSMIC on Fedora, otherwise 'nautilus .' or 'thunar .'
-alias cf='cosmic-files .' 
-
+ 
 # ─── UTILITIES ───
 alias extip='curl icanhazip.com'
 alias parrot='curl parrot.live'
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
 alias mem5='ps auxf | sort -nr -k 4 | head -5'
 alias ports='sudo netstat -tulanp' # Requires 'net-tools' package
-alias verify='/usr/bin/verify.sh'
 
 # ─── DISK & FILE TOOLS ───
 alias wget='wget -c'
