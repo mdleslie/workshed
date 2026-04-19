@@ -176,7 +176,13 @@ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-rel
 sudo dnf upgrade --refresh -y
 
 ##############################
-# Multimedia & Codecs (Direct Method)
+# Refresh Cache
+##############################
+
+sudo dnf makecache --refresh
+
+##############################
+# Multimedia & Codecs
 ##############################
 log INFO "Installing Multimedia Codecs from RPM Fusion"
 display $GREEN "Installing codecs – po!"
