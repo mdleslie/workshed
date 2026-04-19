@@ -303,20 +303,38 @@ gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffe
 # Scripts & Configs 
 ##############################
 
-# 1. Custom update script (System wide)
+# Custom update script (System wide)
 log INFO "Downloading Fedora update script"
+display $GREEN "Creating and downloading the update.sh script."
 sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_update.sh" -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
+sleep 2s
 
-# 2. Bash aliases (Targeting the actual home directory)
+# Bash aliases (Targeting the actual home directory)
 log INFO "Adding Fedora bash aliases"
+display $GREEN "Modifying .bashrc file to include useful aliases."
 # We target the actual home folder of the user running the script
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" >> "${HOME}/.bashrc"
+sleep 2s
 
-# 3. Band Maid logo
+# Band Maid logo
 log INFO "Downloading Band Maid logo"
+display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
 mkdir -p "${HOME}/.local/share/fastfetch/logos"
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${HOME}/.local/share/fastfetch/logos/maid"
+sleep 2s
+
+# NFS mounts for Arkive
+log INFO "Adding NFS mounts to /etc/fstab"
+display $BLUE "Modifying fstab file to include NFS mount to Arkive."
+sudo mkdir -p /mnt/Arkive 
+sudo cp /etc/fstab /etc/fstab.bak
+# fstab config from GitHub
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab" \
+    | sudo tee -a /etc/fstab > /dev/null
+display $GREEN "NFS mounts added – po!"
+sleep 5s
+
 #Sync step
 log INFO "Syncing data to disk before UID change..."
 sync
