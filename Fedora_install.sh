@@ -330,14 +330,28 @@ sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 ##############################
 CURRENT_UID=$(id -u "$TARGET_USER")
 if [ "$CURRENT_UID" != "$NEW_UID" ]; then
-    display $RED "Updating UID to $NEW_UID and rebooting..."
+    display $RED "Updating UID to $NEW_UID..."
+    
+    # Kill the traps so the reboot is clean
     trap - ERR EXIT
+    
     sudo bash -c "
+        # Update the system identity
         sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
-        chown -R $NEW_UID:$NEW_GID $TARGET_HOME || true
+        
+        # Stamp ownership on everything we just downloaded
+        chown -R $NEW_UID:$NEW_GID $TARGET_HOME
+        chown $NEW_UID:$NEW_GID /usr/bin/update.sh
+        
+        # Flush the buffer to the SSD
+        sync
+        
+        echo 'Rebooting to finalize UID change... po!'
         /sbin/reboot -f
     "
 else
-    display $GREEN "Script complete! po!"
+    display $GREEN "UID is already $NEW_UID. Script complete! po!"
+    # Still a good idea to sync before a manual reboot
+    sync
     sudo reboot
 fi
