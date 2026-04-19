@@ -353,8 +353,8 @@ sleep 2s
 
 # 6. Band Maid logo 
 log INFO "Downloading the hard rocking maid logo, po."
-mkdir -p "${HOME}/.local/share/fastfetch/logos"
-curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${HOME}/.local/share/fastfetch/logos/maid"
+mkdir -p "${TARGET_HOME}/.local/share/fastfetch/logos"
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${TARGET_HOME}/.local/share/fastfetch/logos/maid"
 display $GREEN "Band Maid logo installed – po!"
 sleep 4s
 
@@ -412,19 +412,21 @@ if [ "$CURRENT_UID" != "$NEW_UID" ]; then
     trap - ERR EXIT
     
     # We pass the variables EXPLICITLY into the subshell to avoid expansion errors
-    sudo bash -c "
+sudo bash -c "
         # 1. Update identity
         sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
         
-        # 2. Hard-coded path chown (Ensures no variable issues)
+        # 2. Bulk chown for all workshed tools and home
         chown -R $NEW_UID:$NEW_GID /home/$TARGET_USER
-        chown $NEW_UID:$NEW_GID /usr/bin/update.sh
+        chown $NEW_UID:$NEW_GID /usr/bin/update*
+        chown $NEW_UID:$NEW_GID /usr/bin/store
+        chown $NEW_UID:$NEW_GID /usr/bin/verify*
         chown $NEW_UID:$NEW_GID /usr/bin/arkive_files.sh
         
         # 3. Triple Sync (The 'Mauricio' special)
         sync; sleep 1; sync; sleep 1; sync
         
         echo 'Rebooting now... Shop smart, po!'
-        /sbin/reboot -f
+        systemctl reboot
     "
 fi
