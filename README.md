@@ -23,7 +23,7 @@ The script can be run via a curl command.
 `curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_Install.sh | bash`
 
 
-
+-------------------------------------------------------------------------------------------------------
 
 ### DAW Install script
 
