@@ -182,20 +182,21 @@ sudo dnf upgrade --refresh -y
 sudo dnf makecache --refresh
 
 ##############################
-# Multimedia & Codecs
+# Multimedia & Codecs (F43 Direct)
 ##############################
-log INFO "Installing Multimedia Codecs from RPM Fusion"
-display $GREEN "Installing codecs – po!"
+log INFO "Performing targeted codec swap for Fedora 43"
+display $GREEN "Swapping to full codecs – po!"
 
-# Install the switch-over packages for full codec support
+# 1. Swap the crippled ffmpeg-free for the full version
+sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
+
+# 2. Install the specific freeworld plugins that Fedora excludes
 sudo dnf install -y \
-    gstreamer1-plugins-better-native \
-    gstreamer1-plugins-bad-free-extras \
     gstreamer1-plugins-bad-freeworld \
     gstreamer1-plugins-ugly \
-    gstreamer1-libav \
-    ffmpeg-free \
     libavcodec-freeworld \
+    mesa-va-drivers-freeworld \
+    mesa-vdpau-drivers-freeworld \
     --allowerasing
 
 # Install hardware acceleration (Intel/AMD)
