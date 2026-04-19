@@ -91,6 +91,13 @@ dnf_packages=(
     yubikey-manager
     libfido2
     curl
+    gnome-sushi
+    nautilus-python
+    file-roller
+    gnome-tweaks
+    gnome-extensions-app
+    dconf-editor
+    gnome-themes-extra
 )
 
 flatpak_apps=(
