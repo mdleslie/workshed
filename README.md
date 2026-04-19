@@ -25,7 +25,8 @@ The script can be run via a curl command.
 
 
 
-DAW Install script
+### DAW Install script
+
 I am working on this secondary install script for audio recording and production. Of which I am still learning and have a long way to go.
 Run after app install script or stand alone. 
 
