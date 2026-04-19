@@ -244,20 +244,26 @@ done
 log INFO "Installing Snapd and setting up symlinks"
 display $GREEN "Enabling Snap environment..."
 sudo dnf install -y snapd
-# CRITICAL FEDORA STEP: The Symlink
 sudo ln -s /var/lib/snapd/snap /snap || true
 sudo systemctl enable --now snapd.socket
 
-# Wait for snapd to seed
-log INFO "Waiting for snapd to initialize..."
-sleep 10
+# Wait until snapd is actually responsive
+log INFO "The waiting is the hardest part..."
+until sudo snap wait system seed.loaded; do
+    sleep 2
+    log INFO "Still waiting for snapd..."
+done
+
+# NEW: Pause to let the kernel catch up
+sleep 15 
 
 for snap_app in "${snap_packages[@]}"; do
     log INFO "Installing Snap → $snap_app"
-    if sudo snap install "$snap_app"; then
+    # Added a retry loop for each snap
+    if sudo snap install "$snap_app" || (sleep 10 && sudo snap install "$snap_app"); then
          installed_snap_packages+=("$snap_app") 
     else
-         log ERROR "Failed to install $snap_app"
+         log ERROR "Failed to install $snap_app after retry."
     fi
 done
 
@@ -325,33 +331,37 @@ sudo -u "$TARGET_USER" pipx install yt-dlp || true
 log INFO "Installing Bun"
 sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 
+
+display $GREEN "Shop smart, Shop S-Mart."
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+sleep 15
+
 ##############################
 # UID Change & Finalize
 ##############################
 CURRENT_UID=$(id -u "$TARGET_USER")
 if [ "$CURRENT_UID" != "$NEW_UID" ]; then
-    display $RED "Updating UID to $NEW_UID..."
-    
-    # Kill the traps so the reboot is clean
+    display $YELLOW "UID is currently $CURRENT_UID. Target is $NEW_UID."
+    display $BLUE "Downloads complete. Ownership being updated..."
+
+    # The "Safety" sync
+    sync
+
+    # NEW: The Manual Pause
+    display $YELLOW "#######################################################"
+    display $YELLOW "INSTALL COMPLETE. Press ENTER to change UID and REBOOT."
+    display $YELLOW "#######################################################"
+    read -p ""
+
     trap - ERR EXIT
-    
     sudo bash -c "
-        # Update the system identity
         sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
-        
-        # Stamp ownership on everything we just downloaded
         chown -R $NEW_UID:$NEW_GID $TARGET_HOME
         chown $NEW_UID:$NEW_GID /usr/bin/update.sh
-        
-        # Flush the buffer to the SSD
         sync
-        
-        echo 'Rebooting to finalize UID change... po!'
+        echo 'Rebooting now...'
         /sbin/reboot -f
     "
-else
-    display $GREEN "UID is already $NEW_UID. Script complete! po!"
-    # Still a good idea to sync before a manual reboot
-    sync
-    sudo reboot
 fi
