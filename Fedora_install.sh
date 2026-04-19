@@ -129,7 +129,7 @@ flatpak_apps=(
     no.mifi.losslesscut
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
-    io.github.cosmic_utils.camera
+    org.gnome.Snapshot
     com.yubico.yubioath
 )
 
