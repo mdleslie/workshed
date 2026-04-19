@@ -341,9 +341,18 @@ echo '########################################' | lolcat
 sleep 15
 
 # Pipx + yt-dlp
+log INFO "Installing Pipx and yt-dlp"
 sudo dnf install -y pipx
-export PATH="$TARGET_HOME/.local/bin:$PATH"
+
+# This ensures ~/.local/bin is added to your .bashrc
+sudo -u "$TARGET_USER" pipx ensurepath
+
+# Install yt-dlp specifically via pipx
+# We use '|| true' just in case it's already there from a previous run
 sudo -u "$TARGET_USER" pipx install yt-dlp || true
+
+# Force the PATH into the current script session so the logic stays consistent
+export PATH="$TARGET_HOME/.local/bin:$PATH"
 
 # Bun JS
 log INFO "Installing Bun"
