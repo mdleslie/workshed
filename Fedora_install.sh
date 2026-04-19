@@ -27,7 +27,7 @@ installed_flatpak_apps=()
 installed_snap_packages=()
 
 ##############################
-# PACKAGE ARRAYS (FEDORA NAMES)
+# PACKAGE ARRAYS 
 ##############################
 
 dnf_packages=(
@@ -220,7 +220,7 @@ for app in "${flatpak_apps[@]}"; do
 done
 
 ##############################
-# Snap Setup (Fedora Specific)
+# Snap Setup 
 ##############################
 log INFO "Installing Snapd and setting up symlinks"
 display $GREEN "Enabling Snap environment..."
@@ -262,7 +262,12 @@ ${log_file} {
 EOF
 
 ##############################
-# Scripts & Configs (NEW URLS)
+# Monitor fix
+##############################
+gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
+
+##############################
+# Scripts & Configs 
 ##############################
 
 # Custom update script
