@@ -48,19 +48,11 @@ if [ -f /var/run/reboot-required ]; then
     exit 1
 fi
 
-# 2. Disk Space Check (Requires 'bc')
-available_space=$(df -h $HOME | awk 'NR==2 {print $4}')
-available_space_numeric=$(echo $available_space | sed 's/[^0-9.]//g')
-available_space_unit=$(echo $available_space | sed 's/[0-9.]//g')
+# 2. Disk Space Check (Btrfs-safe version)
+available_space_kb=$(df --output=avail $HOME | tail -1)
 
-case $available_space_unit in
-    [Gg]*) multiplier=1 ;;
-    [Mm]*) multiplier=0.001 ;;
-    [Kk]*) multiplier=0.000001 ;;
-    *) multiplier=1000 ;;
-esac
-
-available_space_gb=$(echo "$available_space_numeric * multiplier" | bc)
+# Convert KB to GB (Btrfs reports in 1K blocks by default here)
+available_space_gb=$(echo "scale=2; $available_space_kb / 1024 / 1024" | bc)
 
 if (( $(echo "$available_space_gb < 5" | bc -l) )); then
     log_and_display WARNING "Less than 5GB free ($available_space_gb GB). Clean up disk space!"
