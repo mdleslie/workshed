@@ -363,33 +363,30 @@ if [ "$CURRENT_UID" != "$NEW_UID" ]; then
     display $YELLOW "UID is currently $CURRENT_UID. Target is $NEW_UID."
     display $BLUE "Downloads complete. Ownership being updated..."
 
-    # The "Safety" sync
-    sync
+    # Force a sync before we even enter the root shell
+    sync && sleep 2
 
-    # FIXED: The Manual Pause for curl | bash sessions
     display $YELLOW "#######################################################"
     display $YELLOW "INSTALL COMPLETE. Press ENTER to change UID and REBOOT."
     display $YELLOW "#######################################################"
     read -p "" </dev/tty
 
     trap - ERR EXIT
+    
+    # We pass the variables EXPLICITLY into the subshell to avoid expansion errors
     sudo bash -c "
-        # 1. Update the identity in passwd
+        # 1. Update identity
         sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
         
-        # 2. Re-stamp ownership on the HOME and the update script
-        # This catches Pipx, Bun, and all your downloaded configs
-        chown -R $NEW_UID:$NEW_GID $TARGET_HOME
+        # 2. Hard-coded path chown (Ensures no variable issues)
+        chown -R $NEW_UID:$NEW_GID /home/$TARGET_USER
         chown $NEW_UID:$NEW_GID /usr/bin/update.sh
+        chown $NEW_UID:$NEW_GID /usr/bin/arkive_files.sh
         
-        # 3. Final hardware sync
-        sync
+        # 3. Triple Sync (The 'Mauricio' special)
+        sync; sleep 1; sync; sleep 1; sync
         
-        echo 'Rebooting now... po!'
+        echo 'Rebooting now... Shop smart, po!'
         /sbin/reboot -f
     "
-else
-    # If the user runs the script a second time, it won't try to reboot again
-    display $GREEN "UID is already $NEW_UID. No reboot required."
-    sync
 fi
