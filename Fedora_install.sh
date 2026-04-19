@@ -260,7 +260,7 @@ EOF
 
 # Custom update script
 log INFO "Downloading Fedora update script"
-sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_update \
+sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_update.sh \
     -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
 
