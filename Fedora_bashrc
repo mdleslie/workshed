@@ -1,0 +1,125 @@
+###############################################################################
+# WORKSHED BASH CONFIGURATION (Fedora Edition)
+# Location: ~/.bashrc
+# Repository: https://github.com/mdleslie/workshed
+#
+# DESCRIPTION:
+# Custom environment setup. Includes 
+# package management shortcuts (DNF), safety overrides for file operations, 
+# Docker management, and specialized media tools.
+#
+# DEPENDENCIES (Fedora):
+# - figlet, lolcat, fastfetch, boxes (Aesthetics)
+# - dnf (Package Management)
+# - bun (JS Runtime via install script)
+# - ncdu, pydf, rsync, net-tools (Utilities)
+###############################################################################
+
+# Enhanced Startup Greeting
+if command -v figlet &>/dev/null && command -v lolcat &>/dev/null; then
+    # -t auto-fits your terminal width
+    figlet -t -f small "Workshed" | boxes -d stone | lolcat
+fi
+
+# ─── PACKAGE MANAGEMENT (Fedora/DNF) ───
+# Nala isn't standard on Fedora; we use dnf or the newer dnf5
+alias i='sudo dnf install'
+alias fetch='sudo dnf check-update'
+alias update='sudo dnf upgrade --refresh'
+alias fix='sudo dnf distro-sync'
+alias search='dnf search'
+
+# ─── SYSTEM & SAFETY ───
+alias cp='cp -vi'
+alias mv='mv -vi'
+alias rm='rm -i'
+alias mkdir='mkdir -pv'
+alias bashrc="nano ~/.bashrc"
+alias reload="source ~/.bashrc"
+
+# ─── SECURITY ───
+# Note: Ensure libfido2 is installed (sudo dnf install libfido2)
+alias yubistatus='fido2-token -L'
+
+# ─── NAVIGATION & LISTING ───
+alias ..="cd .."
+alias ...="cd ../../"
+alias ....="cd ../../../"
+alias ll='ls -alF --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+# Keep cosmic-files if you are using COSMIC on Fedora, otherwise 'nautilus .' or 'thunar .'
+alias cf='cosmic-files .' 
+
+# ─── UTILITIES ───
+alias extip='curl icanhazip.com'
+alias parrot='curl parrot.live'
+alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
+alias mem5='ps auxf | sort -nr -k 4 | head -5'
+alias ports='sudo netstat -tulanp' # Requires 'net-tools' package
+alias verify='/usr/bin/verify.sh'
+
+# ─── DISK & FILE TOOLS ───
+alias wget='wget -c'
+alias cpv='rsync -avh --info=progress2'
+alias usage='ncdu'          
+alias pydf='pydf'            
+alias catt='cat | lolcat'   
+alias store='arkive_files.sh'
+
+# ─── MEDIA & SERVER ───
+alias yt='yt-dlp --cookies-from-browser firefox --js-runtimes bun --remote-components ejs:github'
+
+# Docker Shortcuts
+# Note: On Fedora, many use Podman. If using Docker, ensure docker-ce is installed.
+alias dps='docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"'
+alias dcompose='docker compose'
+alias dlogs='docker logs -tf --tail="50" '
+
+# ─── AESTHETICS ───
+alias fastfetch='fastfetch -l maid | lolcat'
+
+# Fedora-friendly PS1 (cleaner prompt)
+export PS1='\[\e[0;36m\]\u\[\e[0m\]@\[\e[0;32m\]\h\[\e[0m\]:\[\e[0;34m\]\w\[\e[0m\]> '
+
+# ─── SSH SHORTCUTS ───
+alias merlin="ssh david@192.168.1.100 -p 42"
+alias arkive="ssh david@192.168.1.150 -p 42"
+alias arr="ssh david@192.168.1.2"
+
+# ─── FUNCTIONS ───
+
+# Sudo the last command
+fuck() {
+    if [[ $# == 0 ]]; then
+        sudo $(history -p '!!')
+    else
+        sudo "$@"
+    fi
+}
+
+# Extract any archive
+extract () {
+  if [ -f "$1" ] ; then
+    case "$1" in
+      *.tar.bz2)   tar xjf "$1"    ;;
+      *.tar.gz)    tar xzf "$1"    ;;
+      *.bz2)       bunzip2 "$1"    ;;
+      *.rar)       unrar e "$1"    ;;
+      *.gz)        gunzip "$1"     ;;
+      *.tar)       tar xf "$1"     ;;
+      *.tbz2)      tar xjf "$1"    ;;
+      *.tgz)       tar xzf "$1"    ;;
+      *.zip)       unzip "$1"      ;;
+      *.Z)         uncompress "$1" ;;
+      *.7z)        7z x "$1"       ;;
+      *)     echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
