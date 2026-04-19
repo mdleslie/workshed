@@ -303,33 +303,20 @@ gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffe
 # Scripts & Configs 
 ##############################
 
-# Custom update script
+# 1. Custom update script (System wide)
 log INFO "Downloading Fedora update script"
-sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_update.sh \
-    -o /usr/bin/update.sh
+sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_update.sh" -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
 
-# Custom file archiving 
-sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/arkive_files.sh \
-    -o /usr/bin/arkive_files.sh
-sudo chmod +x /usr/bin/arkive_files.sh
-
-# Bash aliases (NEW URL)
+# 2. Bash aliases (Targeting the actual home directory)
 log INFO "Adding Fedora bash aliases"
-cp "$TARGET_HOME/.bashrc" "$TARGET_HOME/.bashrc.bak" 2>/dev/null || true
-curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc \
-    >> "$TARGET_HOME/.bashrc"
+# We target the actual home folder of the user running the script
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" >> "${HOME}/.bashrc"
 
-# NFS mounts
-sudo mkdir -p /mnt/Arkive 
-curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab \
-    | sudo tee -a /etc/fstab > /dev/null
-
-# Band Maid logo
-mkdir -p "$TARGET_HOME/.local/share/fastfetch/logos"
-curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
-    -o "$TARGET_HOME/.local/share/fastfetch/logos/maid"
-
+# 3. Band Maid logo
+log INFO "Downloading Band Maid logo"
+mkdir -p "${HOME}/.local/share/fastfetch/logos"
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${HOME}/.local/share/fastfetch/logos/maid"
 #Sync step
 log INFO "Syncing data to disk before UID change..."
 sync
