@@ -199,9 +199,6 @@ sudo dnf install -y \
     mesa-vdpau-drivers-freeworld \
     --allowerasing
 
-# Install hardware acceleration (Intel/AMD)
-# This is vital
-sudo dnf install -y mesa-va-drivers-freeworld mesa-vdpau-drivers-freeworld --allowerasing
 
 ##############################
 # Install DNF packages
