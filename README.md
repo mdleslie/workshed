@@ -20,7 +20,7 @@ The script can be run via a curl command.
 ### Curl command to run Fedora Based App download script:
 
 
-`curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_Install.sh | bash`
+`curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_install.sh | bash`
 
 
 -------------------------------------------------------------------------------------------------------
