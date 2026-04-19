@@ -322,6 +322,16 @@ mkdir -p "$TARGET_HOME/.local/share/fastfetch/logos"
 curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
     -o "$TARGET_HOME/.local/share/fastfetch/logos/maid"
 
+#Sync step
+log INFO "Syncing data to disk before UID change..."
+sync
+
+display $GREEN "Gus, Is that Mauricio in there?! Is that Mauricio in there?! "
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+sleep 15
+
 # Pipx + yt-dlp
 sudo dnf install -y pipx
 export PATH="$TARGET_HOME/.local/bin:$PATH"
@@ -332,7 +342,7 @@ log INFO "Installing Bun"
 sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 
 
-display $GREEN "Shop smart, Shop S-Mart."
+display $GREEN "Shop smart, Shop S-Mart. "
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
