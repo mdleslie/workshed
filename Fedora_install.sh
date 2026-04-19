@@ -90,6 +90,7 @@ dnf_packages=(
     boxes
     yubikey-manager
     libfido2
+    curl
 )
 
 flatpak_apps=(

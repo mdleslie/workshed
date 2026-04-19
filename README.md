@@ -22,13 +22,23 @@ This was made for my use and I may be an idiot but others are free to try it.
 The script can be run via a curl command.
 
 
-### Curl command to run App download script:
+### Curl command to run Ubuntu Based App download script:
 
 
 `curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh | bash`
 
 
 -------------------------------------------------------------------------------------------------------
+
+
+### Curl command to run Fedora Based App download script:
+
+
+`curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_Install.sh | bash`
+
+
+
+
 DAW Install script
 I am working on this secondary install script for audio recording and production. Of which I am still learning and have a long way to go.
 Run after app install script or stand alone. 
