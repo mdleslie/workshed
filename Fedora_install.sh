@@ -176,6 +176,11 @@ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-rel
 sudo dnf upgrade --refresh -y
 
 ##############################
+# Swap to Curl
+##############################
+sudo dnf swap -y curl-minimal curl
+
+##############################
 # Refresh Cache
 ##############################
 
