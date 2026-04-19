@@ -175,11 +175,10 @@ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-rel
                   https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf upgrade --refresh -y
 
-##############################
-# Swap to Curl
-##############################
+log INFO "Swapping to full-featured curl"
 sudo dnf swap -y curl-minimal curl
 
+sudo dnf upgrade --refresh -y
 ##############################
 # Refresh Cache
 ##############################
