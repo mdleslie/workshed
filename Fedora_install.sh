@@ -181,14 +181,14 @@ sudo dnf upgrade --refresh -y
 log INFO "Installing Multimedia Group and Codecs"
 display $GREEN "Installing codecs – po!"
 
-# Use --allowerasing to swap out the "crippled" system drivers for full versions
-sudo dnf groupinstall -y "Multimedia" "Sound and Video" --allowerasing
+# Correct DNF5 syntax for groups
+sudo dnf group install -y "Multimedia" "Sound and Video" --allowerasing
 
-# Explicitly pull the specific plugins and allow swapping/erasing
-sudo dnf install -y gstreamer1-plugins-{bad-*,good-*,base} gstreamer1-libav \
-    --exclude=gstreamer1-plugins-bad-free-devel --allowerasing
+# Wrap wildcards in quotes to prevent shell expansion errors
+sudo dnf install -y 'gstreamer1-plugins-{bad-*,good-*,base}' 'gstreamer1-libav' \
+    --exclude='gstreamer1-plugins-bad-free-devel' --allowerasing
 
-sudo dnf install -y lame* --exclude=lame-devel --allowerasing
+sudo dnf install -y 'lame*' --exclude='lame-devel' --allowerasing
 
 ##############################
 # Install DNF packages
