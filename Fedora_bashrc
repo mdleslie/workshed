@@ -21,13 +21,11 @@ if command -v figlet &>/dev/null && command -v lolcat &>/dev/null; then
     figlet -t -f small "Workshed" | boxes -d stone | lolcat
 fi
 
-# ─── PACKAGE MANAGEMENT (Fedora/DNF) ───
-# Nala isn't standard on Fedora; we use dnf or the newer dnf5
+# ─── PACKAGE MANAGEMENT ───
 alias i='sudo dnf install'
 alias fetch='sudo dnf check-update'
-alias update='sudo dnf upgrade --refresh'
+alias update='update.sh' 
 alias fix='sudo dnf distro-sync'
-alias search='dnf search'
 
 # ─── SYSTEM & SAFETY ───
 alias cp='cp -vi'
