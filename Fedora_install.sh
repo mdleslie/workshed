@@ -176,19 +176,25 @@ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-rel
 sudo dnf upgrade --refresh -y
 
 ##############################
-# Multimedia & Codecs
+# Multimedia & Codecs (Direct Method)
 ##############################
-log INFO "Installing Multimedia Group and Codecs"
+log INFO "Installing Multimedia Codecs from RPM Fusion"
 display $GREEN "Installing codecs – po!"
 
-# Correct DNF5 syntax for groups
-sudo dnf group install -y "Multimedia" "Sound and Video" --allowerasing
+# Install the switch-over packages for full codec support
+sudo dnf install -y \
+    gstreamer1-plugins-better-native \
+    gstreamer1-plugins-bad-free-extras \
+    gstreamer1-plugins-bad-freeworld \
+    gstreamer1-plugins-ugly \
+    gstreamer1-libav \
+    ffmpeg-free \
+    libavcodec-freeworld \
+    --allowerasing
 
-# Wrap wildcards in quotes to prevent shell expansion errors
-sudo dnf install -y 'gstreamer1-plugins-{bad-*,good-*,base}' 'gstreamer1-libav' \
-    --exclude='gstreamer1-plugins-bad-free-devel' --allowerasing
-
-sudo dnf install -y 'lame*' --exclude='lame-devel' --allowerasing
+# Install hardware acceleration (Intel/AMD)
+# This is vital
+sudo dnf install -y mesa-va-drivers-freeworld mesa-vdpau-drivers-freeworld --allowerasing
 
 ##############################
 # Install DNF packages
