@@ -334,12 +334,12 @@ sleep 2s
 # 4. Bash aliases (Pointed to the FIXED Fedora_bashrc)
 log INFO "Adding Workshed bash aliases"
 display $GREEN "Updating .bashrc with Fedora-specific aliases."
-cp "${HOME}/.bashrc" "${HOME}/.bashrc.bak" 2>/dev/null || true
+cp "${TARGET_HOME}/.bashrc" "${TARGET_HOME}/.bashrc.bak" 2>/dev/null || true
 
 # Pull the now-verified, non-blank Fedora_bashrc
-curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" >> "${HOME}/.bashrc"
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" >> "${TARGET_HOME}/.bashrc"
 
-echo -e "\n# ── Workshed aliases loaded – po! ──" >> "${HOME}/.bashrc"
+echo -e "\n# ── Workshed aliases loaded – po! ──" >> "${TARGET_HOME}/.bashrc"
 display $GREEN "Aliases added! Shop smart, po!"
 sleep 2s
 
