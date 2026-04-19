@@ -356,7 +356,7 @@ log INFO "Downloading the hard rocking maid logo, po."
 mkdir -p "${HOME}/.local/share/fastfetch/logos"
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${HOME}/.local/share/fastfetch/logos/maid"
 display $GREEN "Band Maid logo installed – po!"
-sleep 3s
+sleep 4s
 
 # FINAL SYNC
 log INFO "Syncing data to disk before identity swap..."
