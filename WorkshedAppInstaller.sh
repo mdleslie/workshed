@@ -94,6 +94,7 @@ deb_packages=(
     boxes
     yubikey-manager
     fido2-tools
+    smartmontools
 )
 
 flatpak_apps=(
