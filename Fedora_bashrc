@@ -53,6 +53,7 @@ alias parrot='curl parrot.live'
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
 alias mem5='ps auxf | sort -nr -k 4 | head -5'
 alias ports='sudo netstat -tulanp' # Requires 'net-tools' package
+alias ticker='ticker --config ~/snap/ticker/common/ticker.yaml'
 
 # ─── DISK & FILE TOOLS ───
 alias wget='wget -c'
