@@ -135,6 +135,7 @@ snap_packages=(
     upnote
     lunatask
     spotify
+    ticker
 )
 
 ##############################
@@ -395,6 +396,38 @@ curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
 
 display $GREEN "Band Maid logo installed – po!"
 sleep 3s
+
+##############################
+# Ticker Configuration (Snap Mode)
+##############################
+log INFO "Configuring Ticker watchlist for $TARGET_USER"
+display $GREEN "Setting up Ticker watchlist... tracking the gains, po!"
+
+# Create the Snap-specific config directory
+TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
+mkdir -p "$TICKER_SNAP_DIR"
+
+# Download your config from GitHub
+# Adjust the URL to your actual GitHub raw path
+TICKER_CONFIG_URL="https://raw.githubusercontent.com/mdleslie/workshed/workshed/ticker.yaml"
+
+if curl -fsSL "$TICKER_CONFIG_URL" -o "$TICKER_SNAP_DIR/ticker.yaml"; then
+    log INFO "Ticker config downloaded to Snap directory"
+    
+    # Create a symlink to ~/.ticker.yaml so standard binaries can see it too
+    ln -sf "$TICKER_SNAP_DIR/ticker.yaml" "$TARGET_HOME/.ticker.yaml"
+    
+    # Fix permissions for the target user
+    chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/snap/ticker"
+    chown "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.ticker.yaml"
+
+    # Connect the Snap home interface (Critical for config access)
+    sudo snap connect ticker:home || true
+    log INFO "Ticker Snap connected to home interface"
+else
+    log ERROR "Failed to download ticker.yaml from GitHub"
+    display $RED "Could not grab the ticker config, po!"
+fi
 
 # Custom verification script
 log INFO "Downloading your custom verify.sh script"
