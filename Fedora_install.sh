@@ -1,8 +1,8 @@
 #!/bin/bash
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 2.0.0 FEDORA edition
-# Updated: 2026-02-21
+# Version: 2.0.1 FEDORA edition --NON-ATOMIC
+# Updated: 2026-04-22
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -392,6 +392,7 @@ else
     log ERROR "Failed to download ticker.yaml"
     display $RED "Could not grab the ticker config, po!"
 fi
+display $GREEN "Watchlist added – po!"
 
 # FINAL SYNC
 log INFO "Syncing data to disk before identity swap..."
