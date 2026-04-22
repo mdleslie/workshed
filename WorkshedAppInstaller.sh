@@ -1,8 +1,8 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 1.0.5 LILITH edition with Snaps support added.
-# Updated: 2026-02-21
+# Version: 1.0.6 LILITH edition with Snaps support added.
+# Updated: 2026-04-22
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -403,23 +403,22 @@ sleep 3s
 log INFO "Configuring Ticker watchlist for $TARGET_USER"
 display $GREEN "Setting up Ticker watchlist... tracking the gains, po!"
 
-# Create the Snap-specific config directory
+# Ensure the full path exists and is owned by the user BEFORE download
 TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
 mkdir -p "$TICKER_SNAP_DIR"
+chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/snap"
 
 # Download your config from GitHub
-# Adjust the URL to your actual GitHub raw path
 TICKER_CONFIG_URL="https://raw.githubusercontent.com/mdleslie/workshed/workshed/ticker.yaml"
 
 if curl -fsSL "$TICKER_CONFIG_URL" -o "$TICKER_SNAP_DIR/ticker.yaml"; then
     log INFO "Ticker config downloaded to Snap directory"
     
-    # Create a symlink to ~/.ticker.yaml so standard binaries can see it too
+    # Create a symlink so standard binaries can see it too
     ln -sf "$TICKER_SNAP_DIR/ticker.yaml" "$TARGET_HOME/.ticker.yaml"
     
-    # Fix permissions for the target user
-    chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/snap/ticker"
-    chown "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.ticker.yaml"
+    # Set ownership on the symlink specifically
+    chown -h "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.ticker.yaml"
 
     # Connect the Snap home interface (Critical for config access)
     sudo snap connect ticker:home || true
