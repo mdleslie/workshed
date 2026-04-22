@@ -137,6 +137,7 @@ snap_packages=(
     upnote
     lunatask
     spotify
+    ticker
 )
 
 ##############################
@@ -357,6 +358,40 @@ mkdir -p "${TARGET_HOME}/.local/share/fastfetch/logos"
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${TARGET_HOME}/.local/share/fastfetch/logos/maid"
 display $GREEN "Band Maid logo installed – po!"
 sleep 4s
+
+
+# 7. Ticker Configuration (Fedora Snap Mode)
+log INFO "Configuring Ticker watchlist for $TARGET_USER"
+display $GREEN "Setting up Ticker watchlist... tracking the gains, po!"
+
+# 1. Fedora Snap Compatibility Fix
+# Fedora needs this symlink to recognize the 'snap' pathing properly
+if [ ! -L /snap ]; then
+    sudo ln -s /var/lib/snapd/snap /snap
+fi
+
+# 2. Ensure path exists and is owned by user
+TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
+mkdir -p "$TICKER_SNAP_DIR"
+chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/snap"
+
+# 3. Download config
+TICKER_CONFIG_URL="https://raw.githubusercontent.com/mdleslie/workshed/workshed/ticker.yaml"
+
+if curl -fsSL "$TICKER_CONFIG_URL" -o "$TICKER_SNAP_DIR/ticker.yaml"; then
+    log INFO "Ticker config downloaded"
+    
+    # Symlink for standard binary lookups
+    ln -sf "$TICKER_SNAP_DIR/ticker.yaml" "$TARGET_HOME/.ticker.yaml"
+    chown -h "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.ticker.yaml"
+
+    # 4. Connect home interface (Crucial on Fedora's SELinux setup)
+    sudo snap connect ticker:home || true
+    log INFO "Ticker Snap connected to home"
+else
+    log ERROR "Failed to download ticker.yaml"
+    display $RED "Could not grab the ticker config, po!"
+fi
 
 # FINAL SYNC
 log INFO "Syncing data to disk before identity swap..."
