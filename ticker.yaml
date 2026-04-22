@@ -1,0 +1,32 @@
+# ~/.ticker.yaml
+show-summary: true
+show-tags: true
+show-fundamentals: true
+show-separator: true
+show-positions: true
+interval: 5
+currency: USD
+currency-summary-only: false
+watchlist:
+  - VTSAX
+  - VTTHX
+  - VGSLX
+  - VDIGX
+  - SPHD
+  - VTV
+  - JEPI
+  - STAG
+  - VTI
+  - O
+  - QYLD
+  - MAIN
+  - VYM
+  - TSLA
+  - XYLG
+  - PTY
+  - GAB
+  - SCHD
+  - FDVV
+  - FVAL
+  - FREL
+  - FXAIX
