@@ -95,6 +95,7 @@ deb_packages=(
     yubikey-manager
     fido2-tools
     smartmontools
+    org.gnome.DejaDup
 )
 
 flatpak_apps=(
