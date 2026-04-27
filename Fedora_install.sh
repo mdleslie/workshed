@@ -131,6 +131,7 @@ flatpak_apps=(
     tv.plex.PlexDesktop
     org.gnome.Snapshot
     com.yubico.yubioath
+    org.gnome.DejaDup
 )
 
 snap_packages=(
