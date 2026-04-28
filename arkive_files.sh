@@ -2,7 +2,7 @@
 
 # --- CONFIGURATION ---
 SOURCE_DIR="/media/david/LandingDrive/Drop Folder"
-DEST_DIR="/mnt/Ark/Vault/Sorted"  # Verified: Manual mount point
+DEST_DIR="/mnt/Merlin/dest_vault/Temp"  # Verified: Manual mount point
 LOGDIR="/home/david/logs/arkive"   # Consolidated with system logs
 LOGFILE="$LOGDIR/move_logs.log"
 
