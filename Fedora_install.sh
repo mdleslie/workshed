@@ -159,6 +159,10 @@ fi
 #echo '########################################' | lolcat
 #echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf
 
+display $GREEN "Refreshing repos, po."
+echo '########################################' | lolcat
+sudo dnf upgrade --refresh
+
 display $GREEN "Fedora migration starting... po!"
 echo '########################################' | lolcat
 sleep 2
