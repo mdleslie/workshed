@@ -1,8 +1,8 @@
 #!/bin/bash
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 2.0.2 FEDORA edition --Cosmic DE
-# Updated: 2026-04-28
+# Version: 2.0.3 FEDORA edition --Cosmic DE
+# Updated: 2026-04-28 1050
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -125,6 +125,7 @@ flatpak_apps=(
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
     com.yubico.yubioath
+    org.gnome.DejaDup
 )
 
 snap_packages=(
@@ -147,7 +148,6 @@ cleanup() {
 }
 trap 'log ERROR "Failed at line $LINENO"' ERR
 trap cleanup EXIT
-script_completed="false"
 
 # Install lolcat (Fedora)
 if ! command -v lolcat &>/dev/null; then
@@ -174,13 +174,11 @@ echo '########################################' | lolcat
 echo '########################################' | lolcat
 sleep 5
 
-
 ##############################
 # System Update & Repos
 ##############################
 log INFO "Updating system and enabling RPM Fusion"
 display $GREEN "Enabling RPM Fusion (Free/Non-Free) and updating..."
-# RPM Fusion is essential for ffmpeg, vlc, steam etc on Fedora
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
                   https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf upgrade --refresh -y
@@ -188,28 +186,20 @@ sudo dnf upgrade --refresh -y
 log INFO "Swapping to full-featured curl"
 sudo dnf swap -y curl-minimal curl
 
-sudo dnf upgrade --refresh -y
 ##############################
-# Refresh Cache
-##############################
-
-sudo dnf makecache --refresh
-
-##############################
-# Multimedia & Codecs (F44/F45 Fix)
+# Multimedia & Codecs (F44/F45 Hardened Fix)
 ##############################
 log INFO "Performing targeted codec swap"
 display $GREEN "Swapping to full codecs – po!"
 
-# Force clear metadata to fix those checksum errors
+# Flush metadata to fix checksum mismatch
 sudo dnf clean all
 sudo dnf makecache
 
 # 1. Swap the crippled ffmpeg-free for the full version
 sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
 
-# 2. Install freeworld plugins with --skip-unavailable
-# This ensures that if vdpau-drivers-freeworld is missing, the script continues.
+# 2. Install freeworld plugins with --skip-unavailable to ignore missing mesa-vdpau
 sudo dnf install -y \
     gstreamer1-plugins-bad-freeworld \
     gstreamer1-plugins-ugly \
@@ -217,7 +207,6 @@ sudo dnf install -y \
     mesa-va-drivers-freeworld \
     mesa-vdpau-drivers-freeworld \
     --allowerasing --skip-unavailable
-
 
 ##############################
 # Install DNF packages
@@ -262,19 +251,16 @@ sudo dnf install -y snapd
 sudo ln -s /var/lib/snapd/snap /snap || true
 sudo systemctl enable --now snapd.socket
 
-# Wait until snapd is actually responsive
 log INFO "The waiting is the hardest part..."
 until sudo snap wait system seed.loaded; do
     sleep 2
     log INFO "Still waiting for snapd..."
 done
 
-# NEW: Pause to let the kernel catch up
 sleep 15 
 
 for snap_app in "${snap_packages[@]}"; do
     log INFO "Installing Snap → $snap_app"
-    # Added a retry loop for each snap
     if sudo snap install "$snap_app" || (sleep 10 && sudo snap install "$snap_app"); then
          installed_snap_packages+=("$snap_app") 
     else
@@ -302,149 +288,72 @@ ${log_file} {
 EOF
 
 ##############################
-# Monitor fix
-##############################
-####### Un-comment for gnome
-#gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
-
-##############################
 #  FINAL TOUCHES 
 ##############################
 
 # 1. Custom update script 
 log INFO "Downloading Fedora update script"
-display $GREEN "Installing update.sh to /usr/bin."
 sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_update.sh" -o /usr/bin/update.sh
 sudo chmod +x /usr/bin/update.sh
-# Create symlink so 'update' command works natively
 sudo ln -sf /usr/bin/update.sh /usr/bin/update
-display $GREEN "update.sh installed → just run 'update' anytime!"
-sleep 2s
 
 # 2. Custom file archiving
 log INFO "Downloading custom arkive_files.sh script"
 sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/arkive_files.sh" -o /usr/bin/arkive_files.sh
 sudo chmod +x /usr/bin/arkive_files.sh
-# Create symlink for 'store' command
 sudo ln -sf /usr/bin/arkive_files.sh /usr/bin/store
-display $GREEN "arkive_files.sh installed → run 'store' anytime!"
-sleep 2s
 
 # 3. Custom verification script
 log INFO "Downloading custom verify.sh script"
 sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/verify.sh" -o /usr/bin/verify.sh
 sudo chmod +x /usr/bin/verify.sh
-# Create symlink for 'verify' command
 sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
-display $GREEN "verify.sh installed → run 'verify' anytime!"
-sleep 2s
 
-# 4. Bash aliases (Pointed to the FIXED Fedora_bashrc)
+# 4. Bash aliases
 log INFO "Adding Workshed bash aliases"
-display $GREEN "Updating .bashrc with Fedora-specific aliases."
 cp "${TARGET_HOME}/.bashrc" "${TARGET_HOME}/.bashrc.bak" 2>/dev/null || true
-
-# Pull the now-verified, non-blank Fedora_bashrc
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" >> "${TARGET_HOME}/.bashrc"
-
 echo -e "\n# ── Workshed aliases loaded – po! ──" >> "${TARGET_HOME}/.bashrc"
-display $GREEN "Aliases added! Shop smart, po!"
-sleep 2s
 
 # 5. NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
 sudo mkdir -p /mnt/Arkive 
 sudo cp /etc/fstab /etc/fstab.bak
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/fstab" | sudo tee -a /etc/fstab > /dev/null
-display $GREEN "NFS mounts added to fstab – po!"
-sleep 2s
 
 # 6. Band Maid logo 
-log INFO "Downloading the hard rocking maid logo, po."
+log INFO "Downloading logo, po."
 mkdir -p "${TARGET_HOME}/.local/share/fastfetch/logos"
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -o "${TARGET_HOME}/.local/share/fastfetch/logos/maid"
-display $GREEN "Band Maid logo installed – po!"
-sleep 4s
 
-
-# 7. Ticker Configuration (Fedora Snap Mode)
-log INFO "Configuring Ticker watchlist for $TARGET_USER"
-display $GREEN "Setting up Ticker watchlist... tracking the gains, po!"
-
-# 1. Fedora Snap Compatibility Fix
-# Fedora needs this symlink to recognize the 'snap' pathing properly
-if [ ! -L /snap ]; then
-    sudo ln -s /var/lib/snapd/snap /snap
-fi
-
-# 2. Ensure path exists and is owned by user
+# 7. Ticker Configuration
+log INFO "Configuring Ticker"
 TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
 mkdir -p "$TICKER_SNAP_DIR"
-chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/snap"
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/ticker.yaml" -o "$TICKER_SNAP_DIR/ticker.yaml"
+ln -sf "$TICKER_SNAP_DIR/ticker.yaml" "$TARGET_HOME/.ticker.yaml"
+sudo snap connect ticker:home || true
 
-# 3. Download config
-TICKER_CONFIG_URL="https://raw.githubusercontent.com/mdleslie/workshed/workshed/ticker.yaml"
-
-if curl -fsSL "$TICKER_CONFIG_URL" -o "$TICKER_SNAP_DIR/ticker.yaml"; then
-    log INFO "Ticker config downloaded"
-    
-    # Symlink for standard binary lookups
-    ln -sf "$TICKER_SNAP_DIR/ticker.yaml" "$TARGET_HOME/.ticker.yaml"
-    chown -h "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.ticker.yaml"
-
-    # 4. Connect home interface (Crucial on Fedora's SELinux setup)
-    sudo snap connect ticker:home || true
-    log INFO "Ticker Snap connected to home"
-else
-    log ERROR "Failed to download ticker.yaml"
-    display $RED "Could not grab the ticker config, po!"
-fi
-display $GREEN "Watchlist added – po!"
-
-# FINAL SYNC
-log INFO "Syncing data to disk before identity swap..."
 sync
 sleep 5s
-
-display $GREEN "Gus, Is that Mauricio in there?! Is that Mauricio in there?! "
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-sleep 15
 
 # Pipx + yt-dlp
 log INFO "Installing Pipx and yt-dlp"
 sudo dnf install -y pipx
-
-# This ensures ~/.local/bin is added to your .bashrc
 sudo -u "$TARGET_USER" pipx ensurepath
-
-# Install yt-dlp specifically via pipx
-# We use '|| true' just in case it's already there from a previous run
 sudo -u "$TARGET_USER" pipx install yt-dlp || true
-
-# Force the PATH into the current script session so the logic stays consistent
 export PATH="$TARGET_HOME/.local/bin:$PATH"
 
 # Bun JS
 log INFO "Installing Bun"
 sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 
-display $GREEN "Shop smart, Shop S-Mart. "
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-sleep 15
-
 ##############################
 # UID Change & Finalize
 ##############################
 CURRENT_UID=$(id -u "$TARGET_USER")
 if [ "$CURRENT_UID" != "$NEW_UID" ]; then
-    display $YELLOW "UID is currently $CURRENT_UID. Target is $NEW_UID."
-    display $BLUE "Downloads complete. Ownership being updated..."
-
-    # Force a sync before we even enter the root shell
+    display $YELLOW "Identity update triggered... po!"
     sync && sleep 2
 
     display $YELLOW "#######################################################"
@@ -454,29 +363,17 @@ if [ "$CURRENT_UID" != "$NEW_UID" ]; then
 
     trap - ERR EXIT
     
-    # We pass the variables EXPLICITLY into the subshell to avoid expansion errors
 sudo bash -c "
-
-        # Inside the final sudo bash -c block:
-        # 1. Update identity
         sed -i \"s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/\" /etc/passwd
-    
-        # 2. Update subuid and subgid (escaped for the subshell)
         sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subuid
         sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subgid
-    
-        # 3. Relabel and ownership
         touch /.autorelabel
         chown -R $NEW_UID:$NEW_GID /home/$TARGET_USER
         chown $NEW_UID:$NEW_GID /usr/bin/update*
         chown $NEW_UID:$NEW_GID /usr/bin/store
         chown $NEW_UID:$NEW_GID /usr/bin/verify*
         chown $NEW_UID:$NEW_GID /usr/bin/arkive_files.sh
-        
-        # 3. Triple Sync (The 'Mauricio' special)
         sync; sleep 1; sync; sleep 1; sync
-        
-        echo 'Rebooting now... Shop smart, po!'
         systemctl reboot
     "
 fi
