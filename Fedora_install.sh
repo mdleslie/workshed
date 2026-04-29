@@ -155,9 +155,9 @@ if ! command -v lolcat &>/dev/null; then
     sudo dnf install -y lolcat
 fi
 
-display $GREEN "Setting maximum parallel downloads to 10, po."
-echo '########################################' | lolcat
-echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf
+#display $GREEN "Setting maximum parallel downloads to 10, po."
+#echo '########################################' | lolcat
+#echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf
 
 display $GREEN "Fedora migration starting... po!"
 echo '########################################' | lolcat
