@@ -196,22 +196,27 @@ sudo dnf upgrade --refresh -y
 sudo dnf makecache --refresh
 
 ##############################
-# Multimedia & Codecs (F43 Direct)
+# Multimedia & Codecs (F44/F45 Fix)
 ##############################
-log INFO "Performing targeted codec swap for Fedora 43"
+log INFO "Performing targeted codec swap"
 display $GREEN "Swapping to full codecs – po!"
+
+# Force clear metadata to fix those checksum errors
+sudo dnf clean all
+sudo dnf makecache
 
 # 1. Swap the crippled ffmpeg-free for the full version
 sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
 
-# 2. Install the specific freeworld plugins that Fedora excludes
+# 2. Install freeworld plugins with --skip-unavailable
+# This ensures that if vdpau-drivers-freeworld is missing, the script continues.
 sudo dnf install -y \
     gstreamer1-plugins-bad-freeworld \
     gstreamer1-plugins-ugly \
     libavcodec-freeworld \
     mesa-va-drivers-freeworld \
     mesa-vdpau-drivers-freeworld \
-    --allowerasing
+    --allowerasing --skip-unavailable
 
 
 ##############################
