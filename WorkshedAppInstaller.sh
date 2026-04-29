@@ -48,21 +48,17 @@ deb_packages=(
     libgl1-mesa-dev
     libgstreamer1.0-dev
     libgstreamer-plugins-base1.0-dev
-    libgstreamer-plugins-bad1.0-dev
     gstreamer1.0-plugins-bad
-    gstreamer1.0-qt5
     gstreamer1.0-plugins-ugly
     gstreamer1.0-plugins-good
     gstreamer1.0-libav
     libavcodec-extra
-    chromium-codecs-ffmpeg-extra
     nfs-common
     cifs-utils
     gamemode
     steam
     cpu-x
     python3
-    python3-pip
     figlet
     fonts-inter
     mangohud
