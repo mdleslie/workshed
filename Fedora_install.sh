@@ -119,13 +119,11 @@ flatpak_apps=(
     com.github.unrud.VideoDownloader
     app.zen_browser.zen
     it.mijorus.gearlever
-    io.github.Faugus.faugus-launcher
     io.github.seadve.Kooha
     no.mifi.losslesscut
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
     com.yubico.yubioath
-    org.gnome.DejaDup
 )
 
 snap_packages=(
