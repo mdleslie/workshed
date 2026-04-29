@@ -1,8 +1,8 @@
 #!/bin/bash
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 2.0.1 FEDORA edition --NON-ATOMIC
-# Updated: 2026-04-22
+# Version: 2.0.2 FEDORA edition --Cosmic DE
+# Updated: 2026-04-28
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -31,6 +31,7 @@ installed_snap_packages=()
 ##############################
 
 dnf_packages=(
+    dnf-plugins-core
     fortune-mod
     cowsay
     fuse3
@@ -60,10 +61,9 @@ dnf_packages=(
     python3
     python3-pip
     figlet
-    inter-fonts
+    google-inter-fonts
     mangohud
     ncdu
-    pydf
     ffmpegthumbnailer
     bind-utils
     traceroute
@@ -91,13 +91,8 @@ dnf_packages=(
     yubikey-manager
     libfido2
     curl
-    gnome-sushi
-    nautilus-python
     file-roller
-    gnome-tweaks
-    gnome-extensions-app
-    dconf-editor
-    gnome-themes-extra
+    duf
 )
 
 flatpak_apps=(
@@ -129,9 +124,7 @@ flatpak_apps=(
     no.mifi.losslesscut
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
-    org.gnome.Snapshot
     com.yubico.yubioath
-    org.gnome.DejaDup
 )
 
 snap_packages=(
@@ -162,11 +155,18 @@ if ! command -v lolcat &>/dev/null; then
     sudo dnf install -y lolcat
 fi
 
+display $GREEN "Setting maximum parallel downloads to 10, po."
+echo '########################################' | lolcat
+echo "max_parallel_downloads=10" | sudo tee -a /etc/dnf/dnf.conf
+
 display $GREEN "Fedora migration starting... po!"
 echo '########################################' | lolcat
 sleep 2
 cache_sudo
 
+display $GREEN "Help flatpaks look native."
+echo '########################################' | lolcat
+sudo flatpak override --filesystem=~/.icons:ro --filesystem=~/.fonts:ro
 
 display $GREEN "Let's go, it's showtime! "
 echo '########################################' | lolcat
@@ -299,10 +299,11 @@ EOF
 ##############################
 # Monitor fix
 ##############################
-gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
+####### Un-comment for gnome
+#gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
 
 ##############################
-#  FINAL TOUCHES (Fedora)
+#  FINAL TOUCHES 
 ##############################
 
 # 1. Custom update script 
@@ -450,10 +451,17 @@ if [ "$CURRENT_UID" != "$NEW_UID" ]; then
     
     # We pass the variables EXPLICITLY into the subshell to avoid expansion errors
 sudo bash -c "
+
+        # Inside the final sudo bash -c block:
         # 1. Update identity
-        sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
-        
-        # 2. Bulk chown for all workshed tools and home
+        sed -i \"s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/\" /etc/passwd
+    
+        # 2. Update subuid and subgid (escaped for the subshell)
+        sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subuid
+        sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subgid
+    
+        # 3. Relabel and ownership
+        touch /.autorelabel
         chown -R $NEW_UID:$NEW_GID /home/$TARGET_USER
         chown $NEW_UID:$NEW_GID /usr/bin/update*
         chown $NEW_UID:$NEW_GID /usr/bin/store
