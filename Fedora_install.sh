@@ -36,7 +36,6 @@ dnf_packages=(
     cowsay
     fuse-libs
     fuse3
-    @development-tools
     pkgconf-pkg-config
     mesa-utils
     ffmpeg
@@ -98,7 +97,8 @@ dnf_packages=(
     google-noto-serif-fonts
     liberation-fonts
     btrfs-assistant
-    btrbk snapper
+    btrbk 
+    snapper
 )
 
 flatpak_apps=(
@@ -175,6 +175,10 @@ cache_sudo
 display $GREEN "Help flatpaks look native."
 echo '########################################' | lolcat
 sudo flatpak override --filesystem=~/.icons:ro --filesystem=~/.fonts:ro
+
+display $GREEN "Installing Development Tools."
+echo '########################################' | lolcat
+sudo dnf groupinstall "Development Tools"
 
 display $GREEN "Let's go, it's showtime! "
 echo '########################################' | lolcat
