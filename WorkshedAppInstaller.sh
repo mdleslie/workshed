@@ -163,7 +163,12 @@ display $GREEN "Lets go, it's showtime!"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-sleep 5
+sleep 2s
+display $BLUE "Breaking new gate."
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+sleep 4s
 cache_sudo
 
 # Add Fastfetch PPA immediately
