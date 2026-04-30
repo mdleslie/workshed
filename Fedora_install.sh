@@ -1,8 +1,8 @@
 #!/bin/bash
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 2.0.3 FEDORA edition --Cosmic DE
-# Updated: 2026-04-28 1050
+# Version: 2.0.4 FEDORA edition --Cosmic DE
+# Updated: 2026-04-29 1050
 
 set -eEuo pipefail
 IFS=$'\n\t'
