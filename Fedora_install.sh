@@ -36,6 +36,7 @@ dnf_packages=(
     cowsay
     fuse-libs
     fuse3
+    fuse
     pkgconf-pkg-config
     mesa-utils
     ffmpeg
@@ -136,6 +137,7 @@ flatpak_apps=(
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
     com.yubico.yubioath
+    com.mattjakeman.ExtensionManager
 )
 
 snap_packages=(
