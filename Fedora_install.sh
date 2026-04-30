@@ -1,7 +1,7 @@
 #!/bin/bash
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 2.0.4 FEDORA edition --Cosmic DE
+# Version: 2.0.4 FEDORA edition --Gnome DE
 # Updated: 2026-04-29 1050
 
 set -eEuo pipefail
@@ -99,6 +99,12 @@ dnf_packages=(
     btrfs-assistant
     btrbk 
     snapper
+    gnome-tweaks
+    gnome-extensions-app
+    dconf-editor
+    gnome-themes-extra
+    nautilus-python
+    gnome-sushi 
 )
 
 flatpak_apps=(
