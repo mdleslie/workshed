@@ -11,6 +11,11 @@
 192.168.1.150:/volume1/Ark /mnt/Ark nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
 192.168.1.135:/volume1/Merlin /mnt/Merlin nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
 
+# Entry for LandingDrive (ext4)
+#UUID=0aa3960d-1ac5-4977-8bb8-800b1dae812c  /mnt/LandingDrive  ext4  defaults,noatime  0  2
+
+# Entry for EXT_4TB (FAT32)
+#UUID=88D8-A650  /mnt/EXT_4TB  vfat  defaults,uid=1000,gid=1000,umask=007,shortname=mixed,utf8  0  2
 
 #nfs mount for arr directory
 #192.168.1.150:/volume1/Arkive_Share/Media /media/arr nfs defaults,_netdev,noatime,vers=3,hard 0 0
