@@ -61,7 +61,6 @@ deb_packages=(
     python3
     figlet
     fonts-inter
-    mangohud
     ncdu
     pydf
     ffmpegthumbnailer
