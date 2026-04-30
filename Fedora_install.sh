@@ -34,6 +34,7 @@ dnf_packages=(
     dnf-plugins-core
     fortune-mod
     cowsay
+    fuse-libs
     fuse3
     @development-tools
     pkgconf-pkg-config
@@ -93,6 +94,11 @@ dnf_packages=(
     curl
     file-roller
     duf
+    google-noto-sans-fonts
+    google-noto-serif-fonts
+    liberation-fonts
+    btrfs-assistant
+    btrbk snapper
 )
 
 flatpak_apps=(
@@ -343,6 +349,12 @@ sudo snap connect ticker:home || true
 
 sync
 sleep 5s
+
+# Check for firmware updates
+log INFO "Checking for Firmware Updates."
+fwupdmgr refresh && fwupdmgr get-updates
+
+fwupdmgr update
 
 # Pipx + yt-dlp
 log INFO "Installing Pipx and yt-dlp"

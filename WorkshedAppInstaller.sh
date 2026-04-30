@@ -306,11 +306,11 @@ for snap_app in "${snap_packages[@]}"; do
     fi
 done
 
-display $GREEN "Breaking new gate!"
+display $GREEN "I am losing my mind."
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-sleep 5s
+sleep 3s
 
 # ---------------------------------------------------------
 # CONFIGURE LOG ROTATION
