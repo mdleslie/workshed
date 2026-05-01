@@ -235,7 +235,7 @@ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-rel
 sudo dnf upgrade --refresh -y
 
 log INFO "Swapping to full-featured curl"
-sudo dnf swap -y curl-minimal curl
+sudo dnf install -y curl --allowerasing
 
 ##############################
 # Multimedia & Codecs (F44/F45 Hardened Fix)
