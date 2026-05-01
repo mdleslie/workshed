@@ -25,6 +25,7 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC
 installed_dnf_packages=()
 installed_flatpak_apps=()
 installed_snap_packages=()
+installed_dnf_packages=(${installed_dnf_packages[@]:-})
 
 ##############################
 # Log Rotation
