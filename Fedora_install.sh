@@ -180,6 +180,8 @@ cleanup() {
     trap - ERR EXIT 
     log INFO "Running cleanup..."
 }
+trap 'log ERROR "Failed at line $LINENO"' ERR
+trap cleanup EXIT
 
 #Dracut config fix
 echo 'omit_dracutmodules+=" anaconda "' | sudo tee /etc/dracut.conf.d/extramodules.conf
