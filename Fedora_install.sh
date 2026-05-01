@@ -262,8 +262,8 @@ sudo dnf install -y \
     libavcodec-freeworld \
     mesa-va-drivers-freeworld \
     mesa-vdpau-drivers-freeworld \
-    --allowerasing --skip-unavailable --disablerepo=*rawhide*
-
+    --allowerasing --skip-unavailable --releasever=$(rpm -E %fedora)
+    
 ##############################
 # Install DNF packages
 ##############################
