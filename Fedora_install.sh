@@ -27,6 +27,26 @@ installed_flatpak_apps=()
 installed_snap_packages=()
 
 ##############################
+# Log Rotation
+##############################
+LOG_DIR="$TARGET_HOME/logs"
+mkdir -p "$LOG_DIR"
+chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
+
+cat << EOF | sudo tee /etc/logrotate.d/arkive_files > /dev/null
+
+${log_file} {
+    su $TARGET_USER $TARGET_USER
+    daily
+    rotate 4
+    size 5M
+    missingok
+    notifempty
+    compress
+}
+EOF
+
+##############################
 # PACKAGE ARRAYS 
 ##############################
 
