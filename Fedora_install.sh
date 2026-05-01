@@ -361,11 +361,20 @@ sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/ve
 sudo chmod +x /usr/bin/verify.sh
 sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
 
-# 4. Bash aliases
+# 4. Bash aliases (Fedora/Ultramarine optimized)
 log INFO "Adding Workshed bash aliases"
-cp "${TARGET_HOME}/.bashrc" "${TARGET_HOME}/.bashrc.bak" 2>/dev/null || true
-curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" >> "${TARGET_HOME}/.bashrc"
-echo -e "\n# ── Workshed aliases loaded – po! ──" >> "${TARGET_HOME}/.bashrc"
+
+# Create the directory if it doesn't exist (it should on Fedora)
+mkdir -p "${TARGET_HOME}/.bashrc.d"
+
+# Download the config into its own separate file
+curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/Fedora_bashrc" -o "${TARGET_HOME}/.bashrc.d/workshed.rc"
+
+# Add your signature footer to that specific file
+echo -e "\n# ── Workshed aliases loaded – po! ──" >> "${TARGET_HOME}/.bashrc.d/workshed.rc"
+
+# Set correct ownership
+chown "$TARGET_USER:$TARGET_USER" "${TARGET_HOME}/.bashrc.d/workshed.rc"
 
 # 5. NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
