@@ -312,11 +312,8 @@ sleep 15
 
 for snap_app in "${snap_packages[@]}"; do
     log INFO "Installing Snap → $snap_app"
-    if sudo snap install "$snap_app" || (sleep 10 && sudo snap install "$snap_app"); then
-         installed_snap_packages+=("$snap_app") 
-    else
-         log ERROR "Failed to install $snap_app after retry."
-    fi
+    # Adding || true ensures the script doesn't stop if the store is down
+    sudo snap install "$snap_app" || log ERROR "Store is down, skipping $snap_app" || true
 done
 
 ##############################
