@@ -380,7 +380,6 @@ curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid" -
 
 # 7. Ticker Configuration
 log INFO "Configuring Ticker"
-TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
 mkdir -p "$TICKER_SNAP_DIR"
 curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/ticker.yaml" -o "$TICKER_SNAP_DIR/ticker.yaml"
 ln -sf "$TICKER_SNAP_DIR/ticker.yaml" "$TARGET_HOME/.ticker.yaml"
