@@ -212,7 +212,11 @@ sudo flatpak override --filesystem=~/.icons:ro --filesystem=~/.fonts:ro
 
 display $GREEN "Installing Development Tools."
 echo '########################################' | lolcat
-sudo dnf groupinstall "Development Tools"
+if dnf --version | grep -q "dnf5"; then
+    sudo dnf group install -y "Development Tools"
+else
+    sudo dnf groupinstall -y "Development Tools"
+fi
 
 display $GREEN "Let's go, it's showtime! "
 echo '########################################' | lolcat
