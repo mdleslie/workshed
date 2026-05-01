@@ -242,26 +242,27 @@ log INFO "Swapping to full-featured curl"
 sudo dnf install -y curl --allowerasing
 
 ##############################
-# Multimedia & Codecs (F44/F45 Hardened Fix)
+# Multimedia & Codecs (Hardened Fix)
 ##############################
 log INFO "Performing targeted codec swap"
 display $GREEN "Swapping to full codecs – po!"
 
-# Flush metadata to fix checksum mismatch
+# 1. Clean up any metadata confusion
 sudo dnf clean all
 sudo dnf makecache
 
-# 1. Swap the crippled ffmpeg-free for the full version
-sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
+# 2. Swap ffmpeg using explicit releasever to avoid Rawhide/F45 leaks
+# We use --releasever=$(rpm -E %fedora) to ensure it stays on your version
+sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing --releasever=$(rpm -E %fedora)
 
-# 2. Install freeworld plugins with --skip-unavailable to ignore missing mesa-vdpau
+# 3. Install freeworld plugins, explicitly disabling rawhide repos if they exist
 sudo dnf install -y \
     gstreamer1-plugins-bad-freeworld \
     gstreamer1-plugins-ugly \
     libavcodec-freeworld \
     mesa-va-drivers-freeworld \
     mesa-vdpau-drivers-freeworld \
-    --allowerasing --skip-unavailable
+    --allowerasing --skip-unavailable --disablerepo=*rawhide*
 
 ##############################
 # Install DNF packages
