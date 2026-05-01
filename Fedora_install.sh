@@ -405,29 +405,32 @@ sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 ##############################
 # UID Change & Finalize
 ##############################
-CURRENT_UID=$(id -u "$TARGET_USER")
-if [ "$CURRENT_UID" != "$NEW_UID" ]; then
-    display $YELLOW "Identity update triggered... po!"
-    sync && sleep 2
-
-    display $YELLOW "#######################################################"
-    display $YELLOW "INSTALL COMPLETE. Press ENTER to change UID and REBOOT."
-    display $YELLOW "#######################################################"
-    read -p "" </dev/tty
-
-    trap - ERR EXIT
-    
-sudo bash -c "
-        sed -i \"s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/\" /etc/passwd
-        sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subuid
-        sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subgid
-        touch /.autorelabel
-        chown -R $NEW_UID:$NEW_GID /home/$TARGET_USER
-        chown $NEW_UID:$NEW_GID /usr/bin/update*
-        chown $NEW_UID:$NEW_GID /usr/bin/store
-        chown $NEW_UID:$NEW_GID /usr/bin/verify*
-        chown $NEW_UID:$NEW_GID /usr/bin/arkive_files.sh
-        sync; sleep 1; sync; sleep 1; sync
-        systemctl reboot
-    "
-fi
+#CURRENT_UID=$(id -u "$TARGET_USER")
+#if [ "$CURRENT_UID" != "$NEW_UID" ]; then
+#    display $YELLOW "Identity update triggered... po!"
+#    sync && sleep 2
+#
+#    display $YELLOW "#######################################################"
+#    display $YELLOW "INSTALL COMPLETE. Press ENTER to change UID and REBOOT."
+#    display $YELLOW "#######################################################"
+#    read -p "" </dev/tty
+#
+#    trap - ERR EXIT
+#    
+#sudo bash -c "
+#        sed -i \"s/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/\" /etc/passwd
+#        sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subuid
+#        sed -i \"s/^$TARGET_USER:[0-9]*:[0-9]*/$TARGET_USER:$NEW_UID:65536/\" /etc/subgid
+#        touch /.autorelabel
+#        chown -R $NEW_UID:$NEW_GID /home/$TARGET_USER
+#        chown $NEW_UID:$NEW_GID /usr/bin/update*
+#        chown $NEW_UID:$NEW_GID /usr/bin/store
+#        chown $NEW_UID:$NEW_GID /usr/bin/verify*
+#        chown $NEW_UID:$NEW_GID /usr/bin/arkive_files.sh
+#        sync; sleep 1; sync; sleep 1; sync
+#        systemctl reboot
+#    "
+#fi
+###
+###
+exit
