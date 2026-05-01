@@ -176,10 +176,10 @@ display() { echo -e "${1}${2}${NC}" | tee -a "$log_file"; command -v lolcat >/de
 cache_sudo() { sudo -v; (while :; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null) & }
 
 cleanup() {
+    # Disable the trap to prevent loops if cleanup fails
+    trap - ERR EXIT 
     log INFO "Running cleanup..."
 }
-trap 'log ERROR "Failed at line $LINENO"' ERR
-trap cleanup EXIT
 
 # Install lolcat (Fedora)
 if ! command -v lolcat &>/dev/null; then
