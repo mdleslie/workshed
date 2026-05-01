@@ -181,6 +181,9 @@ cleanup() {
     log INFO "Running cleanup..."
 }
 
+#Dracut config fix
+echo 'omit_dracutmodules+=" anaconda "' | sudo tee /etc/dracut.conf.d/extramodules.conf
+
 # Install lolcat (Fedora)
 if ! command -v lolcat &>/dev/null; then
     log INFO "Installing lolcat..."
