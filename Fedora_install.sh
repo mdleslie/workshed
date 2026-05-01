@@ -15,6 +15,10 @@ TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
 [[ -z "$TARGET_HOME" || ! -d "$TARGET_HOME" ]] && { echo "ERROR: Cannot find home for $TARGET_USER"; exit 1; }
 
+TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
+CURRENT_UID=$(id -u "$TARGET_USER")
+LOG_DIR="$TARGET_HOME/logs"
+
 log_file="$TARGET_HOME/install_log.txt"
 update_summary="$TARGET_HOME/install_summary.txt"
 
@@ -30,7 +34,7 @@ installed_dnf_packages=(${installed_dnf_packages[@]:-})
 ##############################
 # Log Rotation
 ##############################
-LOG_DIR="$TARGET_HOME/logs"
+
 mkdir -p "$LOG_DIR"
 chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
 
