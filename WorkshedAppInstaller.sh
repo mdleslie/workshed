@@ -162,12 +162,8 @@ display $GREEN "Lets go, it's showtime!"
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-sleep 2s
-display $BLUE "Breaking new gate."
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
 sleep 4s
+
 cache_sudo
 
 # Add Fastfetch PPA immediately
@@ -182,11 +178,11 @@ display $GREEN "Updating and upgrading..."
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y nala
 
+display $BLUE "Breaking new gate."
 echo '########################################' | lolcat
 echo '########################################' | lolcat
 echo '########################################' | lolcat
-display $GREEN "Gus, don't be William Zabka from Back to School."
-sleep 5s
+sleep 4s
 
 ##############################
 # Microsoft Fonts + DVD support
