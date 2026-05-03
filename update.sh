@@ -76,7 +76,7 @@ run_update "Pipx (Apps)" "pipx upgrade-all"
 # --- Maintenance & Cleanup ---
 log_and_display INFO "Running system maintenance..."
 
-# Repair Flatpaks (Once is enough!)
+# Repair Flatpaks
 run_update "Flatpak Repair" "sudo flatpak repair"
 
 # Cleanup Nala and Flatpak
