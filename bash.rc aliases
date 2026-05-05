@@ -10,7 +10,7 @@
 # DESCRIPTION:
 # Custom environment setup. Includes 
 # package management shortcuts (Nala), safety overrides for file operations, 
-# Docker management, and specialized media tools (yt-dlp with Bun runtime).
+# specialized media tools (yt-dlp with Bun runtime).
 #
 # DEPENDENCIES:
 # - figlet, lolcat, fastfetch (Aesthetics)
