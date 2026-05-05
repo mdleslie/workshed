@@ -2,7 +2,8 @@
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
 # Version: 2.0.4 FEDORA edition --Gnome DE
-# Updated: 2026-04-29 1050
+# Updated: 2026-05-05 
+#co-authored by Gemini
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -131,6 +132,7 @@ dnf_packages=(
     gnome-themes-extra
     nautilus-python
     tldr
+    bat
 )
 
 flatpak_apps=(
