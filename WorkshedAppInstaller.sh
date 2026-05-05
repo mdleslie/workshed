@@ -1,8 +1,9 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 1.0.6 LILITH edition with Snaps support added.
-# Updated: 2026-04-22
+# Version: 1.0.7 LILITH edition with Snaps support added.
+# Updated: 2026-05-05
+# co-authored by Gemini
 
 set -eEuo pipefail
 IFS=$'\n\t'
