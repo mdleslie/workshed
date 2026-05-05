@@ -59,6 +59,7 @@ alias mem5='ps auxf | sort -nr -k 4 | head -5'
 alias ports='sudo netstat -tulanp'
 alias verify='/usr/bin/verify.sh'
 alias ticker='ticker --config ~/snap/ticker/common/ticker.yaml'
+alias bat='batcat'
 
 # ─── DISK & FILE TOOLS ───
 alias wget='wget -c'

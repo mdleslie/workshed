@@ -92,6 +92,7 @@ deb_packages=(
     smartmontools
     org.gnome.DejaDup
     tldr
+    bacula-console-qt
 )
 
 flatpak_apps=(
