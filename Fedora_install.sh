@@ -130,7 +130,7 @@ dnf_packages=(
     dconf-editor
     gnome-themes-extra
     nautilus-python
-    gnome-sushi 
+    tldr
 )
 
 flatpak_apps=(

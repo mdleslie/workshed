@@ -91,6 +91,7 @@ deb_packages=(
     fido2-tools
     smartmontools
     org.gnome.DejaDup
+    tldr
 )
 
 flatpak_apps=(
