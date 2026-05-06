@@ -274,7 +274,7 @@ display $GREEN "Setting up Snap environment..."
 
 # 1. Install snapd service
 if ! command -v snap &>/dev/null; then
-    log INFO "snapd not found. Installing..."
+    log INFO "snapd not found installed already. Installing snapd..."
     sudo nala install -y snapd
 fi
 
