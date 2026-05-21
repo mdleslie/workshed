@@ -368,7 +368,7 @@ sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
 # 4. Bash aliases (Fedora/Ultramarine optimized)
 log INFO "Adding Workshed bash aliases"
 
-# Create the directory if it doesn't exist (it should on Fedora)
+# Create the directory if it doesn't exist
 mkdir -p "${TARGET_HOME}/.bashrc.d"
 
 # Download the config into its own separate file
