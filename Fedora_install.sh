@@ -129,6 +129,7 @@ dnf_packages=(
     nautilus-python
     tldr
     bat
+    mscore-fonts-all
 )
 
 flatpak_apps=(
