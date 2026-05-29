@@ -4,8 +4,8 @@
 ####################################################################################################
 
 #nfs mount command
-192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
-192.168.1.135:/volume1/Merlin /mnt/Merlin nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
+#192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
+#192.168.1.135:/volume1/Merlin /mnt/Merlin nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
 
 192.168.1.233:/mnt/user/data /mnt/data nfs rw,noatime,vers=4.2,rsize=1048576,wsize=1048576,async,hard,noresvport,_netdev,x-systemd.automount,x-systemd.idle-timeout=600 0 0
 192.168.1.233:/mnt/user/repo /mnt/repo nfs rw,noatime,vers=4.2,rsize=1048576,wsize=1048576,async,hard,noresvport,_netdev,x-systemd.automount,x-systemd.idle-timeout=600 0 0

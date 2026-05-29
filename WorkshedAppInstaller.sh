@@ -1,8 +1,8 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 1.0.7 LILITH edition with Snaps support added.
-# Updated: 2026-05-05
+# Version: 1.0.8 LILITH edition with Snaps support added.
+# Updated: 2026-05-28
 # co-authored by Gemini
 
 set -eEuo pipefail
@@ -480,47 +480,8 @@ sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 # Ensure the script session knows where Bun is for the next steps
 export PATH="$TARGET_HOME/.bun/bin:$PATH"
 
-#########################################################################################
-# Safe UID change (LIVE METHOD - ROOT BUBBLE)
-#########################################################################################
-log INFO "Changing UID to $NEW_UID"
-display $RED "Updating UID instantly..."
 
-CURRENT_UID=$(id -u "$TARGET_USER")
-if [ "$CURRENT_UID" != "$NEW_UID" ]; then
-    # DISABLE TRAPS: Prevents the script from reverting bashrc if chown throws a minor error
-    trap - ERR EXIT
+display $BLUE "Shop smart. Shop S-Mart."
 
-    # Create the "Bubble": Run everything inside this block as root
-    sudo bash -c "
-        # Backup
-        cp /etc/passwd /etc/passwd.bak
-        cp /etc/group /etc/group.bak
-
-        # Update Passwd File Directly using current variables
-        sed -i 's/^$TARGET_USER:x:$CURRENT_UID:/$TARGET_USER:x:$NEW_UID:/' /etc/passwd
-
-        # Fix permissions
-        # Added '|| true' to ignore locked socket errors (PREVENTS CRASH)
-        echo 'Updating file ownership...'
-        chown -R $NEW_UID:$NEW_GID $TARGET_HOME || true
-    
-        # Fix temp files
-        find /tmp /var/tmp -uid $CURRENT_UID -exec chown -h $NEW_UID {} + 2>/dev/null || true
-
-        echo 'UID changed. Rebooting immediately.'
-        
-        # Force Reboot to skip saving the broken session
-        /sbin/reboot -f
-    "
-else
-    display $GREEN "UID is already $NEW_UID. No change needed."
-    
-    log INFO "Installation summary saved to $update_summary"
-
-    script_completed="true"
-    display $BLUE "Computer will now reboot."
-    display $BLUE "Shop smart. Shop S-Mart."
-    sleep 10s
-    sudo reboot now
-fi
+read -p "Press [Enter] to exit..."
+exit
