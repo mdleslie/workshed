@@ -19,9 +19,6 @@ TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
 log_file="$TARGET_HOME/install_log.txt"
 update_summary="$TARGET_HOME/install_summary.txt"
 
-NEW_UID="1026"
-NEW_GID="1000"
-
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 installed_deb_packages=()
 installed_flatpak_apps=()
@@ -143,7 +140,6 @@ snap_packages=(
 
 log() { local lvl="$1" msg="$2"; printf "[%s] [%s] %s\n" "$(date +'%Y-%m-%d %H:%M:%S')" "$lvl" "$msg" | tee -a "$log_file"; logger -p user."$lvl" "$msg"; }
 display() { echo -e "${1}${2}${NC}" | tee -a "$log_file"; command -v lolcat >/dev/null 2>&1 && [[ -t 1 ]] && echo -e "$2" | lolcat || echo -e "$2"; }
-lol() { command -v lolcat >/dev/null 2>&1 && [[ -t 1 ]] && "$@" | lolcat || "$@"; }
 cache_sudo() { sudo -v; (while :; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null) & }
 
 cleanup() {
@@ -321,7 +317,6 @@ LOG_DIR="$TARGET_HOME/logs"
 
 # Ensure the log directory exists with correct permissions
 mkdir -p "$LOG_DIR"
-# Use the calculated user variable, not hardcoded 'david'
 chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
 
 # Create the logrotate config file
@@ -461,10 +456,6 @@ printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
 printf "Installed Snap packages: %s\n" "${#installed_snap_packages[@]}" >> "$update_summary"
 printf '%s\n' "${installed_snap_packages[@]}" >> "$update_summary"
 
-display $GREEN "Computer will reboot for the PUID changes to take full effect, po."
-display $BLUE "Warning, Computer will reboot for the PUID changes to take full effect, po."
-sleep 10s
-
 log INFO "Installation summary saved to $update_summary"
 
 display $GREEN "Script complete. Installation summary saved to $update_summary"
@@ -480,8 +471,13 @@ sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
 # Ensure the script session knows where Bun is for the next steps
 export PATH="$TARGET_HOME/.bun/bin:$PATH"
 
-
 display $BLUE "Shop smart. Shop S-Mart."
 
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+echo '########################################' | lolcat
+sleep 3s
+
+script_completed="true"
 read -p "Press [Enter] to exit..."
 exit

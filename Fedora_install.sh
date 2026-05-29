@@ -17,14 +17,10 @@ TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
 [[ -z "$TARGET_HOME" || ! -d "$TARGET_HOME" ]] && { echo "ERROR: Cannot find home for $TARGET_USER"; exit 1; }
 
 TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
-CURRENT_UID=$(id -u "$TARGET_USER")
 LOG_DIR="$TARGET_HOME/logs"
 
 log_file="$TARGET_HOME/install_log.txt"
 update_summary="$TARGET_HOME/install_summary.txt"
-
-NEW_UID="1026"
-NEW_GID="1000"
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 installed_dnf_packages=()
@@ -323,25 +319,6 @@ for snap_app in "${snap_packages[@]}"; do
     # Adding || true ensures the script doesn't stop if the store is down
     sudo snap install "$snap_app" || log ERROR "Store is down, skipping $snap_app" || true
 done
-
-##############################
-# Log Rotation
-##############################
-LOG_DIR="$TARGET_HOME/logs"
-mkdir -p "$LOG_DIR"
-chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
-
-cat << EOF | sudo tee /etc/logrotate.d/arkive_files > /dev/null
-${log_file} {
-    su $TARGET_USER $TARGET_USER
-    daily
-    rotate 4
-    size 5M
-    missingok
-    notifempty
-    compress
-}
-EOF
 
 ##############################
 #  FINAL TOUCHES 
