@@ -130,6 +130,7 @@ dnf_packages=(
     tldr
     bat
     mscore-fonts-all
+    cosmic-icon-theme
 )
 
 flatpak_apps=(
