@@ -163,6 +163,7 @@ flatpak_apps=(
     tv.plex.PlexDesktop
     com.yubico.yubioath
     com.mattjakeman.ExtensionManager
+    org.upscayl.Upscayl
 )
 
 snap_packages=(
