@@ -124,6 +124,7 @@ flatpak_apps=(
     io.github.cosmic_utils.camera
     com.yubico.yubioath
     dev.edfloreshz.CosmicTweaks
+    org.upscayl.Upscayl
     
 )
 
