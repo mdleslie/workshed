@@ -131,6 +131,7 @@ dnf_packages=(
     bat
     mscore-fonts-all
     cosmic-icon-theme
+    exiftool
 )
 
 flatpak_apps=(
@@ -164,6 +165,7 @@ flatpak_apps=(
     com.yubico.yubioath
     com.mattjakeman.ExtensionManager
     org.upscayl.Upscayl
+    org.gnome.DejaDup
 )
 
 snap_packages=(
