@@ -397,10 +397,6 @@ sudo -u "$TARGET_USER" pipx ensurepath
 sudo -u "$TARGET_USER" pipx install yt-dlp || true
 export PATH="$TARGET_HOME/.local/bin:$PATH"
 
-# Bun JS
-log INFO "Installing Bun"
-sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
-
 ###
 ###
 display $BLUE "Shop smart. Shop S-Mart."
