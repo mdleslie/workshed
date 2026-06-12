@@ -464,13 +464,6 @@ log INFO "Installation summary saved to $update_summary"
 display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
 
-# ─── Install Bun (Required for the 'yt' alias) ───
-log INFO "Installing Bun for $TARGET_USER"
-display $GREEN "Installing Bun JS Runtime, po!"
-
-# Run the installer as the target user, not as root
-sudo -u "$TARGET_USER" bash -c "curl -fsSL https://bun.com/install | bash"
-
 # Ensure the script session knows where Bun is for the next steps
 export PATH="$TARGET_HOME/.bun/bin:$PATH"
 
