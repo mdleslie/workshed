@@ -64,7 +64,7 @@ alias catt='cat | lolcat'
 alias store='arkive_files.sh'
 
 # ─── MEDIA & SERVER ───
-alias yt='yt-dlp --cookies-from-browser firefox --js-runtimes bun --remote-components ejs:github'
+alias yt='yt-dlp --cookies-from-browser firefox --js-runtimes node --remote-components ejs:github'
 
 # Docker Shortcuts
 # Note: On Fedora, many use Podman. If using Docker, ensure docker-ce is installed.
