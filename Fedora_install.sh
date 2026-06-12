@@ -132,6 +132,7 @@ dnf_packages=(
     mscore-fonts-all
     cosmic-icon-theme
     exiftool
+    nodejs
 )
 
 flatpak_apps=(

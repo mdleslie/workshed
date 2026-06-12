@@ -91,6 +91,8 @@ deb_packages=(
     org.gnome.DejaDup
     tldr
     bacula-console-qt
+    exiftool
+    nodejs
 )
 
 flatpak_apps=(
