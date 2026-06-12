@@ -71,7 +71,7 @@ alias catt='cat | lolcat'
 alias store='arkive_files.sh'
 
 # ─── MEDIA & SERVER ───
-alias yt='yt-dlp --cookies-from-browser firefox --js-runtimes nodejs --remote-components ejs:github'
+alias yt='yt-dlp --cookies-from-browser firefox --js-runtimes node --remote-components ejs:github'
 
 # Docker Shortcuts (For Arr Stack)
 alias dps='docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"'
