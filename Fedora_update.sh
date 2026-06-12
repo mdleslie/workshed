@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o pipefail # REQUIRED: Ensures failed updates aren't masked by 'tee'
 
 START_TIME=$SECONDS
 
@@ -31,11 +32,14 @@ run_update() {
     local cmd=$2
     log_and_display INFO "Starting $name updates..."
     
-    if eval "$cmd" 2>&1 | tee -a "$log_file" | tee -a "$update_summary"; then
+    # FIX: Raw output goes ONLY to the log file. Summary file gets a clean status.
+    if eval "$cmd" 2>&1 | tee -a "$log_file"; then
         log_and_display INFO "$name updates completed successfully."
+        echo "✅ $name: SUCCESS" >> "$update_summary"
     else
         log_and_display ERROR "$name updates failed."
         FAILED_MANAGERS+=("$name")
+        echo "❌ $name: FAILED" >> "$update_summary"
     fi
     sleep $SLEEP
 }
@@ -49,7 +53,8 @@ if [ -f /var/run/reboot-required ]; then
 fi
 
 # 2. Disk Space Check (Btrfs-safe version)
-available_space_kb=$(df --output=avail $HOME | tail -1)
+# FIX: explicitly check the root (/) partition instead of $HOME
+available_space_kb=$(df --output=avail / | tail -1)
 
 # Convert KB to GB (Btrfs reports in 1K blocks by default here)
 available_space_gb=$(echo "scale=2; $available_space_kb / 1024 / 1024" | bc)
@@ -63,7 +68,9 @@ fi
 log_and_display INFO "Refreshing sudo credentials..."
 sudo -v || { log_and_display ERROR "Sudo failed. Exiting."; exit 1; }
 
-# --- Update Execution ---
+#####
+#Update Execution 
+#####
 
 # 1. System Repos (DNF)
 run_update "DNF (System)" "sudo dnf upgrade --refresh -y"
@@ -106,10 +113,6 @@ sudo dnf clean packages -y 2>&1 | tee -a "$log_file"
 # Firmware
 log_and_display INFO "Checking for Firmware Updates..."
 sudo fwupdmgr get-updates -y && sudo fwupdmgr update -y
-
-# COSMIC/RPM check
-log_and_display INFO "Logging installed COSMIC components..."
-rpm -qa | grep cosmic >> "$update_summary"
 
 # --- Finalization ---
 TOTAL_SECONDS=$((SECONDS - START_TIME))
