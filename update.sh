@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o pipefail # REQUIRED: Ensures failed updates aren't masked by 'tee'
 
 START_TIME=$SECONDS
 SLEEP=1 
@@ -32,11 +33,14 @@ run_update() {
     local cmd=$2
     log_and_display INFO "Starting $name..."
     
-    if eval "$cmd" 2>&1 | tee -a "$log_file" | tee -a "$update_summary"; then
+    # FIX: Raw output goes ONLY to the log file. Summary file gets a clean status.
+    if eval "$cmd" 2>&1 | tee -a "$log_file"; then
         log_and_display INFO "$name completed successfully."
+        echo "✅ $name: SUCCESS" >> "$update_summary"
     else
         log_and_display ERROR "$name failed."
         FAILED_MANAGERS+=("$name")
+        echo "❌ $name: FAILED" >> "$update_summary"
     fi
     sleep "$SLEEP"
 }
@@ -53,9 +57,10 @@ log_and_display INFO "Refreshing sudo credentials..."
 sudo -v || { log_and_display ERROR "Sudo failed. Exiting."; exit 1; }
 
 # Disk Space Check
-available_space_gb=$(df "$HOME" --output=avail -BG | tail -1 | sed 's/[^0-9]//g')
+# FIX: explicitly check the root (/) partition instead of $HOME
+available_space_gb=$(df "/" --output=avail -BG | tail -1 | sed 's/[^0-9]//g')
 if [ "$available_space_gb" -lt 5 ]; then
-    log_and_display WARNING "Less than 5GB free ($available_space_gb GB). Clean up disk space!"
+    log_and_display WARNING "Less than 5GB free ($available_space_gb GB) on root. Clean up disk space!"
     exit 1
 fi
 
