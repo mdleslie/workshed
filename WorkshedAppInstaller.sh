@@ -464,9 +464,6 @@ log INFO "Installation summary saved to $update_summary"
 display $GREEN "Script complete. Installation summary saved to $update_summary"
 sleep 5s
 
-# Ensure the script session knows where Bun is for the next steps
-export PATH="$TARGET_HOME/.bun/bin:$PATH"
-
 display $BLUE "Shop smart. Shop S-Mart."
 
 echo '########################################' | lolcat
