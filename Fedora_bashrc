@@ -61,7 +61,7 @@ alias cpv='rsync -avh --info=progress2'
 alias usage='ncdu'          
 alias pydf='pydf'            
 alias catt='cat | lolcat'   
-alias store='arkive_files.sh'
+alias store='command time -v arkive_files.sh'
 
 # ─── MEDIA & SERVER ───
 alias yt='yt-dlp --cookies-from-browser firefox --js-runtimes node --remote-components ejs:github'
