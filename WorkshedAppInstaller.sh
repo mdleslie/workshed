@@ -193,26 +193,22 @@ log INFO "Preconfiguring Microsoft fonts and libdvd-pkg"
 display $GREEN "Installing Microsoft fonts and libdvd – safe mode, po!"
 
 # 1. PURGE
-sudo apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
+sudo DEBIAN_FRONTEND=noninteractive apt-get purge -y libdvd-pkg ttf-mscorefonts-installer 2>/dev/null || true
 
-# 2. PRE-SEED 
+# 2. PRE-SEED
 sudo debconf-set-selections <<EOF
 ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true
-libdvd-pkg libdvd-pkg/first-install boolean true
+libdvd-pkg libdvd-pkg/build boolean true
 libdvd-pkg libdvd-pkg/post-invoke_hook-install boolean true
+libdvd-pkg libdvd-pkg/first-install note
+libdvd-pkg libdvd-pkg/upgrade note
 EOF
 
-# 3. INSTALL (Global Export + sudo -E)
-export DEBIAN_FRONTEND=noninteractive
-sudo -E apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
+# 3. INSTALL (Inline ENV assignment is bulletproof)
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 4. BUILD & CONFIGURE
-sudo -E bash /usr/lib/libdvd-pkg/b-i_libdvdcss.sh <<EOF
-y
-y
-EOF
-
-unset DEBIAN_FRONTEND
+# 4. BUILD & CONFIGURE (Using the native reconfigure tool)
+sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive libdvd-pkg
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
 echo '########################################' | lolcat
