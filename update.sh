@@ -96,8 +96,12 @@ log_and_display INFO "Logging COSMIC Component Versions..."
 dpkg -l | grep cosmic | awk '{print $2, $3}' >> "$update_summary"
 
 log_and_display INFO "Checking for Firmware Updates..."
-# Non-interactive firmware check; note: update may require a reboot
-sudo fwupdmgr get-updates && sudo fwupdmgr update -y
+
+# 1. Update metadata
+sudo fwupdmgr refresh --force >> "$log_file" 2>&1 || true
+
+# 2. Install updates automatically, pipe 'yes' to defeat telemetry prompts, and log everything
+yes | sudo fwupdmgr update -y >> "$log_file" 2>&1 || true
 
 # --- Finalization ---
 
