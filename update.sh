@@ -67,7 +67,8 @@ fi
 # --- Update Execution ---
 
 # 1. System Repos (Nala)
-run_update "Nala (System Upgrade)" "sudo nala update && sudo nala full-upgrade -y"
+#run_update "Nala (System Upgrade)" "sudo nala update && sudo nala full-upgrade -y"
+run_update "Nala (System Upgrade)" "sudo DEBIAN_FRONTEND=noninteractive nala update && sudo DEBIAN_FRONTEND=noninteractive nala full-upgrade -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
 
 # 2. Flatpak
 run_update "Flatpak (Updates)" "flatpak update -y"
