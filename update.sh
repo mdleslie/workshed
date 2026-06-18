@@ -88,7 +88,7 @@ run_update "Flatpak Repair" "sudo flatpak repair"
 
 # Cleanup Nala and Flatpak
 log_and_display INFO "Removing orphaned packages..."
-sudo nala autoremove -y >> "$log_file" 2>&1
+sudo DEBIAN_FRONTEND=noninteractive apt-get autoremove -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold >> "$log_file" 2>&1
 flatpak uninstall --unused -y >> "$log_file" 2>&1
 
 # COSMIC & Firmware
