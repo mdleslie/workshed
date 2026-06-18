@@ -147,12 +147,11 @@ cache_sudo() { sudo -v; (while :; do sudo -n true; sleep 60; kill -0 "$$" || exi
 
 cleanup() {
     log INFO "Running cleanup..."
-    [[ "$script_completed" != "true" ]] && [[ -f "$TARGET_HOME/.bashrc.bak" ]] && \
-        mv "$TARGET_HOME/.bashrc.bak" "$TARGET_HOME/.bashrc" && log WARNING ".bashrc reverted"
+    if [[ "$script_completed" != "true" ]] && [[ -f "$TARGET_HOME/.bashrc.bak" ]]; then
+        mv "$TARGET_HOME/.bashrc.bak" "$TARGET_HOME/.bashrc"
+        log WARNING ".bashrc reverted"
+    fi
 }
-trap 'log ERROR "Failed at line $LINENO"' ERR
-trap cleanup EXIT
-script_completed="false"
 
 # lolcat
 if ! command -v lolcat &>/dev/null; then
@@ -468,5 +467,5 @@ echo '########################################' | lolcat
 sleep 3s
 
 script_completed="true"
-read -p "Press [Enter] to exit..."
+
 exit
