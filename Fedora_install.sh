@@ -133,6 +133,8 @@ dnf_packages=(
     cosmic-icon-theme
     exiftool
     nodejs
+    mediainfo
+    mediainfo-gui
 )
 
 flatpak_apps=(
