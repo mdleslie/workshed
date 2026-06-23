@@ -93,6 +93,8 @@ deb_packages=(
     bacula-console-qt
     exiftool
     nodejs
+    mediainfo
+    mediainfo-gui
 )
 
 flatpak_apps=(
