@@ -103,7 +103,6 @@ flatpak_apps=(
     org.kde.kdenlive
     fr.handbrake.ghb
     com.obsproject.Studio
-    io.missioncenter.MissionCenter
     org.telegram.desktop
     com.bitwarden.desktop
     io.github.aandrew_me.ytdn
