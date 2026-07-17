@@ -21,10 +21,7 @@
 ###############################################################################
 
 # Enhanced Startup Greeting
-if command -v figlet &>/dev/null && command -v lolcat &>/dev/null; then
-    # -t auto-fits your terminal width
-    figlet -t -f small "Workshed" | boxes -d stone | lolcat
-fi
+date
 
 # ─── PACKAGE MANAGEMENT ───
 alias i='sudo nala install'
