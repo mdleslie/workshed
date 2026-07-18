@@ -2,7 +2,7 @@
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
 # Version: 2.0.5 FEDORA edition --Gnome DE
-# Updated: 2026-05-28 
+# Updated: 2026-07-17 
 #co-authored by Gemini
 
 set -eEuo pipefail
