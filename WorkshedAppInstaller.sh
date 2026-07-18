@@ -128,6 +128,7 @@ flatpak_apps=(
     com.yubico.yubioath
     dev.edfloreshz.CosmicTweaks
     org.upscayl.Upscayl
+    net.lutris.Lutris
     
 )
 

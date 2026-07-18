@@ -169,6 +169,7 @@ flatpak_apps=(
     com.mattjakeman.ExtensionManager
     org.upscayl.Upscayl
     org.gnome.DejaDup
+    net.lutris.Lutris
 )
 
 snap_packages=(
