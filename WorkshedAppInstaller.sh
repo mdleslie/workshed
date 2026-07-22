@@ -425,16 +425,6 @@ else
     display $RED "Could not grab the ticker config, po!"
 fi
 
-# Custom verification script
-log INFO "Downloading your custom verify.sh script"
-display $GREEN "Creating and downloading the verify.sh script."
-sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/verify.sh \
-    -o /usr/bin/verify.sh
-sudo chmod +x /usr/bin/verify.sh
-display $GREEN "verify.sh installed → just run 'verify' anytime!"
-display $GREEN "Run verify, po!"
-sleep 3s
-
 # yt-dlp (latest & greatest, via pipx)
 log INFO "Installing/upgrading yt-dlp via pipx"
 display $GREEN "Installing yt-dlp"
