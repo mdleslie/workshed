@@ -93,7 +93,6 @@ deb_packages=(
     bacula-console-qt
     exiftool
     nodejs
-    mediainfo
     mediainfo-gui
 )
 
@@ -169,6 +168,7 @@ cache_sudo
 log INFO "Adding Fastfetch PPA"
 display $GREEN "Adding Fastfetch PPA..."
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+sudo apt update
 ##############################
 
 # System update + Nala
