@@ -4,7 +4,7 @@
 ####################################################################################################
 
 #nfs mount command
-#192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
+192.168.1.150:/volume1/Arkive_Share /mnt/Arkive nfs defaults,_netdev,noatime,vers=3,hard,x-systemd.automount,x-systemd.idle-timeout=600 0 0
 
 
 192.168.1.233:/mnt/user/data /mnt/data nfs rw,noatime,vers=4.2,rsize=1048576,wsize=1048576,async,hard,noresvport,_netdev,x-systemd.automount,x-systemd.idle-timeout=600 0 0
@@ -13,7 +13,6 @@
 # Entry for LandingDrive (ext4)
 UUID=0aa3960d-1ac5-4977-8bb8-800b1dae812c  /mnt/LandingDrive  ext4  defaults,noatime  0  2
 
-# Entry for EXT_4TB (ext4)
-#UUID=dcc3338f-0a44-46cf-be6e-6daaf0d89888  /mnt/EXT_4TB  ext4  defaults,nofail  0  2
+
 
 
