@@ -365,6 +365,12 @@ echo -e "\n# ── Workshed aliases loaded – po! ──" >> "$TARGET_HOME/.ba
 display $GREEN "Aliases added! Open a new terminal or run 'source ~/.bashrc'"
 sleep 2s
 
+# Mount folders for Unraid Server
+log INFO "Adding folders to /mnt"
+display $BLUE "Adding folders to /mnt."
+sudo mkdir -p /mnt/data
+sudo mkdir -p /mnt/repo
+
 # NFS mounts for Arkive
 log INFO "Adding NFS mounts to /etc/fstab"
 display $BLUE "Modifying fstab file to include NFS mount to Arkive."
@@ -426,7 +432,7 @@ sudo curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/ver
     -o /usr/bin/verify.sh
 sudo chmod +x /usr/bin/verify.sh
 display $GREEN "verify.sh installed → just run 'verify' anytime!"
-display $GREEN "Trust but verify, po!"
+display $GREEN "Run verify, po!"
 sleep 3s
 
 # yt-dlp (latest & greatest, via pipx)
