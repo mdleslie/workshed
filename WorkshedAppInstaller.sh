@@ -1,12 +1,15 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 1.0.9 Nemophila edition with Snaps support added.
+# Version: 1.0.10 Nemophila edition with Snaps support added.
 # Updated: 2026-07-21
 # co-authored by Gemini
 
 set -eEuo pipefail
 IFS=$'\n\t'
+
+# Initialize completed status flag
+script_completed="false"
 
 ##############################
 # Configuration & Variables
@@ -125,7 +128,6 @@ flatpak_apps=(
     dev.edfloreshz.CosmicTweaks
     org.upscayl.Upscayl
     net.lutris.Lutris
-    
 )
 
 snap_packages=(
@@ -146,11 +148,14 @@ cleanup() {
     log INFO "Running cleanup..."
     if [[ "$script_completed" != "true" ]] && [[ -f "$TARGET_HOME/.bashrc.bak" ]]; then
         mv "$TARGET_HOME/.bashrc.bak" "$TARGET_HOME/.bashrc"
-        log WARNING ".bashrc reverted"
+        log WARNING ".bashrc reverted due to incomplete setup"
     fi
 }
 
-# lolcat
+# Attach EXIT trap so cleanup triggers automatically if script fails
+trap cleanup EXIT
+
+# lolcat check/installation
 if ! command -v lolcat &>/dev/null; then
     log INFO "Installing lolcat – aesthetics matter, po!"
     sudo apt update && sudo apt install -y lolcat
@@ -168,10 +173,10 @@ cache_sudo
 log INFO "Adding Fastfetch PPA"
 display $GREEN "Adding Fastfetch PPA..."
 sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
-sudo apt update
-##############################
 
+##############################
 # System update + Nala
+##############################
 log INFO "Updating system + installing Nala"
 display $GREEN "Updating and upgrading..."
 sudo apt update && sudo apt upgrade -y
@@ -201,10 +206,10 @@ libdvd-pkg libdvd-pkg/first-install note
 libdvd-pkg libdvd-pkg/upgrade note
 EOF
 
-# 3. INSTALL (Inline ENV assignment is bulletproof)
+# 3. INSTALL
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq ttf-mscorefonts-installer libdvd-pkg
 
-# 4. BUILD & CONFIGURE (Using the native reconfigure tool)
+# 4. BUILD & CONFIGURE
 sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive libdvd-pkg
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
@@ -237,9 +242,9 @@ fi
 # 2. Remove conflicting 'user' remote so the system one takes priority
 flatpak remote-delete --user flathub 2>/dev/null || true
 
-# 3. Add Remote (System-Wide)
-# FIX: Added 'sudo' here to prevent the PolicyKit password popup window!
+# 3. Add Remote (System-Wide) & refresh AppStream data
 sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+sudo flatpak update --appstream || true
 
 # 4. Install Loop
 for app in "${flatpak_apps[@]}"; do
@@ -247,7 +252,6 @@ for app in "${flatpak_apps[@]}"; do
         log INFO "$app → already installed"
     else
         log INFO "Installing Flatpak → $app"
-        # We use 'sudo' here to install system-wide without prompts
         if sudo flatpak install --system -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
              installed_flatpak_apps+=("$app")
              log INFO "$app installed successfully"
@@ -273,7 +277,7 @@ fi
 # 2. Start and enable the service immediately
 sudo systemctl enable --now snapd.socket
 
-# 3. Install the core snap and snapd (Required for many apps to function)
+# 3. Install the core snap and snapd
 log INFO "Installing Snapd..."
 sudo snap install snapd
 
@@ -308,7 +312,6 @@ sleep 3s
 
 display $GREEN "Configuring log rotation for Arkive logs..."
 
-# 1. DEFINE the variable (This was missing!)
 LOG_DIR="$TARGET_HOME/logs"
 
 # Ensure the log directory exists with correct permissions
@@ -316,7 +319,6 @@ mkdir -p "$LOG_DIR"
 chown "$TARGET_USER:$TARGET_USER" "$LOG_DIR"
 
 # Create the logrotate config file
-# We use variables inside the config so it adapts to any user
 cat << EOF | sudo tee /etc/logrotate.d/arkive_files > /dev/null
 ${log_file} {
     su $TARGET_USER $TARGET_USER
@@ -386,13 +388,13 @@ sleep 2s
 # Band Maid fastfetch logo 
 log INFO "Downloading an impossibly hard rocking maid logo, po."
 display $GREEN "Adding new logo for fastfetch. An impossibly hard rocking maid logo, po."
-sleep 5s
+sleep 3s
 mkdir -p "$TARGET_HOME/.local/share/fastfetch/logos"
 curl -fsSL https://raw.githubusercontent.com/mdleslie/workshed/workshed/maid \
     -o "$TARGET_HOME/.local/share/fastfetch/logos/maid"
 
 display $GREEN "Band Maid logo installed – po!"
-sleep 3s
+sleep 2s
 
 ##############################
 # Ticker Configuration (Snap Mode)
@@ -400,24 +402,18 @@ sleep 3s
 log INFO "Configuring Ticker watchlist for $TARGET_USER"
 display $GREEN "Setting up Ticker watchlist... tracking the gains, po!"
 
-# Ensure the full path exists and is owned by the user BEFORE download
 TICKER_SNAP_DIR="$TARGET_HOME/snap/ticker/common"
 mkdir -p "$TICKER_SNAP_DIR"
 chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/snap"
 
-# Download your config from GitHub
 TICKER_CONFIG_URL="https://raw.githubusercontent.com/mdleslie/workshed/workshed/ticker.yaml"
 
 if curl -fsSL "$TICKER_CONFIG_URL" -o "$TICKER_SNAP_DIR/ticker.yaml"; then
     log INFO "Ticker config downloaded to Snap directory"
     
-    # Create a symlink so standard binaries can see it too
     ln -sf "$TICKER_SNAP_DIR/ticker.yaml" "$TARGET_HOME/.ticker.yaml"
-    
-    # Set ownership on the symlink specifically
     chown -h "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.ticker.yaml"
 
-    # Connect the Snap home interface (Critical for config access)
     sudo snap connect ticker:home || true
     log INFO "Ticker Snap connected to home interface"
 else
@@ -425,7 +421,7 @@ else
     display $RED "Could not grab the ticker config, po!"
 fi
 
-# yt-dlp (latest & greatest, via pipx)
+# yt-dlp (via pipx)
 log INFO "Installing/upgrading yt-dlp via pipx"
 display $GREEN "Installing yt-dlp"
 
@@ -433,11 +429,11 @@ if ! command -v pipx &>/dev/null; then
     sudo nala install -y pipx
 fi
 
-# Make sure pipx is in PATH for this session
 export PATH="$TARGET_HOME/.local/bin:$PATH"
+pipx ensurepath --force >/dev/null 2>&1 || true
 
 pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
-display $GREEN "yt-dlp is now fully up to date → $(yt-dlp --version)"
+display $GREEN "yt-dlp is now fully up to date!"
 sleep 2s
 
 # Final report
@@ -451,7 +447,7 @@ printf '%s\n' "${installed_snap_packages[@]}" >> "$update_summary"
 log INFO "Installation summary saved to $update_summary"
 
 display $GREEN "Script complete. Installation summary saved to $update_summary"
-sleep 5s
+sleep 3s
 
 display $BLUE "Shop smart. Shop S-Mart."
 
@@ -462,4 +458,4 @@ sleep 3s
 
 script_completed="true"
 
-exit
+exit 0
