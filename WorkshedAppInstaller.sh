@@ -2,7 +2,7 @@
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
 # Version: 1.0.9 Nemophila edition with Snaps support added.
-# Updated: 2026-075-17
+# Updated: 2026-07-21
 # co-authored by Gemini
 
 set -eEuo pipefail
@@ -115,13 +115,10 @@ flatpak_apps=(
     com.google.Chrome
     io.github.flattool.Warehouse
     com.discordapp.Discord
-    com.github.taiko2k.tauonmb
     org.inkscape.Inkscape
     com.github.unrud.VideoDownloader
     app.zen_browser.zen
     it.mijorus.gearlever
-    io.github.seadve.Kooha
-    no.mifi.losslesscut
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
     io.github.cosmic_utils.camera
@@ -133,7 +130,6 @@ flatpak_apps=(
 )
 
 snap_packages=(
-    upnote
     lunatask
     spotify
     ticker
