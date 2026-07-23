@@ -27,6 +27,14 @@ log_and_display() {
     logger -p user.$level "$2"
 }
 
+# Keep sudo alive for the whole script (long-running steps can otherwise
+# let the sudo timestamp expire, causing an unexpected password prompt mid-run)
+cache_sudo() {
+    sudo -v
+    (while true; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done) 2>/dev/null &
+    SUDO_KEEPALIVE_PID=$!
+}
+
 # Wrapper function for error handling
 run_update() {
     local name=$1
@@ -55,6 +63,7 @@ fi
 # Sudo Refresh - Do this BEFORE disk check in case df needs elevated perms on some systems
 log_and_display INFO "Refreshing sudo credentials..."
 sudo -v || { log_and_display ERROR "Sudo failed. Exiting."; exit 1; }
+cache_sudo
 
 # Disk Space Check
 # FIX: explicitly check the root (/) partition instead of $HOME
@@ -80,19 +89,49 @@ run_update "Snap (Refresh)" "sudo snap refresh"
 # 4. Pipx
 run_update "Pipx (Apps)" "pipx upgrade-all"
 
+# 5. Pop!_OS Release Check
+# NOTE: Deliberately a check-only step, not an auto-upgrade. A release upgrade
+# (e.g. 24.04 -> 26.04) changes kernel/drivers and requires a reboot + manual
+# confirmation, so it shouldn't run unattended inside a routine update script.
+#
+# We do NOT try to grep/parse the output for a verdict — `pop-upgrade release
+# check` doesn't print a clean, consistent "available/not available" line, so
+# pattern-matching it risks a silent false negative (the script says nothing
+# even when an upgrade IS available). Instead, log the raw output every time
+# so it's always visible in the summary and log file for a human to read.
+if command -v pop-upgrade &> /dev/null; then
+    log_and_display INFO "Checking for Pop!_OS release upgrade..."
+    release_check_output=$(sudo pop-upgrade release check 2>&1)
+    echo "$release_check_output" >> "$log_file"
+    echo "--- Pop!_OS Release Check ---" >> "$update_summary"
+    echo "$release_check_output" >> "$update_summary"
+else
+    log_and_display WARNING "pop-upgrade not found — skipping OS release check."
+fi
+
 # --- Maintenance & Cleanup ---
 log_and_display INFO "Running system maintenance..."
 
-# Repair Flatpaks
-run_update "Flatpak Repair" "sudo flatpak repair"
+# Repair Flatpaks (only if the flatpak update above actually failed —
+# 'repair' is for fixing corruption, not routine maintenance)
+if [[ " ${FAILED_MANAGERS[*]} " == *" Flatpak (Updates) "* ]]; then
+    run_update "Flatpak Repair" "sudo flatpak repair"
+else
+    log_and_display INFO "Skipping Flatpak repair (no failure detected)."
+fi
 
 # Cleanup Nala and Flatpak
 log_and_display INFO "Removing orphaned packages..."
 sudo DEBIAN_FRONTEND=noninteractive apt-get autoremove -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold >> "$log_file" 2>&1
 flatpak uninstall --unused -y >> "$log_file" 2>&1
 
+# Clear stale downloaded package cache (autoremove doesn't do this)
+log_and_display INFO "Clearing apt package cache..."
+sudo apt-get autoclean -y >> "$log_file" 2>&1
+
 # COSMIC & Firmware
 log_and_display INFO "Logging COSMIC Component Versions..."
+echo "--- COSMIC Package Versions ---" >> "$update_summary"
 dpkg -l | grep cosmic | awk '{print $2, $3}' >> "$update_summary"
 
 log_and_display INFO "Checking for Firmware Updates..."
@@ -118,3 +157,6 @@ else
     log_and_display ERROR "The following managers failed: ${FAILED_MANAGERS[*]}"
     echo "$now - Failed: ${FAILED_MANAGERS[*]} (Duration: $ELAPSED_TIME)" >> "$HOME/logs/update_audit.txt"
 fi
+
+# Stop the background sudo keepalive loop now that we're done
+[ -n "${SUDO_KEEPALIVE_PID:-}" ] && kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
