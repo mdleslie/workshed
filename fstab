@@ -11,7 +11,7 @@
 192.168.1.233:/mnt/user/repo /mnt/repo nfs rw,noatime,vers=4.2,rsize=1048576,wsize=1048576,async,hard,noresvport,_netdev,x-systemd.automount,x-systemd.idle-timeout=600 0 0
 
 # Entry for LandingDrive (ext4)
-UUID=0aa3960d-1ac5-4977-8bb8-800b1dae812c  /mnt/LandingDrive  ext4  defaults,noatime  0  2
+UUID=85c201f7-5af9-4d88-af3f-303869785eb9  /mnt/LandingDrive  ext4  defaults,noatime  0  2
 
 
 
