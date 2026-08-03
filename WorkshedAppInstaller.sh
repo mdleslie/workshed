@@ -97,6 +97,7 @@ deb_packages=(
     exiftool
     nodejs
     mediainfo-gui
+    nodejs
 )
 
 flatpak_apps=(
@@ -421,33 +422,28 @@ else
     display $RED "Could not grab the ticker config, po!"
 fi
 
-# yt-dlp (via pipx)
-log INFO "Installing/upgrading yt-dlp via pipx"
-display $GREEN "Installing yt-dlp"
+# yt-dlp & Bun setup
+log INFO "Installing Bun JS runtime and yt-dlp via pipx"
+display $GREEN "Installing Bun and yt-dlp"
 
+# 1. Install Bun (The faster JS engine yt-dlp needs)
+curl -fsSL https://bun.sh/install | bash
+
+# 2. Ensure pipx is installed
 if ! command -v pipx &>/dev/null; then
     sudo nala install -y pipx
 fi
 
+# 3. Setup paths and install yt-dlp
 export PATH="$TARGET_HOME/.local/bin:$PATH"
 pipx ensurepath --force >/dev/null 2>&1 || true
-
 pipx install yt-dlp >/dev/null 2>&1 || pipx upgrade yt-dlp >/dev/null 2>&1
-display $GREEN "yt-dlp is now fully up to date!"
+
+# 4. INJECT the YouTube challenge solvers (Crucial!)
+pipx inject yt-dlp yt-dlp-ejs >/dev/null 2>&1 || true
+
+display $GREEN "yt-dlp, Bun, and EJS solvers are now fully configured!"
 sleep 2s
-
-# Final report
-printf "Installed deb packages: %s\n" "${#installed_deb_packages[@]}" >> "$update_summary"
-printf '%s\n' "${installed_deb_packages[@]}" >> "$update_summary"
-printf "Installed Flatpak apps: %s\n" "${#installed_flatpak_apps[@]}" >> "$update_summary"
-printf '%s\n' "${installed_flatpak_apps[@]}" >> "$update_summary"
-printf "Installed Snap packages: %s\n" "${#installed_snap_packages[@]}" >> "$update_summary"
-printf '%s\n' "${installed_snap_packages[@]}" >> "$update_summary"
-
-log INFO "Installation summary saved to $update_summary"
-
-display $GREEN "Script complete. Installation summary saved to $update_summary"
-sleep 3s
 
 display $BLUE "Shop smart. Shop S-Mart."
 
