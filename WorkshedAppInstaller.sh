@@ -91,7 +91,6 @@ deb_packages=(
     yubikey-manager
     fido2-tools
     smartmontools
-    org.gnome.DejaDup
     tldr
     bacula-console-qt
     exiftool
@@ -129,6 +128,7 @@ flatpak_apps=(
     dev.edfloreshz.CosmicTweaks
     org.upscayl.Upscayl
     net.lutris.Lutris
+    org.gnome.DejaDup
 )
 
 snap_packages=(
