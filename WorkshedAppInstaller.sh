@@ -119,7 +119,6 @@ flatpak_apps=(
     com.discordapp.Discord
     org.inkscape.Inkscape
     com.github.unrud.VideoDownloader
-    app.zen_browser.zen
     it.mijorus.gearlever
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
