@@ -159,7 +159,6 @@ flatpak_apps=(
     com.github.taiko2k.tauonmb
     org.inkscape.Inkscape
     com.github.unrud.VideoDownloader
-    app.zen_browser.zen
     it.mijorus.gearlever
     io.github.seadve.Kooha
     no.mifi.losslesscut
