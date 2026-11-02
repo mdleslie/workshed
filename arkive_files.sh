@@ -2,8 +2,8 @@
 
 # --- CONFIGURATION ---
 SOURCE_DIR="/mnt/LandingDrive/Drop Folder"
-DEST_DIR="/mnt/Merlin/dest_vault/Temp"  # Verified: Manual mount point
-LOGDIR="/home/david/logs/arkive"   # Consolidated with system logs
+DEST_DIR="/mnt/repo/Vault/Temp"  
+LOGDIR="/home/david/logs/arkive"   
 LOGFILE="$LOGDIR/move_logs.log"
 
 # --- PRE-FLIGHT ---
