@@ -8,7 +8,7 @@ Fedora_Install.sh for Fedora installs.
 The script can be run via a curl command.
 
 
-### Curl command to run Ubuntu Based App download script:
+### Curl command to run Pop OS (Ubuntu Based) App download script:
 
 
 `curl -s https://raw.githubusercontent.com/mdleslie/workshed/workshed/WorkshedAppInstaller.sh | bash`
