@@ -122,11 +122,6 @@ dnf_packages=(
     btrfs-assistant
     btrbk 
     snapper
-    gnome-tweaks
-    gnome-extensions-app
-    dconf-editor
-    gnome-themes-extra
-    nautilus-python
     tldr
     bat
     mscore-fonts-all
@@ -160,14 +155,11 @@ flatpak_apps=(
     org.inkscape.Inkscape
     com.github.unrud.VideoDownloader
     it.mijorus.gearlever
-    io.github.seadve.Kooha
     no.mifi.losslesscut
     eu.betterbird.Betterbird
     tv.plex.PlexDesktop
     com.yubico.yubioath
-    com.mattjakeman.ExtensionManager
     org.upscayl.Upscayl
-    org.gnome.DejaDup
     net.lutris.Lutris
 )
 
