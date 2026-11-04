@@ -120,7 +120,7 @@ dnf_packages=(
     google-noto-serif-fonts
     liberation-fonts
     btrfs-assistant
-    btrbk 
+    btrbk
     snapper
     tldr
     bat
