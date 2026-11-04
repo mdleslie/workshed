@@ -1,9 +1,9 @@
 #!/bin/bash
 # Fedora Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 2.0.5 FEDORA edition --Gnome DE
-# Updated: 2026-07-17 
-#co-authored by Gemini
+# Version: 2.0.5 FEDORA edition --Cosmic Spin
+# Updated: 2026-11-03
+#co-authored by Grok
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -130,6 +130,19 @@ dnf_packages=(
     nodejs
     mediainfo
     mediainfo-gui
+    cosmic-settings
+    cosmic-applets
+    cosmic-panel
+    cosmic-launcher
+    cosmic-files
+    cosmic-edit
+    cosmic-term
+    cosmic-player
+    cosmic-store
+    cosmic-screenshot
+    cosmic-randr
+    xdg-desktop-portal-cosmic
+    pam_oo7
 )
 
 flatpak_apps=(
