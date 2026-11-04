@@ -3,7 +3,7 @@
 # Author: workshed (@mdleslie) 
 # Version: 2.0.5 FEDORA edition --Cosmic Spin
 # Updated: 2026-11-03
-#co-authored by Grok
+# co-authored by Grok
 
 set -eEuo pipefail
 IFS=$'\n\t'
@@ -128,7 +128,6 @@ dnf_packages=(
     cosmic-icon-theme
     exiftool
     nodejs
-    mediainfo
     mediainfo-gui
     cosmic-settings
     cosmic-applets
