@@ -391,10 +391,10 @@ sync
 sleep 5s
 
 # Check for firmware updates
-log INFO "Checking for Firmware Updates."
-fwupdmgr refresh && fwupdmgr get-updates
+#log INFO "Checking for Firmware Updates."
+#fwupdmgr refresh && fwupdmgr get-updates
 
-fwupdmgr update
+#fwupdmgr update
 
 # Pipx + yt-dlp
 log INFO "Installing Pipx and yt-dlp"
