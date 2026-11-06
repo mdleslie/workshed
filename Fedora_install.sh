@@ -349,10 +349,10 @@ sudo chmod +x /usr/bin/arkive_files.sh
 sudo ln -sf /usr/bin/arkive_files.sh /usr/bin/store
 
 # 3. Custom verification script
-log INFO "Downloading custom verify.sh script"
-sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/verify.sh" -o /usr/bin/verify.sh
-sudo chmod +x /usr/bin/verify.sh
-sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
+#log INFO "Downloading custom verify.sh script"
+#sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/verify.sh" -o /usr/bin/verify.sh
+#sudo chmod +x /usr/bin/verify.sh
+#sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
 
 # 4. Bash aliases (Fedora/Ultramarine optimized)
 log INFO "Adding Workshed bash aliases"
