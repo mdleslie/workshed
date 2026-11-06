@@ -78,14 +78,11 @@ dnf_packages=(
     gstreamer1-libav
     nfs-utils
     cifs-utils
-    gamemode
-    steam
     cpu-x
     python3
     python3-pip
     figlet
     google-inter-fonts
-    mangohud
     ncdu
     ffmpegthumbnailer
     bind-utils
@@ -150,7 +147,6 @@ flatpak_apps=(
     org.kde.kdenlive
     fr.handbrake.ghb
     com.obsproject.Studio
-    io.missioncenter.MissionCenter
     org.telegram.desktop
     com.bitwarden.desktop
     io.github.aandrew_me.ytdn
@@ -159,12 +155,9 @@ flatpak_apps=(
     com.github.tchx84.Flatseal
     net.davidotek.pupgui2
     com.vscodium.codium
-    org.darktable.Darktable
     com.google.Chrome
     io.github.flattool.Warehouse
     com.discordapp.Discord
-    com.github.taiko2k.tauonmb
-    org.inkscape.Inkscape
     com.github.unrud.VideoDownloader
     it.mijorus.gearlever
     no.mifi.losslesscut
@@ -172,7 +165,6 @@ flatpak_apps=(
     tv.plex.PlexDesktop
     com.yubico.yubioath
     org.upscayl.Upscayl
-    net.lutris.Lutris
 )
 
 snap_packages=(
