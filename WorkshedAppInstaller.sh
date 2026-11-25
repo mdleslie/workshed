@@ -136,7 +136,6 @@ flatpak_apps=(
     com.yubico.yubioath
     dev.edfloreshz.CosmicTweaks
     org.upscayl.Upscayl
-    org.gnome.DejaDup
     # Gaming packages
     net.lutris.Lutris
     net.davidotek.pupgui2
