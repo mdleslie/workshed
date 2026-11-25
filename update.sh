@@ -24,15 +24,15 @@ log_and_display() {
     # Note: Ensure lolcat is installed or this will fail
     echo "$message" | lolcat 2>/dev/null || echo "$message"
     echo "$message" >> "$log_file"
-    logger -p user.$level "$2"
+    logger -p "user.${level,,}" "$2"
 }
 
 # Keep sudo alive for the whole script (long-running steps can otherwise
 # let the sudo timestamp expire, causing an unexpected password prompt mid-run)
 cache_sudo() {
-    sudo -v
     (while true; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done) 2>/dev/null &
     SUDO_KEEPALIVE_PID=$!
+    trap '[ -n "${SUDO_KEEPALIVE_PID:-}" ] && kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
 }
 
 # Wrapper function for error handling
@@ -68,8 +68,8 @@ cache_sudo
 # Disk Space Check
 # FIX: explicitly check the root (/) partition instead of $HOME
 available_space_gb=$(df "/" --output=avail -BG | tail -1 | sed 's/[^0-9]//g')
-if [ "$available_space_gb" -lt 5 ]; then
-    log_and_display WARNING "Less than 5GB free ($available_space_gb GB) on root. Clean up disk space!"
+if [ "$available_space_gb" -lt 15 ]; then
+    log_and_display WARNING "Less than 15GB free ($available_space_gb GB) on root. Clean up disk space!"
     exit 1
 fi
 
@@ -101,8 +101,12 @@ run_update "Pipx (Apps)" "pipx upgrade-all"
 # so it's always visible in the summary and log file for a human to read.
 if command -v pop-upgrade &> /dev/null; then
     log_and_display INFO "Checking for Pop!_OS release upgrade..."
-    release_check_output=$(sudo pop-upgrade release check 2>&1)
+    release_check_output=$(pop-upgrade release check 2>&1)
+    if grep -q "New version available: true" <<< "$release_check_output"; then
+    log_and_display INFO "Pop!_OS 26.04 LTS release upgrade is now available!"
+fi
     echo "$release_check_output" >> "$log_file"
+    echo "$release_check_output"
     echo "--- Pop!_OS Release Check ---" >> "$update_summary"
     echo "$release_check_output" >> "$update_summary"
 else
@@ -158,5 +162,3 @@ else
     echo "$now - Failed: ${FAILED_MANAGERS[*]} (Duration: $ELAPSED_TIME)" >> "$HOME/logs/update_audit.txt"
 fi
 
-# Stop the background sudo keepalive loop now that we're done
-[ -n "${SUDO_KEEPALIVE_PID:-}" ] && kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
