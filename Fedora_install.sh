@@ -78,14 +78,11 @@ dnf_packages=(
     gstreamer1-libav
     nfs-utils
     cifs-utils
-    gamemode
-    steam
     cpu-x
     python3
     python3-pip
     figlet
     google-inter-fonts
-    mangohud
     ncdu
     ffmpegthumbnailer
     bind-utils
@@ -150,7 +147,6 @@ flatpak_apps=(
     org.kde.kdenlive
     fr.handbrake.ghb
     com.obsproject.Studio
-    io.missioncenter.MissionCenter
     org.telegram.desktop
     com.bitwarden.desktop
     io.github.aandrew_me.ytdn
@@ -159,12 +155,9 @@ flatpak_apps=(
     com.github.tchx84.Flatseal
     net.davidotek.pupgui2
     com.vscodium.codium
-    org.darktable.Darktable
     com.google.Chrome
     io.github.flattool.Warehouse
     com.discordapp.Discord
-    com.github.taiko2k.tauonmb
-    org.inkscape.Inkscape
     com.github.unrud.VideoDownloader
     it.mijorus.gearlever
     no.mifi.losslesscut
@@ -172,7 +165,6 @@ flatpak_apps=(
     tv.plex.PlexDesktop
     com.yubico.yubioath
     org.upscayl.Upscayl
-    net.lutris.Lutris
 )
 
 snap_packages=(
@@ -349,10 +341,10 @@ sudo chmod +x /usr/bin/arkive_files.sh
 sudo ln -sf /usr/bin/arkive_files.sh /usr/bin/store
 
 # 3. Custom verification script
-log INFO "Downloading custom verify.sh script"
-sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/verify.sh" -o /usr/bin/verify.sh
-sudo chmod +x /usr/bin/verify.sh
-sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
+#log INFO "Downloading custom verify.sh script"
+#sudo curl -fsSL "https://raw.githubusercontent.com/mdleslie/workshed/workshed/verify.sh" -o /usr/bin/verify.sh
+#sudo chmod +x /usr/bin/verify.sh
+#sudo ln -sf /usr/bin/verify.sh /usr/bin/verify
 
 # 4. Bash aliases (Fedora/Ultramarine optimized)
 log INFO "Adding Workshed bash aliases"
@@ -391,10 +383,10 @@ sync
 sleep 5s
 
 # Check for firmware updates
-log INFO "Checking for Firmware Updates."
-fwupdmgr refresh && fwupdmgr get-updates
+#log INFO "Checking for Firmware Updates."
+#fwupdmgr refresh && fwupdmgr get-updates
 
-fwupdmgr update
+#fwupdmgr update
 
 # Pipx + yt-dlp
 log INFO "Installing Pipx and yt-dlp"
