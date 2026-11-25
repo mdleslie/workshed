@@ -1,8 +1,8 @@
 #!/bin/bash
 # Pop!_OS / Ubuntu Fresh Install Setup Script – 2026 Edition
 # Author: workshed (@mdleslie) 
-# Version: 1.0.10 Nemophila edition with Snaps support added.
-# Updated: 2026-07-21
+# Version: 1.0.11 Nemophila edition (Pop!_OS 26.04 LTS ready)
+# Updated: 2026-11-24
 # co-authored by Gemini
 
 set -eEuo pipefail
@@ -15,7 +15,12 @@ script_completed="false"
 # Configuration & Variables
 ##############################
 
-TARGET_USER="${SUDO_USER:-$USER}"
+if [[ $EUID -eq 0 ]]; then
+    echo "ERROR: Run this script as your regular user (without sudo). The script will prompt for sudo when needed."
+    exit 1
+fi
+
+TARGET_USER="$USER"
 TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
 [[ -z "$TARGET_HOME" || ! -d "$TARGET_HOME" ]] && { echo "ERROR: Cannot find home for $TARGET_USER"; exit 1; }
 
@@ -56,8 +61,6 @@ deb_packages=(
     libavcodec-extra
     nfs-common
     cifs-utils
-    gamemode
-    steam
     cpu-x
     python3
     figlet
@@ -96,7 +99,15 @@ deb_packages=(
     exiftool
     nodejs
     mediainfo-gui
-    nodejs
+    # Gaming packages
+    steam-installer
+    steam-devices
+    gamemode
+    mangohud
+    gamescope
+    vulkan-tools
+    mesa-vulkan-drivers
+    libvulkan1:i386
 )
 
 flatpak_apps=(
@@ -111,7 +122,6 @@ flatpak_apps=(
     org.localsend.localsend_app
     io.github.shiftey.Desktop
     com.github.tchx84.Flatseal
-    net.davidotek.pupgui2
     com.vscodium.codium
     org.darktable.Darktable
     com.google.Chrome
@@ -126,8 +136,10 @@ flatpak_apps=(
     com.yubico.yubioath
     dev.edfloreshz.CosmicTweaks
     org.upscayl.Upscayl
-    net.lutris.Lutris
     org.gnome.DejaDup
+    # Gaming packages
+    net.lutris.Lutris
+    net.davidotek.pupgui2
 )
 
 snap_packages=(
@@ -140,20 +152,52 @@ snap_packages=(
 # Core Functions 
 ##############################
 
-log() { local lvl="$1" msg="$2"; printf "[%s] [%s] %s\n" "$(date +'%Y-%m-%d %H:%M:%S')" "$lvl" "$msg" | tee -a "$log_file"; logger -p user."$lvl" "$msg"; }
-display() { echo -e "${1}${2}${NC}" | tee -a "$log_file"; command -v lolcat >/dev/null 2>&1 && [[ -t 1 ]] && echo -e "$2" | lolcat || echo -e "$2"; }
-cache_sudo() { sudo -v; (while :; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null) & }
+log() {
+    local lvl="$1" msg="$2"
+    printf "[%s] [%s] %s\n" "$(date +'%Y-%m-%d %H:%M:%S')" "$lvl" "$msg" | tee -a "$log_file"
+    logger -p "user.${lvl,,}" "$msg"
+}
+
+display() {
+    echo -e "${1}${2}${NC}" >> "$log_file"
+    if command -v lolcat >/dev/null 2>&1 && [[ -t 1 ]]; then
+        echo -e "$2" | lolcat
+    else
+        echo -e "$2"
+    fi
+}
+
+banner() {
+    local line='########################################'
+    for _ in 1 2 3; do
+        if command -v lolcat >/dev/null 2>&1 && [[ -t 1 ]]; then
+            echo "$line" | lolcat
+        else
+            echo "$line"
+        fi
+    done
+}
+
+cache_sudo() {
+    (while :; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done) 2>/dev/null &
+    SUDO_KEEPALIVE_PID=$!
+}
 
 cleanup() {
     log INFO "Running cleanup..."
+    [ -n "${SUDO_KEEPALIVE_PID:-}" ] && kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
     if [[ "$script_completed" != "true" ]] && [[ -f "$TARGET_HOME/.bashrc.bak" ]]; then
         mv "$TARGET_HOME/.bashrc.bak" "$TARGET_HOME/.bashrc"
         log WARNING ".bashrc reverted due to incomplete setup"
     fi
 }
 
-# Attach EXIT trap so cleanup triggers automatically if script fails
+# Attach EXIT trap so cleanup triggers automatically if script fails or exits
 trap cleanup EXIT
+
+# Validate sudo upfront before starting
+sudo -v || { echo "ERROR: Sudo authentication failed."; exit 1; }
+cache_sudo
 
 # lolcat check/installation
 if ! command -v lolcat &>/dev/null; then
@@ -162,30 +206,20 @@ if ! command -v lolcat &>/dev/null; then
 fi
 
 display $GREEN "Lets go, it's showtime!"
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+banner
 sleep 4s
-
-cache_sudo
-
-# Add Fastfetch PPA immediately
-log INFO "Adding Fastfetch PPA"
-display $GREEN "Adding Fastfetch PPA..."
-sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
 
 ##############################
 # System update + Nala
 ##############################
-log INFO "Updating system + installing Nala"
-display $GREEN "Updating and upgrading..."
+log INFO "Enabling i386 architecture, updating system + installing Nala"
+display $GREEN "Enabling 32-bit support, updating, and upgrading..."
+sudo dpkg --add-architecture i386
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y nala
 
 display $BLUE "Breaking new gate."
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+banner
 sleep 4s
 
 ##############################
@@ -213,7 +247,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq ttf-mscorefonts-installe
 sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive libdvd-pkg
 
 display $GREEN "Microsoft fonts + DVD playback installed perfectly – po!"
-echo '########################################' | lolcat
+echo '########################################' | lolcat 2>/dev/null || echo '########################################'
 sleep 3s
 display $GREEN "Are you a fan of delicious flavor?"
 sleep 2s
@@ -221,7 +255,7 @@ sleep 2s
 # Install deb packages
 log INFO "Installing ${#deb_packages[@]} deb packages"
 for package in "${deb_packages[@]}"; do
-    if dpkg -l 2>/dev/null | grep -q "^ii  $package "; then
+    if dpkg -l 2>/dev/null | grep -q "^ii  ${package%%:*}"; then
         log INFO "$package → already installed"
     else
         log INFO "Installing $package"
@@ -253,11 +287,11 @@ for app in "${flatpak_apps[@]}"; do
     else
         log INFO "Installing Flatpak → $app"
         if sudo flatpak install --system -y --noninteractive flathub "$app" >> "$log_file" 2>&1; then
-             installed_flatpak_apps+=("$app")
-             log INFO "$app installed successfully"
+            installed_flatpak_apps+=("$app")
+            log INFO "$app installed successfully"
         else
-             log ERROR "Failed to install $app"
-             display $RED "Failed to install $app"
+            log ERROR "Failed to install $app"
+            display $RED "Failed to install $app"
         fi
     fi
 done
@@ -274,8 +308,9 @@ if ! command -v snap &>/dev/null; then
     sudo nala install -y snapd
 fi
 
-# 2. Start and enable the service immediately
+# 2. Start and enable the service immediately and wait for seeding
 sudo systemctl enable --now snapd.socket
+sudo snap wait system seed.loaded
 
 # 3. Install the core snap and snapd
 log INFO "Installing Snapd..."
@@ -291,19 +326,17 @@ for snap_app in "${snap_packages[@]}"; do
     else
         log INFO "Installing Snap → $snap_app"
         if sudo snap install "$snap_app"; then
-             installed_snap_packages+=("$snap_app") 
-             log INFO "$snap_app installed successfully"
+            installed_snap_packages+=("$snap_app") 
+            log INFO "$snap_app installed successfully"
         else
-             log ERROR "Failed to install $snap_app"
-             display $RED "Failed to install $snap_app"
+            log ERROR "Failed to install $snap_app"
+            display $RED "Failed to install $snap_app"
         fi
     fi
 done
 
 display $GREEN "I am losing my mind."
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+banner
 sleep 3s
 
 # ---------------------------------------------------------
@@ -445,10 +478,7 @@ display $GREEN "yt-dlp, Bun, and EJS solvers are now fully configured!"
 sleep 2s
 
 display $BLUE "Shop smart. Shop S-Mart."
-
-echo '########################################' | lolcat
-echo '########################################' | lolcat
-echo '########################################' | lolcat
+banner
 sleep 3s
 
 script_completed="true"
